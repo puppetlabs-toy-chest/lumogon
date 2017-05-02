@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/puppetlabs/transparent-containers/cli/logging"
-	"github.com/puppetlabs/transparent-containers/cli/utils"
+	"github.com/puppetlabs/lumogon/logging"
+	"github.com/puppetlabs/lumogon/utils"
 )
 
 // Storage submits the captured data an appropriate destination

@@ -3,7 +3,7 @@ package cmd
 import (
 	"os"
 
-	"github.com/puppetlabs/transparent-containers/cli/logging"
+	"github.com/puppetlabs/lumogon/logging"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )

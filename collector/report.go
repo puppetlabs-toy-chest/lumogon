@@ -3,8 +3,8 @@ package collector
 import (
 	"time"
 
-	"github.com/puppetlabs/transparent-containers/cli/types"
-	"github.com/puppetlabs/transparent-containers/cli/version"
+	"github.com/puppetlabs/lumogon/types"
+	"github.com/puppetlabs/lumogon/version"
 )
 
 // NewReport gathers data from all capabilities

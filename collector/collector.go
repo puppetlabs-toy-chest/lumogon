@@ -7,12 +7,12 @@ import (
 
 	"encoding/json"
 
-	"github.com/puppetlabs/transparent-containers/cli/capabilities/registry"
-	"github.com/puppetlabs/transparent-containers/cli/logging"
-	"github.com/puppetlabs/transparent-containers/cli/storage"
-	"github.com/puppetlabs/transparent-containers/cli/types"
-	"github.com/puppetlabs/transparent-containers/cli/utils"
-	"github.com/puppetlabs/transparent-containers/cli/version"
+	"github.com/puppetlabs/lumogon/capabilities/registry"
+	"github.com/puppetlabs/lumogon/logging"
+	"github.com/puppetlabs/lumogon/storage"
+	"github.com/puppetlabs/lumogon/types"
+	"github.com/puppetlabs/lumogon/utils"
+	"github.com/puppetlabs/lumogon/version"
 )
 
 var mu sync.Mutex

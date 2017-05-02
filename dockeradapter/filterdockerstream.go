@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/puppetlabs/transparent-containers/cli/logging"
+	"github.com/puppetlabs/lumogon/logging"
 )
 
 const (

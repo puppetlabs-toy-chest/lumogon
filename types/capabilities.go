@@ -1,6 +1,6 @@
 package types
 
-import "github.com/puppetlabs/transparent-containers/cli/dockeradapter"
+import "github.com/puppetlabs/lumogon/dockeradapter"
 
 // Capability map of harvested capability data
 type Capability struct {

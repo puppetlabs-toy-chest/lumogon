@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/puppetlabs/transparent-containers/cli/capabilities"
-	"github.com/puppetlabs/transparent-containers/cli/cmd"
+	"github.com/puppetlabs/lumogon/capabilities"
+	"github.com/puppetlabs/lumogon/cmd"
 )
 
 func main() {

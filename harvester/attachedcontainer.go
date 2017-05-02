@@ -7,10 +7,10 @@ import (
 	"os"
 
 	dockercontainer "github.com/docker/docker/api/types/container"
-	"github.com/puppetlabs/transparent-containers/cli/dockeradapter"
-	"github.com/puppetlabs/transparent-containers/cli/logging"
-	"github.com/puppetlabs/transparent-containers/cli/types"
-	"github.com/puppetlabs/transparent-containers/cli/utils"
+	"github.com/puppetlabs/lumogon/dockeradapter"
+	"github.com/puppetlabs/lumogon/logging"
+	"github.com/puppetlabs/lumogon/types"
+	"github.com/puppetlabs/lumogon/utils"
 )
 
 // AttachedContainer is a container attached to a running target container

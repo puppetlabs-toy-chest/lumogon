@@ -6,10 +6,10 @@ import (
 
 	"os"
 
-	"github.com/puppetlabs/transparent-containers/cli/dockeradapter"
-	"github.com/puppetlabs/transparent-containers/cli/logging"
-	"github.com/puppetlabs/transparent-containers/cli/types"
-	"github.com/puppetlabs/transparent-containers/cli/utils"
+	"github.com/puppetlabs/lumogon/dockeradapter"
+	"github.com/puppetlabs/lumogon/logging"
+	"github.com/puppetlabs/lumogon/types"
+	"github.com/puppetlabs/lumogon/utils"
 )
 
 // CapabilitiesRegistry contains a record of each registered capability
