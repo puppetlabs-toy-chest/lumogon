@@ -1,0 +1,9 @@
+dist: trusty
+
+matrix:
+  include:
+  - go: 1.8
+    language: go
+    install: make bootstrap
+    script:
+      - make dependencies test
