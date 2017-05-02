@@ -1,4 +1,4 @@
-package: github.com/puppetlabs/transparent-containers/cli
+package: github.com/puppetlabs/lumogon
 import:
 - package: github.com/docker/docker
   subpackages:

@@ -5,7 +5,7 @@ import (
 
 	"os"
 
-	"github.com/puppetlabs/transparent-containers/cli/capabilities/registry"
+	"github.com/puppetlabs/lumogon/capabilities/registry"
 	"github.com/spf13/cobra"
 )
 

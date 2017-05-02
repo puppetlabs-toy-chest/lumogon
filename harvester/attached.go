@@ -5,10 +5,10 @@ import (
 
 	"sync"
 
-	"github.com/puppetlabs/transparent-containers/cli/dockeradapter"
-	"github.com/puppetlabs/transparent-containers/cli/harvester/rpcreceiver"
-	"github.com/puppetlabs/transparent-containers/cli/logging"
-	"github.com/puppetlabs/transparent-containers/cli/types"
+	"github.com/puppetlabs/lumogon/dockeradapter"
+	"github.com/puppetlabs/lumogon/harvester/rpcreceiver"
+	"github.com/puppetlabs/lumogon/logging"
+	"github.com/puppetlabs/lumogon/types"
 )
 
 // RunAttachedHarvester handles gathering AttachedCapabilities from the target containers.

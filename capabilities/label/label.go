@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/puppetlabs/transparent-containers/cli/capabilities/payloadfilter"
-	"github.com/puppetlabs/transparent-containers/cli/capabilities/registry"
-	"github.com/puppetlabs/transparent-containers/cli/dockeradapter"
-	"github.com/puppetlabs/transparent-containers/cli/logging"
-	"github.com/puppetlabs/transparent-containers/cli/types"
+	"github.com/puppetlabs/lumogon/capabilities/payloadfilter"
+	"github.com/puppetlabs/lumogon/capabilities/registry"
+	"github.com/puppetlabs/lumogon/dockeradapter"
+	"github.com/puppetlabs/lumogon/logging"
+	"github.com/puppetlabs/lumogon/types"
 )
 
 // Label contains a map of Docker labels

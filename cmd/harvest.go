@@ -3,11 +3,11 @@ package cmd
 import (
 	"os"
 
-	"github.com/puppetlabs/transparent-containers/cli/capabilities/registry"
-	"github.com/puppetlabs/transparent-containers/cli/harvester"
-	"github.com/puppetlabs/transparent-containers/cli/harvester/rpcreceiver"
-	"github.com/puppetlabs/transparent-containers/cli/logging"
-	"github.com/puppetlabs/transparent-containers/cli/types"
+	"github.com/puppetlabs/lumogon/capabilities/registry"
+	"github.com/puppetlabs/lumogon/harvester"
+	"github.com/puppetlabs/lumogon/harvester/rpcreceiver"
+	"github.com/puppetlabs/lumogon/logging"
+	"github.com/puppetlabs/lumogon/types"
 
 	"github.com/spf13/cobra"
 )

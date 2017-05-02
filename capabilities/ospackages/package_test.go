@@ -8,8 +8,8 @@ import (
 	"fmt"
 
 	dockertypes "github.com/docker/docker/api/types"
-	"github.com/puppetlabs/transparent-containers/cli/test/helper"
-	"github.com/puppetlabs/transparent-containers/cli/test/mocks"
+	"github.com/puppetlabs/lumogon/test/helper"
+	"github.com/puppetlabs/lumogon/test/mocks"
 )
 
 // Uses generic successful mock functions from packagehelpers_test.go

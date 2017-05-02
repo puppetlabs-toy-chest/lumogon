@@ -6,8 +6,8 @@ import (
 
 	"fmt"
 
-	"github.com/puppetlabs/transparent-containers/cli/logging"
-	"github.com/puppetlabs/transparent-containers/cli/version"
+	"github.com/puppetlabs/lumogon/logging"
+	"github.com/puppetlabs/lumogon/version"
 	"github.com/spf13/cobra"
 )
 

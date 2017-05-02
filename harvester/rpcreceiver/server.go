@@ -7,8 +7,8 @@ import (
 
 	"fmt"
 
-	"github.com/puppetlabs/transparent-containers/cli/logging"
-	"github.com/puppetlabs/transparent-containers/cli/types"
+	"github.com/puppetlabs/lumogon/logging"
+	"github.com/puppetlabs/lumogon/types"
 )
 
 // Ack contains the reponse from the RPC Receiver server

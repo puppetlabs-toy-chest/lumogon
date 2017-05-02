@@ -2,7 +2,7 @@ ifndef GOPATH
 $(error GOPATH is not set)
 endif
 
-PACKAGE_NAME = github.com/puppetlabs/transparent-containers/cli
+PACKAGE_NAME = github.com/puppetlabs/lumogon
 
 LDFLAGS += -X "$(PACKAGE_NAME)/version.BuildTime=$(shell date -u '+%Y-%m-%d %I:%M:%S %Z')"
 LDFLAGS += -X "$(PACKAGE_NAME)/version.BuildVersion=development"
