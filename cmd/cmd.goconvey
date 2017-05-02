@@ -1,0 +1,5 @@
+// Only run tests beginning with `Test_`, tests beginning with
+// `TestNoGoconvey_` for example won't be executed. This is used here
+// to skip tests reliant on being able to set -ldflags when running
+// tests (the Version related tests.)
+-run=Test_

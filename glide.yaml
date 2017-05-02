@@ -1,0 +1,13 @@
+package: github.com/puppetlabs/transparent-containers/cli
+import:
+- package: github.com/docker/docker
+  subpackages:
+  - api/types
+  - client
+- package: github.com/spf13/cobra
+- package: github.com/spf13/viper
+- package: github.com/shirou/gopsutil
+- package: github.com/satori/go.uuid
+  version: ^1.1.0
+- package: github.com/davecgh/go-spew/spew
+

@@ -1,0 +1,5 @@
+// This is used to skip all tests in this package as they are
+// reliant on being able to set -ldflags when running tests.
+// Its not currently possible to pass through this argument
+// via goconvey.
+IGNORE
