@@ -48,8 +48,8 @@ Now, at a terminal type:
 export GOPATH="${HOME}/go"
 mkdir -p ${GOPATH}/src/github.com/puppetlabs
 cd ${GOPATH}/src/github.com/puppetlabs
-git clone https://github.com/puppetlabs/transparent-containers
-cd $GOPATH/src/github.com/puppetlabs/transparent-containers/cli
+git clone https://github.com/puppetlabs/lumogon
+cd $GOPATH/src/github.com/puppetlabs/lumogon
 make all
 ```
 
@@ -159,13 +159,13 @@ reports via a URL.
 Try this:
 
 ``` shell
-docker run --rm -v /var/run/docker.sock:/var/run/docker.sock local/lumogon report --endpoint https://consumer-technodrome.tc.fryman.io/api/v1/
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock local/lumogon report --endpoint https://consumer.api.lumogon.com/api/v1/
 ```
 
 If all goes as planned, you should see a line like the following with a URL you can visit to view your results:
 
 ```
-http://reporter-technodrome.tc.fryman.io/aHrhCcXT2sJBrrewEFCGaWEYbJnqV0vQWMwzO3Dzhbc=
+http://reporter.api.lumogon.com/aHrhCcXT2sJBrrewEFCGaWEYbJnqV0vQWMwzO3Dzhbc=
 ```
 
 ### More ways to use the Lumogon client
