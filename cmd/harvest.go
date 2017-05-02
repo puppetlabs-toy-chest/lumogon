@@ -3,6 +3,7 @@ package cmd
 import (
 	"os"
 
+	"github.com/puppetlabs/lumogon/analytics"
 	"github.com/puppetlabs/lumogon/capabilities/registry"
 	"github.com/puppetlabs/lumogon/harvester"
 	"github.com/puppetlabs/lumogon/harvester/rpcreceiver"
@@ -18,6 +19,9 @@ var harvestCmd = &cobra.Command{
 	Short:  "Harvests metadata from the specified container",
 	Long:   `Harvests metadata from the specified container`,
 	Hidden: true,
+	PreRun: func(cmd *cobra.Command, args []string) {
+		analytics.MeasureUsage("harvest")
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		target := types.TargetContainer{
 			ID:   args[0],
