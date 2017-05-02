@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/puppetlabs/transparent-containers/cli/scheduler"
-	"github.com/puppetlabs/transparent-containers/cli/types"
+	"github.com/puppetlabs/lumogon/scheduler"
+	"github.com/puppetlabs/lumogon/types"
 	"github.com/spf13/cobra"
 )
 

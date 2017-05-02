@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/puppetlabs/transparent-containers/cli/test/helper"
+	"github.com/puppetlabs/lumogon/test/helper"
 )
 
 var filterDockerStreamTests = []struct {

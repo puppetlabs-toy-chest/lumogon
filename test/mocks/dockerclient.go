@@ -6,7 +6,7 @@ import (
 
 	dockertypes "github.com/docker/docker/api/types"
 	dockercontainer "github.com/docker/docker/api/types/container"
-	"github.com/puppetlabs/transparent-containers/cli/utils"
+	"github.com/puppetlabs/lumogon/utils"
 )
 
 // MockDockerClient is a mock type implementing the dockeradapter.Client interface, by default

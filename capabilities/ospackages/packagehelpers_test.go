@@ -6,7 +6,7 @@ import (
 	"context"
 
 	dockertypes "github.com/docker/docker/api/types"
-	"github.com/puppetlabs/transparent-containers/cli/test/mocks"
+	"github.com/puppetlabs/lumogon/test/mocks"
 )
 
 func successfulContainerExecCreateFn(ctx context.Context, containerID string, cmd []string, attachStdout bool, attachStderr bool) (dockertypes.IDResponse, error) {

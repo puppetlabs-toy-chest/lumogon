@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/rpc"
 
-	"github.com/puppetlabs/transparent-containers/cli/logging"
-	"github.com/puppetlabs/transparent-containers/cli/types"
+	"github.com/puppetlabs/lumogon/logging"
+	"github.com/puppetlabs/lumogon/types"
 )
 
 // SendResult submits the ContainerReport populated with the output from each

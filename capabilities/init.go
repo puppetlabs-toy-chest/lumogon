@@ -1,9 +1,9 @@
 package capabilities
 
 import (
-	"github.com/puppetlabs/transparent-containers/cli/capabilities/host"
-	"github.com/puppetlabs/transparent-containers/cli/capabilities/label"
-	"github.com/puppetlabs/transparent-containers/cli/capabilities/ospackages"
+	"github.com/puppetlabs/lumogon/capabilities/host"
+	"github.com/puppetlabs/lumogon/capabilities/label"
+	"github.com/puppetlabs/lumogon/capabilities/ospackages"
 )
 
 // Init exists to allow capabilities init() functions to run when

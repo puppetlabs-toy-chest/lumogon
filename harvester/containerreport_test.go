@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/puppetlabs/transparent-containers/cli/types"
+	"github.com/puppetlabs/lumogon/types"
 )
 
 func TestGenerateContainerReport(t *testing.T) {

@@ -5,7 +5,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/puppetlabs/transparent-containers/cli/utils"
+	"github.com/puppetlabs/lumogon/utils"
 )
 
 // MockNetConn TODO

@@ -3,8 +3,8 @@ package harvester
 import (
 	"time"
 
-	"github.com/puppetlabs/transparent-containers/cli/types"
-	"github.com/puppetlabs/transparent-containers/cli/utils"
+	"github.com/puppetlabs/lumogon/types"
+	"github.com/puppetlabs/lumogon/utils"
 )
 
 // GenerateContainerReport gathers capabilities data for a specific container

@@ -1,6 +1,6 @@
 package types
 
-import "github.com/puppetlabs/transparent-containers/cli/version"
+import "github.com/puppetlabs/lumogon/version"
 
 // Report Lumogon metadata report includes details of the client performing
 // the capture and a map of all harvested containers and their capability data
