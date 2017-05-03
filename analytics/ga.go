@@ -4,32 +4,66 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/google/go-querystring/query"
+	"github.com/puppetlabs/lumogon/version"
 	"github.com/spf13/viper"
 )
 
-// MeasureUsage decides whether to proceed with telemetry, and runs a goroutine to post
-func MeasureUsage(command string) {
-	if viper.GetBool("disable-analytics") != true {
-		PostMeasurement(command)
+// GaHost is the Hostname for Google Analytics Measurement Endpoint
+const GaHost = "www.google-analytics.com"
+
+// ScreenView contains information about a given Application
+// being accessed
+type ScreenView struct {
+	ProtocolVersion    int    `url:"v"`
+	Type               string `url:"t"`
+	ScreenName         string `url:"cd"`
+	ApplicationName    string `url:"an"`
+	ApplicationVersion string `url:"av"`
+	TrackingID         string `url:"tid"`
+	UniqueID           string `url:"cid"`
+}
+
+// NewScreenView returns a new ScreenView struct pre-populated with
+// everything but the ScreenName being viewed
+func NewScreenView() *ScreenView {
+	v := version.Version
+	uid := "1"
+
+	return &ScreenView{
+		ProtocolVersion:    1,
+		TrackingID:         "UA-54263865-7",
+		Type:               "screenview",
+		ApplicationName:    "lumogon",
+		ApplicationVersion: "0.0.0", // v.VersionString(),
+		UniqueID:           uid,
 	}
 }
 
 // PostMeasurement sends telemetry data to Google Analytics
-func PostMeasurement(cd string) {
-	vals := make(url.Values, 0)
-	vals.Add("v", "1")               // GA Measurement Protocol Version
-	vals.Add("tid", "UA-54263865-7") // Tracking ID
-	vals.Add("cid", "1")             // Unique ID
-	vals.Add("an", "lumogen")        // Application Name
-	vals.Add("av", "0.0.0")          // Application Version
-	vals.Add("t", "event")           // Type: Event
-	vals.Add("ec", "UX")             // Event Category
-	vals.Add("ea", cd)               // Event Action
-
-	uri := "https://www.google-analytics.com/collect?" + vals.Encode()
-
-	_, err := http.Get(uri)
-	if err != nil {
-		panic(err)
+func (s *ScreenView) PostMeasurement() bool {
+	v, _ := query.Values(s)
+	client := http.DefaultClient
+	req := &http.Request{
+		Method: "GET",
+		Host:   GaHost,
+		URL: &url.URL{
+			Host:     GaHost,
+			Scheme:   "https",
+			Path:     "/collect",
+			RawQuery: v.Encode(),
+		},
 	}
+
+	client.Do(req)
+	return true
+}
+
+// MeasureUse checks to see if it's authorized to post analytics events,
+// and proceeds accordingly
+func (s *ScreenView) MeasureUse() bool {
+	if viper.GetBool("disable-analytics") != true {
+		return s.PostMeasurement()
+	}
+	return true
 }

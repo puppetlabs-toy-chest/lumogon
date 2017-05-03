@@ -16,7 +16,9 @@ var describeCapabilityCmd = &cobra.Command{
 	Short: "Describe capability",
 	Long:  `Long Describe capability`,
 	PreRun: func(cmd *cobra.Command, args []string) {
-		analytics.MeasureUsage("describe")
+		s := analytics.NewScreenView()
+		s.ScreenName = "describe"
+		s.PostMeasurement()
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		description, err := registry.Registry.DescribeCapability(args[0])

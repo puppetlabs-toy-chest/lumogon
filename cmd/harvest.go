@@ -20,7 +20,9 @@ var harvestCmd = &cobra.Command{
 	Long:   `Harvests metadata from the specified container`,
 	Hidden: true,
 	PreRun: func(cmd *cobra.Command, args []string) {
-		analytics.MeasureUsage("harvest")
+		s := analytics.NewScreenView()
+		s.ScreenName = "harvest"
+		s.PostMeasurement()
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		target := types.TargetContainer{
