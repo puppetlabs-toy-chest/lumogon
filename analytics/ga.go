@@ -35,7 +35,7 @@ func NewScreenView() *ScreenView {
 		TrackingID:         "UA-54263865-7",
 		Type:               "screenview",
 		ApplicationName:    "lumogon",
-		ApplicationVersion: "0.0.0", // v.VersionString(),
+		ApplicationVersion: v.VersionString(),
 		UniqueID:           uid,
 	}
 }

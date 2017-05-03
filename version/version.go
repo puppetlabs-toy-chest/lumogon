@@ -18,3 +18,8 @@ type ClientVersion struct {
 
 // Version constructed at build time
 var Version = ClientVersion{BuildVersion, BuildTime, BuildSHA}
+
+// VersionString returns the absolute version (AppVer-SHA)
+func (c *ClientVersion) VersionString() string {
+	return c.BuildVersion + "-" + c.BuildSHA
+}
