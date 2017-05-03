@@ -1,13 +1,13 @@
 package: github.com/puppetlabs/lumogon
 import:
+- package: github.com/davecgh/go-spew/spew
 - package: github.com/docker/docker
   subpackages:
   - api/types
   - client
+- package: github.com/google/go-querystring
 - package: github.com/spf13/cobra
 - package: github.com/spf13/viper
 - package: github.com/shirou/gopsutil
 - package: github.com/satori/go.uuid
   version: ^1.1.0
-- package: github.com/davecgh/go-spew/spew
-
