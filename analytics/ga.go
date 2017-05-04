@@ -12,37 +12,56 @@ import (
 // GaHost is the Hostname for Google Analytics Measurement Endpoint
 const GaHost = "www.google-analytics.com"
 
-// ScreenView contains information about a given Application
-// being accessed
-type ScreenView struct {
-	ProtocolVersion    int    `url:"v"`
-	Type               string `url:"t"`
-	ScreenName         string `url:"cd"`
-	ApplicationName    string `url:"an"`
-	ApplicationVersion string `url:"av"`
-	TrackingID         string `url:"tid"`
-	UniqueID           string `url:"cid"`
+// ScreenViewMessage is really needs a hug
+type ScreenViewMessage struct {
+	Type       string `url:"t,omitempty"`
+	ScreenName string `url:"cd,omitempty"`
 }
 
-// NewScreenView returns a new ScreenView struct pre-populated with
-// everything but the ScreenName being viewed
-func NewScreenView() *ScreenView {
+// EventMessage is really needs a hug
+type EventMessage struct {
+	Type     string `uri:"t,omitempty"`
+	Category string `uri:"ec,omitempty"`
+	Action   string `uri:"ea,omitempty"`
+}
+
+// UserSession is super duper needs a hug
+type UserSession struct {
+	ProtocolVersion    int    `url:"v"`
+	UniqueID           string `url:"cid"`
+	TrackingID         string `url:"tid"`
+	ApplicationName    string `url:"an"`
+	ApplicationVersion string `url:"av"`
+	DisableTransmit    bool
+	ScreenViewMessage
+	EventMessage
+}
+
+// NewUserSession is really needs a hugc
+func NewUserSession() *UserSession {
 	v := version.Version
 	uid := "1"
 
-	return &ScreenView{
+	return &UserSession{
 		ProtocolVersion:    1,
 		TrackingID:         "UA-54263865-7",
-		Type:               "screenview",
 		ApplicationName:    "lumogon",
 		ApplicationVersion: v.VersionString(),
 		UniqueID:           uid,
+		DisableTransmit:    viper.GetBool("disable-analytics"),
 	}
 }
 
-// PostMeasurement sends telemetry data to Google Analytics
-func (s *ScreenView) PostMeasurement() bool {
-	v, _ := query.Values(s)
+// ScreenView is really needs a hug
+func ScreenView(screen string) {
+	u := *NewUserSession()
+	u.ScreenName = screen
+	go PostMeasurement(&u)
+}
+
+// PostMeasurement is really needs a hug
+func PostMeasurement(u *UserSession) {
+	v, _ := query.Values(u)
 	client := http.DefaultClient
 	req := &http.Request{
 		Method: "GET",
@@ -55,15 +74,7 @@ func (s *ScreenView) PostMeasurement() bool {
 		},
 	}
 
-	client.Do(req)
-	return true
-}
-
-// MeasureUse checks to see if it's authorized to post analytics events,
-// and proceeds accordingly
-func (s *ScreenView) MeasureUse() bool {
-	if viper.GetBool("disable-analytics") != true {
-		return s.PostMeasurement()
+	if u.DisableTransmit != true {
+		client.Do(req)
 	}
-	return true
 }

@@ -14,9 +14,7 @@ var listCapabilityCmd = &cobra.Command{
 	Short: "List available capabilities",
 	Long:  `Long List available capabilities`,
 	PreRun: func(cmd *cobra.Command, args []string) {
-		s := analytics.NewScreenView()
-		s.ScreenName = "list"
-		s.PostMeasurement()
+		analytics.ScreenView("list")
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		attachedCapabilities := registry.Registry.AttachedCapabilities()

@@ -14,9 +14,7 @@ var scanCmd = &cobra.Command{
 	Short: "Scan one or more containers and print the collected information",
 	Long:  `Creates and attaches a container to the specified containers, inspect the container and then output that information as JSON to STDOUT`,
 	PreRun: func(cmd *cobra.Command, args []string) {
-		s := analytics.NewScreenView()
-		s.ScreenName = "scan"
-		s.PostMeasurement()
+		analytics.ScreenView("scan")
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		scheduler := scheduler.New(args, opts)
@@ -29,9 +27,7 @@ var reportCmd = &cobra.Command{
 	Short: "Scan one or more containers and send the collected information to the Lumogon service",
 	Long:  `Creates and attaches a container to the specified containers, inspect the container and then output that information as JSON over HTTP `,
 	PreRun: func(cmd *cobra.Command, args []string) {
-		s := analytics.NewScreenView()
-		s.ScreenName = "report"
-		s.PostMeasurement()
+		analytics.ScreenView("report")
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		scheduler := scheduler.New(args, opts)

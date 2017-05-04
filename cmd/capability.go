@@ -13,9 +13,7 @@ var CapabilityCmd = &cobra.Command{
 	Hidden: true,
 	Long:   `Long Capability Parent command`,
 	PreRun: func(cmd *cobra.Command, args []string) {
-		s := analytics.NewScreenView()
-		s.ScreenName = "capability"
-		s.PostMeasurement()
+		analytics.ScreenView("capability")
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
