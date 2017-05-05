@@ -22,6 +22,7 @@ type Client interface {
 	Starter
 	LogGetter
 	Lister
+	HostInspector
 }
 
 // Harvester interface exposes methods used by Capabilties Harvest functions
@@ -51,6 +52,11 @@ type Executor interface {
 	ContainerExecStart(ctx context.Context, execID string) error
 	ContainerExecAttach(ctx context.Context, execID string, cmd []string, attachStdout bool, attachStderr bool) (dockertypes.HijackedResponse, error)
 	ContainerExecInspect(ctx context.Context, execID string) (dockertypes.ContainerExecInspect, error)
+}
+
+// HostInspector interface exposes methods required to inspect a docker host
+type HostInspector interface {
+	HostID(ctx context.Context) string
 }
 
 // ImageInspectorPuller interface exposes methods required to both pull and
@@ -133,6 +139,12 @@ func (c *concreteDockerClient) ImagePull(ctx context.Context, imageName string) 
 // ContainerInspect inspects the requested container
 func (c *concreteDockerClient) ContainerInspect(ctx context.Context, containerID string) (dockertypes.ContainerJSON, error) {
 	return c.Client.ContainerInspect(ctx, containerID)
+}
+
+// HostID returns the Unique ID of a host generated from SSH Host Keys
+func (c *concreteDockerClient) HostID(ctx context.Context) string {
+	resp, _ := c.Client.Info(ctx)
+	return resp.ID
 }
 
 func (c *concreteDockerClient) ContainerExecCreate(ctx context.Context, containerID string, cmd []string, attachStdout bool, attachStderr bool) (dockertypes.IDResponse, error) {

@@ -1,10 +1,12 @@
 package analytics
 
 import (
+	"context"
 	"net/http"
 	"net/url"
 
 	"github.com/google/go-querystring/query"
+	"github.com/puppetlabs/lumogon/dockeradapter"
 	"github.com/puppetlabs/lumogon/version"
 	"github.com/spf13/viper"
 )
@@ -40,14 +42,15 @@ type UserSession struct {
 // NewUserSession is really needs a hugc
 func NewUserSession() *UserSession {
 	v := version.Version
-	uid := "1"
+	ctx := context.Background()
+	c, _ := dockeradapter.New()
 
 	return &UserSession{
 		ProtocolVersion:    1,
 		TrackingID:         "UA-54263865-7",
 		ApplicationName:    "lumogon",
 		ApplicationVersion: v.VersionString(),
-		UniqueID:           uid,
+		UniqueID:           c.HostID(ctx),
 		DisableTransmit:    viper.GetBool("disable-analytics"),
 	}
 }
