@@ -17,7 +17,7 @@ map[string]string`
 var dpkgCapability = types.DockerAPICapability{
 	Capability: types.Capability{
 		Schema:      "http://puppet.com/lumogon/capability/label/draft-01/schema#1",
-		Title:       "Dpkg Capability",
+		Title:       "Packages (DPKG)",
 		Name:        "dpkg",
 		Description: dpkgDescription,
 		Type:        "dockerapi",

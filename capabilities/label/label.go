@@ -25,7 +25,7 @@ map[string]string`
 var labelCapability = types.DockerAPICapability{
 	Capability: types.Capability{
 		Schema:      "http://puppet.com/lumogon/capability/label/draft-01/schema#1",
-		Title:       "Label Capability",
+		Title:       "Labels",
 		Name:        "label",
 		Description: labelDescription,
 		Type:        "dockerapi",

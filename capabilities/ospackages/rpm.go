@@ -17,7 +17,7 @@ map[string]string`
 var rpmCapability = types.DockerAPICapability{
 	Capability: types.Capability{
 		Schema:      "http://puppet.com/lumogon/capability/label/draft-01/schema#1",
-		Title:       "Rpm Capability",
+		Title:       "Packages (RPM)",
 		Name:        "rpm",
 		Description: rpmDescription,
 		Type:        "dockerapi",
