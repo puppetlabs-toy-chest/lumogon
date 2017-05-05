@@ -17,7 +17,7 @@ map[string]string`
 var apkCapability = types.DockerAPICapability{
 	Capability: types.Capability{
 		Schema:      "http://puppet.com/lumogon/capability/label/draft-01/schema#1",
-		Title:       "Apk Capability",
+		Title:       "Packages (APK)",
 		Name:        "apk",
 		Description: apkDescription,
 		Type:        "dockerapi",

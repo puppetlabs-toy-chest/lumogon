@@ -28,7 +28,7 @@ this includes:
 var hostCapability = types.AttachedCapability{
 	Capability: types.Capability{
 		Schema:      "http://puppet.com/lumogon/capability/host/draft-01/schema#1",
-		Title:       "Host Capability",
+		Title:       "Host Information",
 		Name:        "host",
 		Description: hostDescription,
 		Type:        "attached",
