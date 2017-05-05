@@ -37,7 +37,7 @@ build: bootstrap
 	GOOS=$(GOOS) GOARCH=$(GOARCH) CGO_ENABLED=0 go build -a -ldflags '$(LDFLAGS)' -o bin/lumogon lumogon.go
 
 image: bootstrap
-	docker build -t local/lumogon -f ./Dockerfile.build .
+	docker build -t puppet/lumogon -f ./Dockerfile.build .
 
 todo:
 	grep -rnw "TODO" .

@@ -56,7 +56,7 @@ func createAndRunHarvester(ctx context.Context, client dockeradapter.Client, tar
 	logging.Stderr("[Attached Harvester] Creating attached container for target %s", target)
 	harvester := NewAttachedContainer(client, types.ClientOptions{KeepHarvesters: opts.KeepHarvesters})
 	// TODO get image name from the current container or set alternate default for non-container use
-	harvester.GetImage("local/lumogon")
+	harvester.GetImage("puppet/lumogon")
 	harvester.Attach(target)
 	harvester.Run()
 }

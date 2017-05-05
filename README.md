@@ -65,7 +65,7 @@ to use a "pretty-printer" like [jq](https://stedolan.github.io/jq/) to print the
 data in a more readable format.
 
 ``` shell
-docker run --rm  -v /var/run/docker.sock:/var/run/docker.sock local/lumogon scan | jq .
+docker run --rm  -v /var/run/docker.sock:/var/run/docker.sock puppet/lumogon scan | jq .
 ```
 
 After a few seconds you should see your JSON data:
@@ -159,7 +159,7 @@ reports via a URL.
 Try this:
 
 ``` shell
-docker run --rm -v /var/run/docker.sock:/var/run/docker.sock local/lumogon report --endpoint https://consumer.api.lumogon.com/api/v1/
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock puppet/lumogon report --endpoint https://consumer.api.lumogon.com/api/v1/
 ```
 
 If all goes as planned, you should see a line like the following with a URL you can visit to view your results:
@@ -173,7 +173,7 @@ http://reporter.api.lumogon.com/aHrhCcXT2sJBrrewEFCGaWEYbJnqV0vQWMwzO3Dzhbc=
 Let's get the usage for the Lumogon client:
 
 ``` shell
-docker run --rm  -v /var/run/docker.sock:/var/run/docker.sock local/lumogon --help
+docker run --rm  -v /var/run/docker.sock:/var/run/docker.sock puppet/lumogon --help
 Creates and attaches a container to the target, which harvests data from the target and sends to the Lumogon service
 
 Usage:
