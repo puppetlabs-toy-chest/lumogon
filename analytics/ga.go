@@ -59,6 +59,14 @@ func ScreenView(screen string) {
 	go PostMeasurement(&u)
 }
 
+// Event is really needs a hug
+func Event(action string, category string) {
+	u := *NewUserSession()
+	u.Action = action
+	u.Category = category
+	go PostMeasurement(&u)
+}
+
 // PostMeasurement is really needs a hug
 func PostMeasurement(u *UserSession) {
 	v, _ := query.Values(u)
