@@ -63,6 +63,11 @@ func (s *Scheduler) Run() {
 	ctx := context.Background()
 	resultsChannel := make(chan types.ContainerReport)
 	s.getTargetContainers()
+	if s.err != nil {
+		logging.Stdout("No valid or running target containers found. Exiting...")
+		return
+	}
+
 	wg.Add(1)
 	go collector.RunCollector(ctx, &wg, s.targets, resultsChannel, s.opts.ConsumerURL)
 
@@ -99,17 +104,26 @@ func (s *Scheduler) getTargetContainers() {
 		}
 		s.targets = stringsToTargetContainers(ctx, targetContainerIDs, s.client)
 	}
+	if len(s.targets) == 0 {
+		errorMsg := fmt.Errorf("[Scheduler] No valid or running target containers found")
+		s.err = errorMsg
+	}
 }
 
 // stringToTargetContainer converts a container ID or Name string into types.TargetContainer
-func stringToTargetContainer(ctx context.Context, containerIDOrName string, client dockeradapter.Inspector) (types.TargetContainer, error) {
+func stringToTargetContainer(ctx context.Context, containerIDOrName string, client dockeradapter.Inspector) (*types.TargetContainer, error) {
 	containerJSON, err := client.ContainerInspect(ctx, containerIDOrName)
 	if err != nil {
 		error := fmt.Sprintf("[Scheduler] Unable to find target container: %s, error: %s", containerIDOrName, err)
 		logging.Stderr(error)
-		return types.TargetContainer{}, err
+		return nil, err
 	}
-	targetContainer := types.TargetContainer{
+	if !containerJSON.State.Running {
+		error := fmt.Sprintf("[Scheduler] Target container: %s is not running", containerIDOrName)
+		logging.Stderr(error)
+		return nil, err
+	}
+	targetContainer := &types.TargetContainer{
 		ID:   containerJSON.ContainerJSONBase.ID,
 		Name: containerJSON.ContainerJSONBase.Name,
 	}
@@ -124,7 +138,10 @@ func stringsToTargetContainers(ctx context.Context, containerIDsOrNames []string
 		if err != nil {
 			continue
 		}
-		targetContainers = append(targetContainers, targetContainer)
+		if targetContainer != nil {
+			targetContainers = append(targetContainers, *targetContainer)
+		}
 	}
+	logging.Stderr("[Scheduler] Found %d valid target containers: %v", len(targetContainers), targetContainers)
 	return targetContainers
 }
