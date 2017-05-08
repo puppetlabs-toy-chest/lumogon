@@ -31,7 +31,7 @@ Lumogon's analytics record some shared information for every event:
 Lumogon's analytics records the following different events:
 
 - a `screenview` hit type with the official Lumogon command you have run (with arguments stripped), e.g. `lumogon capabilities`
-- an `event` type with any ancillary actions taken with a given command, e.g. user uploads to SaaS service
+- an `event` type that indicates that an upload to the report viewer service was at least attempted
 
 You can disable any analytics from being set by setting the variable `LUMOGON_DISABLE_ANALYTICS=1` in your environment. It is impossible for the Lumogon developers to match any particular event to any particular user.
 
