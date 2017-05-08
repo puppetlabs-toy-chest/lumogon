@@ -14,18 +14,19 @@ import (
 // GaHost is the Hostname for Google Analytics Measurement Endpoint
 const GaHost = "www.google-analytics.com"
 
-// ScreenViewMessage is really needs a hug
+// ScreenViewMessage returns a struct representing a ScreenView on GA
 type ScreenViewMessage struct {
 	ScreenName string `url:"cd,omitempty"`
 }
 
-// EventMessage is really needs a hug
+// EventMessage returns a struct representing an Event on GA
 type EventMessage struct {
 	Category string `url:"ec,omitempty"`
 	Action   string `url:"ea,omitempty"`
 }
 
-// UserSession is super duper needs a hug
+// UserSession is a struct containing connection details and shared
+// context among GA hit types
 type UserSession struct {
 	ProtocolVersion    int          `url:"v"`
 	Type               string       `url:"t"`
@@ -39,7 +40,7 @@ type UserSession struct {
 	EventMessage
 }
 
-// NewUserSession is really needs a hugc
+// NewUserSession provides a setup UserSession struct with sane defaults
 func NewUserSession() *UserSession {
 	v := version.Version
 	ctx := context.Background()
@@ -56,7 +57,7 @@ func NewUserSession() *UserSession {
 	}
 }
 
-// ScreenView is really needs a hug
+// ScreenView is the public function to post a ScreenView analytics message to GA
 func ScreenView(screen string) {
 	u := *NewUserSession()
 	u.Type = "screenview"
@@ -64,7 +65,7 @@ func ScreenView(screen string) {
 	go u.PostMeasurement()
 }
 
-// Event is really needs a hug
+// Event is the public function to post a ScreenView event analytics message to GA
 func Event(action string, category string) {
 	u := *NewUserSession()
 	u.Type = "event"
@@ -73,7 +74,8 @@ func Event(action string, category string) {
 	go u.PostMeasurement()
 }
 
-// PostMeasurement is really needs a hug
+// PostMeasurement is the internal function responsible for calling upstream
+// Makes a determiniation whether to post based on User Input via Viper
 func (u UserSession) PostMeasurement() (*http.Response, error) {
 	v, _ := query.Values(u)
 	req := &http.Request{
