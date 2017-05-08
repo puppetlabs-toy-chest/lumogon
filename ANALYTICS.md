@@ -4,7 +4,17 @@ Lumogon has begun gathering anonymous aggregate user behaviour analytics and rep
 
 ## Why?
 
-TODO: Justification on why we're doing this
+We are interested in learning how users are succeeding in using Lumogon to
+explore their container deployments. Gathering information on which lumogon
+commands are being run, and how frequently, gives us a basic insight into what
+features are the most used.  We're also interested in learning whether the
+client tooling on its own is useful, or whether users are finding that
+uploading container data to the reporting service for visualization has value
+as well.  By collecting anonymous counts of these actions we have a starting
+point to explore what is working or not working for users of the tool.  If our
+statistics tell us that more reports are being uploaded than we receive then we
+have an indication that our report viewer service is potentially not keeping up
+with demand from users.
 
 ## What?
 Lumogon's analytics record some shared information for every event:
@@ -31,7 +41,13 @@ Lumogon's analytics are sent throughout Lumogon's execution to Google Analytics 
 
 ## Who?
 
-TODO: Document Who has access to this
+This anonymized statistics data is accessible to the Lumogon development team
+at Puppet, Inc. We can look at trends in a standard Google Analytics dashboard
+to get a sense of which commands are being run, and how often users are
+attempting to upload reports to the report viewer service. This helps us focus
+on popular features, as well as how much we should be focusing on scaling our
+report viewer service.
+
 
 ## How?
 The code is viewable in [analytics](https://github.com/puppetlabs/lumogon/blob/master/analytics/ga.go). They are done in a separate background process and fail fast to avoid delaying any execution. They will fail immediately and silently if you have no network connection.
