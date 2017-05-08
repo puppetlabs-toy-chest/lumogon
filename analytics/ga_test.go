@@ -6,11 +6,17 @@ import (
 	gock "gopkg.in/h2non/gock.v1"
 )
 
+// GockBootstrap returns a UserSession ready for use in testing the GA service.
+// Note: This endpoint ALWAYS returns 200 OK, and sends back a small 1px gif image.
+// This means we must rely on whether our hit is put together properly.
+// Validate at https://ga-dev-tools.appspot.com/hit-builder/
 func GockBootstrap() *UserSession {
 	u := *NewUserSession()
-	gock.New("https://www.google-analytics.com/collect").
+	gock.New("https://www.google-analytics.com").
+		Post("/collect").
 		Reply(200).
-		BodyString("foo foo")
+		SetHeader("Content-Type", "image/gif").
+		BodyString("GIF89a�����,D;")
 	gock.InterceptClient(u.HTTPClient)
 	return &u
 }
@@ -61,4 +67,11 @@ func TestEventPostMeasurement(t *testing.T) {
 	}
 
 	GockTeardown(t)
+}
+
+func TestDisableTransmitPostMeasurement(t *testing.T) {
+	defer gock.Off()
+
+	t.Skipf("Skipping temporarily")
+
 }
