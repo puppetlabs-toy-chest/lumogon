@@ -1,7 +1,7 @@
 FROM scratch
 
+ENV LUMOGON_ENDPOINT=https://consumer-technodrome.tc.fryman.io/api/v1/
+
 COPY bin/lumogon /
-# TODO - note to future self, we should establish a process for keeping
-#        these certs updated
 COPY certs/ca-certificates.crt /etc/ssl/certs/
 ENTRYPOINT ["/lumogon"]

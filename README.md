@@ -186,7 +186,6 @@ Available Commands:
   version     Lumogon client version
 
 Flags:
-      --config string     config file (default is $HOME/.cli.yaml)
   -d, --debug             Print debug logging
   -k, --keep-harvesters   Keeps harvester containers instead of automatically deleting
 ```
