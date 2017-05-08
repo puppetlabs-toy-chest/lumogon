@@ -159,13 +159,13 @@ reports via a URL.
 Try this:
 
 ``` shell
-docker run --rm -v /var/run/docker.sock:/var/run/docker.sock puppet/lumogon report --endpoint https://consumer.api.lumogon.com/api/v1/
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock puppet/lumogon report --endpoint https://consumer.app.lumogon.com/api/v1/
 ```
 
 If all goes as planned, you should see a line like the following with a URL you can visit to view your results:
 
 ```
-http://reporter.api.lumogon.com/aHrhCcXT2sJBrrewEFCGaWEYbJnqV0vQWMwzO3Dzhbc=
+http://reporter.app.lumogon.com/aHrhCcXT2sJBrrewEFCGaWEYbJnqV0vQWMwzO3Dzhbc=
 ```
 
 ### More ways to use the Lumogon client
