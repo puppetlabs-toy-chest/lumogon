@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/puppetlabs/lumogon/analytics"
 	"github.com/puppetlabs/lumogon/capabilities/registry"
 	"github.com/spf13/cobra"
 )
@@ -12,6 +13,9 @@ var listCapabilityCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List available capabilities",
 	Long:  `Long List available capabilities`,
+	PreRun: func(cmd *cobra.Command, args []string) {
+		analytics.ScreenView("list")
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		attachedCapabilities := registry.Registry.AttachedCapabilities()
 		dockerAPICapabilities := registry.Registry.DockerAPICapabilities()
