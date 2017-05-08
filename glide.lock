@@ -1,5 +1,5 @@
-hash: 694b847c12c54d500a866b5556d8f599e9d018f92fcd1cab0dce23f235134e4f
-updated: 2017-05-03T17:04:13.750611578-05:00
+hash: 2d469e87a521fe1cbc39c49b000eac3390a10261822bbd27c54f07295443e6a9
+updated: 2017-05-08T12:26:59.302170631-05:00
 imports:
 - name: github.com/davecgh/go-spew
   version: 346938d642f2ec3594ed81d874461961cd0faa76
@@ -53,6 +53,8 @@ imports:
   - oleutil
 - name: github.com/google/go-querystring
   version: 53e6ce116135b80d037921a7fdd5138cf32d7a8a
+  subpackages:
+  - query
 - name: github.com/hashicorp/hcl
   version: 630949a3c5fa3c613328e1b8256052cbc2327c9b
   subpackages:
@@ -127,6 +129,8 @@ imports:
   subpackages:
   - transform
   - unicode/norm
+- name: gopkg.in/h2non/gock.v1
+  version: 2897ffde93a71060ce86518f1e7317ec8433d2d6
 - name: gopkg.in/yaml.v2
   version: a3f3340b5840cee44f372bddb5880fcbc419b46a
 testImports: []
