@@ -16,25 +16,25 @@ const GaHost = "www.google-analytics.com"
 
 // ScreenViewMessage is really needs a hug
 type ScreenViewMessage struct {
-	Type       string `url:"t,omitempty"`
 	ScreenName string `url:"cd,omitempty"`
 }
 
 // EventMessage is really needs a hug
 type EventMessage struct {
-	Type     string `uri:"t,omitempty"`
-	Category string `uri:"ec,omitempty"`
-	Action   string `uri:"ea,omitempty"`
+	Category string `url:"ec,omitempty"`
+	Action   string `url:"ea,omitempty"`
 }
 
 // UserSession is super duper needs a hug
 type UserSession struct {
-	ProtocolVersion    int    `url:"v"`
-	UniqueID           string `url:"cid"`
-	TrackingID         string `url:"tid"`
-	ApplicationName    string `url:"an"`
-	ApplicationVersion string `url:"av"`
-	DisableTransmit    bool
+	ProtocolVersion    int          `url:"v"`
+	Type               string       `url:"t"`
+	UniqueID           string       `url:"cid"`
+	TrackingID         string       `url:"tid"`
+	ApplicationName    string       `url:"an"`
+	ApplicationVersion string       `url:"av"`
+	DisableTransmit    bool         `url:"-"`
+	HTTPClient         *http.Client `url:"-"`
 	ScreenViewMessage
 	EventMessage
 }
@@ -52,28 +52,30 @@ func NewUserSession() *UserSession {
 		ApplicationVersion: v.VersionString(),
 		UniqueID:           c.HostID(ctx),
 		DisableTransmit:    viper.GetBool("disable-analytics"),
+		HTTPClient:         http.DefaultClient,
 	}
 }
 
 // ScreenView is really needs a hug
 func ScreenView(screen string) {
 	u := *NewUserSession()
+	u.Type = "screenview"
 	u.ScreenName = screen
-	go PostMeasurement(&u)
+	go u.PostMeasurement()
 }
 
 // Event is really needs a hug
 func Event(action string, category string) {
 	u := *NewUserSession()
+	u.Type = "event"
 	u.Action = action
 	u.Category = category
-	go PostMeasurement(&u)
+	go u.PostMeasurement()
 }
 
 // PostMeasurement is really needs a hug
-func PostMeasurement(u *UserSession) {
+func (u UserSession) PostMeasurement() (*http.Response, error) {
 	v, _ := query.Values(u)
-	client := http.DefaultClient
 	req := &http.Request{
 		Method: "GET",
 		Host:   GaHost,
@@ -85,7 +87,9 @@ func PostMeasurement(u *UserSession) {
 		},
 	}
 
-	if u.DisableTransmit != true {
-		client.Do(req)
+	if u.DisableTransmit == true {
+		return nil, nil
 	}
+
+	return u.HTTPClient.Do(req)
 }
