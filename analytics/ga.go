@@ -79,7 +79,7 @@ func Event(action string, category string) {
 func (u UserSession) PostMeasurement() (*http.Response, error) {
 	v, _ := query.Values(u)
 	req := &http.Request{
-		Method: "GET",
+		Method: "POST",
 		Host:   GaHost,
 		URL: &url.URL{
 			Host:     GaHost,
