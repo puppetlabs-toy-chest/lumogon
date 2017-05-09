@@ -1,7 +1,5 @@
 package types
 
-import "github.com/puppetlabs/lumogon/dockeradapter"
-
 // Capability map of harvested capability data
 type Capability struct {
 	Schema      string                 `json:"$schema"`
@@ -11,14 +9,7 @@ type Capability struct {
 	Type        string                 `json:"type"`
 	HarvestID   string                 `json:"harvestid"`
 	Payload     map[string]interface{} `json:"payload,omitempty"`
-}
-
-// DockerAPICapability embedded type adds a Docker specific Harvest function
-// field which passes a client satisfying the dockeradapter.Harvester interface.
-// This function is responsible for populating the Payload field.
-type DockerAPICapability struct {
-	Capability
-	Harvest func(*DockerAPICapability, dockeradapter.Harvester, string, TargetContainer) `json:"-"`
+	SupportedOS map[string]int         `json:"-"`
 }
 
 // AttachedCapability embedded type adds a Harvest function field.
