@@ -69,10 +69,10 @@ func (s *Scheduler) Run() {
 	}
 	s.targets = targets
 
-	expectedResults := getExpectedResults(s.targets, registry.Registry)
+	expectedResultCount := getExpectedResultCount(s.targets, registry.Registry)
 
 	wg.Add(1)
-	go collector.RunCollector(ctx, &wg, expectedResults, resultsChannel, s.opts.ConsumerURL)
+	go collector.RunCollector(ctx, &wg, expectedResultCount, resultsChannel, s.opts.ConsumerURL)
 
 	wg.Add(1)
 	err = harvester.RunAttachedHarvester(ctx, &wg, s.targets, registry.Registry.AttachedCapabilities(), resultsChannel, *s.opts, s.client)
@@ -89,7 +89,7 @@ func (s *Scheduler) Run() {
 	wg.Wait()
 }
 
-func getExpectedResults(targets []*types.TargetContainer, registry registry.CapabilitiesRegistry) int {
+func getExpectedResultCount(targets []*types.TargetContainer, registry registry.CapabilitiesRegistry) int {
 	expectedResults := 0
 	for _, target := range targets {
 		for _, capability := range registry.AttachedCapabilities() {
