@@ -162,7 +162,7 @@ Available Commands:
   help        Help about any command
   report      Scan one or more containers and send the collected information to the Lumogon service
   scan        Scan one or more containers and print the collected information
-  version     Show the Lumagon version information
+  version     Show the Lumogon version information
 
 Flags:
   -d, --debug             Print debug logging
