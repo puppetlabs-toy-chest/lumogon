@@ -19,7 +19,7 @@ var versionTemplate = `Client:
 // versionCmd represents the version command
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "Show the Lumagon version information",
+	Short: "Show the Lumogon version information",
 	Long:  `Returns the build version, time and SHA of the current Lumogon client.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		printVersion()
