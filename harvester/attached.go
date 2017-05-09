@@ -2,6 +2,7 @@ package harvester
 
 import (
 	"context"
+	"fmt"
 
 	"sync"
 
@@ -19,10 +20,28 @@ import (
 // channel, when a result is received it will attempt to remove that associated
 // attached container which performed the harvest before sending the result to the
 // collector via the main results channel, resultsCh.
-func RunAttachedHarvester(ctx context.Context, wg *sync.WaitGroup, targets []types.TargetContainer, capabilites []types.AttachedCapability, resultsCh chan types.ContainerReport, opts types.ClientOptions, client dockeradapter.Client) error {
+func RunAttachedHarvester(ctx context.Context, wg *sync.WaitGroup, targets []*types.TargetContainer, capabilites []types.AttachedCapability, resultsCh chan types.ContainerReport, opts types.ClientOptions, client dockeradapter.Client) error {
 	defer logging.Stderr("[Attached Harvester] Exiting")
 	defer wg.Done()
 
+	validTargets := []*types.TargetContainer{}
+	for _, target := range targets {
+		for _, capability := range capabilites {
+			if _, ok := capability.SupportedOS["all"]; ok {
+				validTargets = append(validTargets, target)
+				break
+			}
+			if _, ok := capability.SupportedOS[target.OSID]; ok {
+				validTargets = append(validTargets, target)
+				break
+			}
+		}
+	}
+
+	if len(validTargets) == 0 {
+		errorMsg := fmt.Errorf("[Scheduler] No targets found with supported capabilities")
+		return errorMsg
+	}
 	logging.Stderr("[Attached Harvester] Running")
 	if len(capabilites) == 0 {
 		logging.Stderr("[Attached Harvester] No Attached Capabilities found")
@@ -34,12 +53,12 @@ func RunAttachedHarvester(ctx context.Context, wg *sync.WaitGroup, targets []typ
 	logging.Stderr("[Attached Harvester] Starting RPC Receiver")
 	go rpcreceiver.Run("attachedharvester", 42586, rpcReceiverResultsCh) // TODO Port is still hardcoded client side (probably not an issue?)
 
-	logging.Stderr("[Attached Harvester] Creating [%d] harvesting containers", len(targets))
-	for _, target := range targets {
-		go createAndRunHarvester(ctx, client, target, opts, rpcReceiverResultsCh)
+	logging.Stderr("[Attached Harvester] Creating [%d] harvesting containers", len(validTargets))
+	for _, target := range validTargets {
+		go createAndRunHarvester(ctx, client, *target, opts, rpcReceiverResultsCh)
 	}
 
-	for _ = range targets {
+	for _ = range validTargets {
 		result := <-rpcReceiverResultsCh
 		logging.Stderr("[Attached Harvester] RPC result received from name: %s, ID: %s", result.ContainerName, result.ContainerID)
 		removeContainer(ctx, client, result.HarvesterContainerID, opts)
