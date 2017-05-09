@@ -3,9 +3,9 @@
 # This script augments a specified Docker image with a static inventory of information
 # It does this by booting a container based on the image, generating the inventory and
 # then saving a new version of the image with an additional layer containing the inventory
-# at /inventory.json
+# at /lumogon.json
 # This allows for accessing the inventory in any instance of that image, for instance:
-# docker run --rm <image> cat /inventory.json
+# docker run --rm <image> cat /lumogon.json
 
 IMAGE=${1?"Usage: $0 IMAGE[:TAG]"}
 
