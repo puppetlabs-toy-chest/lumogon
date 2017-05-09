@@ -1,0 +1,8 @@
+bin
+lib
+include
+pip-selfcheck.json
+tests/*.pyc
+tests/__pycache__
+.Python
+.cache
