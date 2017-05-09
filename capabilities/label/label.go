@@ -22,7 +22,7 @@ container as a map:
 map[string]string`
 
 // The Label capability output from the container runtime inspect
-var labelCapability = types.DockerAPICapability{
+var labelCapability = dockeradapter.DockerAPICapability{
 	Capability: types.Capability{
 		Schema:      "http://puppet.com/lumogon/capability/label/draft-01/schema#1",
 		Title:       "Labels",
@@ -30,8 +30,9 @@ var labelCapability = types.DockerAPICapability{
 		Description: labelDescription,
 		Type:        "dockerapi",
 		Payload:     nil,
+		SupportedOS: map[string]int{"all": 1},
 	},
-	Harvest: func(capability *types.DockerAPICapability, client dockeradapter.Harvester, id string, target types.TargetContainer) {
+	Harvest: func(capability *dockeradapter.DockerAPICapability, client dockeradapter.Harvester, id string, target types.TargetContainer) {
 		logging.Stderr("[Label] Harvesting label from %s [%s]", target.Name, target.ID)
 		capability.HarvestID = id
 		logging.Stderr("[Label]Harvesting label capability, harvestid: %s", capability.HarvestID)
