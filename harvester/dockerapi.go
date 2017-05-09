@@ -48,15 +48,7 @@ func harvestDockerAPICapabilities(target types.TargetContainer, client dockerada
 
 	logging.Stderr("[DockerAPI Harvester] Harvesting %d dockerAPI capabilities", len(dockerAPICapabilities))
 	for _, dockerapicapability := range dockerAPICapabilities {
-		logging.Stderr("- %s\n", dockerapicapability.Name)
-		getCapability := false
-		if _, ok := dockerapicapability.SupportedOS["all"]; ok {
-			getCapability = true
-		}
-		if _, ok := dockerapicapability.SupportedOS[target.OSID]; ok {
-			getCapability = true
-		}
-		if !getCapability {
+		if !utils.KeyInMap("all", dockerapicapability.SupportedOS) && !utils.KeyInMap(target.OSID, dockerapicapability.SupportedOS) {
 			logging.Stderr("[DockerAPI Harvester] skipping capability: %s, incompatible target OS: %s", dockerapicapability.Name, target.OSID)
 			continue
 		}

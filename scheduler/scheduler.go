@@ -93,21 +93,13 @@ func getExpectedResultCount(targets []*types.TargetContainer, registry registry.
 	expectedResults := 0
 	for _, target := range targets {
 		for _, capability := range registry.AttachedCapabilities() {
-			if _, ok := capability.SupportedOS["all"]; ok {
-				expectedResults++
-				break
-			}
-			if _, ok := capability.SupportedOS[target.OSID]; ok {
+			if utils.KeyInMap("all", capability.SupportedOS) || utils.KeyInMap(target.OSID, capability.SupportedOS) {
 				expectedResults++
 				break
 			}
 		}
 		for _, capability := range registry.DockerAPICapabilities() {
-			if _, ok := capability.SupportedOS["all"]; ok {
-				expectedResults++
-				break
-			}
-			if _, ok := capability.SupportedOS[target.OSID]; ok {
+			if utils.KeyInMap("all", capability.SupportedOS) || utils.KeyInMap(target.OSID, capability.SupportedOS) {
 				expectedResults++
 				break
 			}
