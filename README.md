@@ -3,59 +3,24 @@
 [![Build
 Status](https://travis-ci.com/puppetlabs/lumogon.svg?token=RqtxRv25TsPVz69Qso5L&branch=master)](https://travis-ci.com/puppetlabs/lumogon)
 
-## Introduction
-
-The Lumogon tool provides a way to inspect the
-[Docker](https://www.docker.com/) containers you have running on your computer.
-`lumogon` can produce a report of what's running, along with the various things
-happening inside those containers.
-
-Taking this a step further, Lumogon also works with a website hosted on the internet
-where you can send reports to view online, and to share with others.
+Lumogon provides a way to inspect, analyze and report on your running
+[Docker](https://www.docker.com/) containers.
 
 ## Trying out Lumogon
 
-### Getting access to the client software
+### Downloading Lumogon
 
 You'll need [Docker](https://www.docker.com/) installed and running locally.
 This should already be true if you have Docker containers you want to analyze
 with Lumogon.
 
-You can get the Lumogon client via one of two methods:
-
-**Downloading the client from Docker Hub:**
-
-**NOTE: we do not yet have an image on Docker Hub. Until such time you will want to build the client from source. See below.**
-
-This is the simplest way to get the Lumogon client. At a terminal, do the following:
-
 ``` shell
-docker pull puppetlabs/lumogon
+docker pull puppet/lumogon
 ```
 
-**Building the client from source:**
+### Running Lumogon
 
-For this you'll need a few more things:
-
- - Install [Go](https://golang.org/dl/), version 1.8 or later
- - Set your `$GOPATH` variable to the path where you want to keep your Go sources -- for example, `${HOME}/go`.
- - Download the Lumogon project
- - Build the cli Docker image
-
-Now, at a terminal type:
-
-``` shell
-export GOPATH="${HOME}/go"
-mkdir -p ${GOPATH}/src/github.com/puppetlabs
-cd ${GOPATH}/src/github.com/puppetlabs
-git clone https://github.com/puppetlabs/lumogon
-cd $GOPATH/src/github.com/puppetlabs/lumogon
-make all
-```
-
-### Running the client against your local docker containers
-
-Now that you have the Lumogon client installed, let's run it to find out which
+Now that you have Lumogon installed, let's run it to find out which
 containers you have running and what we can learn about them. The output of the
 client will be a [JSON](https://en.wikipedia.org/wiki/JSON) listing of all the
 containers found and what Lumogon could learn about them.
@@ -65,7 +30,7 @@ to use a "pretty-printer" like [jq](https://stedolan.github.io/jq/) to print the
 data in a more readable format.
 
 ``` shell
-docker run --rm  -v /var/run/docker.sock:/var/run/docker.sock puppet/lumogon scan | jq .
+docker run --rm  -v /var/run/docker.sock:/var/run/docker.sock puppet/lumogon scan | jq
 ```
 
 After a few seconds you should see your JSON data:
@@ -73,73 +38,87 @@ After a few seconds you should see your JSON data:
 ``` json
 {
   "$schema": "http://puppet.com/lumogon/core/draft-01/schema#1",
-  "generated": "2017-04-18 22:30:21.652393839 +0000 UTC",
+  "generated": "2017-05-09 07:59:24.287008012 +0000 UTC",
   "owner": "default",
   "group": [
     "default"
   ],
   "client_version": {
     "BuildVersion": "development",
-    "BuildTime": "2017-04-18 08:50:26 UTC",
-    "BuildSHA": "7983b886af060dcaba171ebae393e2b31ff57063"
+    "BuildTime": "2017-05-09 06:56:22 UTC",
+    "BuildSHA": "9e8f684432ff12b04b5b5d594caa0ebcce86b844"
   },
-  "reportid": "a862f238-e817-42fc-a972-0563c2cc3992",
+  "reportid": "c73a79dc-8612-4af8-8bd8-22e32ea11e38",
   "containers": {
-    "fd9a36bbc94cc0503fa87134fb48eb6966f6e70cd663764fc6b201a91dd90d6a": {
+    "5982d3f16bbbf9530ae09915b22a0d189044e3b953e5e417e2783b90de579034": {
       "$schema": "http://puppet.com/lumogon/containerreport/draft-01/schema#1",
-      "generated": "2017-04-18 22:30:20.584745556 +0000 UTC",
-      "container_report_id": "2a92817d-186f-47e6-9d30-e0df2cdfbf89",
-      "container_id": "fd9a36bbc94cc0503fa87134fb48eb6966f6e70cd663764fc6b201a91dd90d6a",
-      "container_name": "/dynamodb",
+      "generated": "2017-05-09 07:59:03.513739277 +0000 UTC",
+      "container_report_id": "8d17e541-11b3-4f25-b145-4ad9d3045995",
+      "container_id": "5982d3f16bbbf9530ae09915b22a0d189044e3b953e5e417e2783b90de579034",
+      "container_name": "/fixtures_alpine_1",
       "capabilities": {
+        "apk": {
+          "$schema": "http://puppet.com/lumogon/capability/label/draft-01/schema#1",
+          "title": "Packages (APK)",
+          "type": "dockerapi",
+          "harvestid": "3a5bf0d4-36d8-440b-af81-615b5493fe98",
+          "payload": {
+            "alpine-baselayout": "3.0.3-r0",
+            "alpine-keys": "1.1-r0",
+            "apk-tools": "2.6.7-r0",
+            "busybox": "1.24.2-r9",
+            "libc-utils": "0.7-r0",
+            "libcrypto1.0": "1.0.2h-r1",
+            "libssl1.0": "1.0.2h-r1",
+            "musl": "1.1.14-r10",
+            "musl-utils": "1.1.14-r10",
+            "scanelf": "1.1.6-r0",
+            "zlib": "1.2.8-r2"
+          }
+        },
         "dpkg": {
           "$schema": "http://puppet.com/lumogon/capability/label/draft-01/schema#1",
-          "title": "Dpkg Capability",
+          "title": "Packages (DPKG)",
           "type": "dockerapi",
-          "harvestid": "09401dde-1b8f-47d7-83b5-ab525f5539eb",
-          "payload": {
-            "packages": [
-              "acl,2.2.52-2",
-              "adduser,3.113+nmu3",
-              "apt,1.0.9.8.4",
-              "base-files,8+deb8u7",
-              "base-passwd,3.5.37",
-              "bash,4.3-11+deb8u1",
-              "bsdutils,1:2.25.2-6",
-              "bzip2,1.0.6-7+b3",
-              "...skip-a-bit...,0.0.0",
-              "zlib1g,1:1.2.8.dfsg-2+b1"
-            ]
-          }
+          "harvestid": "bdee3efe-70cf-4684-9eb6-cfbfeeb96b9c"
         },
         "host": {
           "$schema": "http://puppet.com/lumogon/capability/host/draft-01/schema#1",
-          "title": "Host Capability",
+          "title": "Host Information",
           "type": "attached",
-          "harvestid": "226fba7a-a913-45f9-8f46-d57d719d30a5",
+          "harvestid": "53d1961c-e8e9-4b52-8620-6bac37a69664",
           "payload": {
-            "BootTime": 1492180953,
-            "HostID": "a2cbff83-c8ad-e238-b8f4-59665c5c1e34",
-            "Hostname": "e740aad631fb",
-            "KernelVersion": "4.9.13-moby",
-            "OS": "linux",
-            "Platform": "debian",
-            "PlatformFamily": "debian",
-            "PlatformVersion": "8.7",
-            "Procs": 61,
-            "Uptime": 373667,
-            "VirtualizationRole": "guest",
-            "VirtualizationSystem": "docker"
+            "hostname": "365cfca386ec",
+            "kernelversion": "4.9.21-moby",
+            "os": "linux",
+            "platform": "alpine",
+            "platformfamily": "alpine",
+            "platformversion": "3.4.0",
+            "procs": "61",
+            "uptime": "248396",
+            "virtualizationrole": "guest",
+            "virtualizationsystem": "docker"
           }
         },
         "label": {
           "$schema": "http://puppet.com/lumogon/capability/label/draft-01/schema#1",
-          "title": "Label Capability",
+          "title": "Labels",
           "type": "dockerapi",
-          "harvestid": "dc50f42f-f459-4100-8c09-db3a1ef88335",
+          "harvestid": "50a3f846-3580-4190-9b00-27c3011f1516",
           "payload": {
-            "default": "No labels found"
+            "com.docker.compose.config-hash": "70e9897635135adc7e9bd0af535fef48ae8e26c8e0debbf8f40e0d67938a9884",
+            "com.docker.compose.container-number": "1",
+            "com.docker.compose.oneoff": "False",
+            "com.docker.compose.project": "fixtures",
+            "com.docker.compose.service": "alpine",
+            "com.docker.compose.version": "1.11.2"
           }
+        },
+        "rpm": {
+          "$schema": "http://puppet.com/lumogon/capability/label/draft-01/schema#1",
+          "title": "Packages (RPM)",
+          "type": "dockerapi",
+          "harvestid": "1c2976f2-802c-4138-a6b7-e7a814340fea"
         }
       }
     }
@@ -150,31 +129,31 @@ After a few seconds you should see your JSON data:
 Since this output is valid JSON, you can slice and dice it with `jq`, or pass it
 along to any other tool you use that can accept JSON input.
 
-### Sending container reports to the reporting website
+### Sending reports to the Lumogon service
 
-If you provide a `--endpoint` argument with a URL to the lumogon program,
-it will send your JSON data to our reporting application where you can share the
-reports via a URL.
+As well as being able to access raw data we're building a web service
+which can provide more visual reports.
 
-Try this:
 
 ``` shell
-docker run --rm -v /var/run/docker.sock:/var/run/docker.sock puppet/lumogon report --endpoint https://consumer.app.lumogon.com/api/v1/
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock puppet/lumogon report
 ```
 
-If all goes as planned, you should see a line like the following with a URL you can visit to view your results:
+This collects the same data as `scan` but sends it over HTTPS to our
+service. Instead of returning the raw data you should get a URL to view
+the report, like this one:
 
 ```
 http://reporter.app.lumogon.com/aHrhCcXT2sJBrrewEFCGaWEYbJnqV0vQWMwzO3Dzhbc=
 ```
 
-### More ways to use the Lumogon client
+### More ways to use Lumogon
 
 Let's get the usage for the Lumogon client:
 
 ``` shell
 docker run --rm  -v /var/run/docker.sock:/var/run/docker.sock puppet/lumogon --help
-Creates and attaches a container to the target, which harvests data from the target and sends to the Lumogon service
+Lumogon is a tool for inspecting, reporting on, and analyzing your container applications.
 
 Usage:
   lumogon [command]
@@ -183,7 +162,7 @@ Available Commands:
   help        Help about any command
   report      Scan one or more containers and send the collected information to the Lumogon service
   scan        Scan one or more containers and print the collected information
-  version     Lumogon client version
+  version     Show the Lumogon version information
 
 Flags:
   -d, --debug               Print debug logging
@@ -191,14 +170,37 @@ Flags:
   -k, --keep-harvesters     Keeps harvester containers instead of automatically deleting
 ```
 
-Feel free to explore those command-line options.  Of note:
+Feel free to explore those command-line options. Of note:
 
- - The "--keep-harvesters" flag will preserve containers that are created on the fly to explore your other containers. You can use `docker logs <containerid>" to see more of what they found while running.
+ - The `--keep-harvesters` flag will preserve containers that are created on the fly to explore your other containers. You can use `docker logs <containerid>` to see more of what they found while running.
  - You can specify `scan` to collect data on all your running containers, or you can specify a specific container by passing `scan <containerid>`.
- - `-d` will generate more verbose debugging output so you can see Lumogon exploring your containers.
+ - `--debug` will generate more verbose debugging output so you can see Lumogon exploring your containers.
 
-### Giving us feedback
 
-We'd love to hear from you. Feel free to contact us via email at (**TODO: set up the contact email address**). We also
-run a [Slack](https://slack.com/) channel at (**TODO: Set up the Slack channel**). And, if you're a developer
-and want to know more about how all this works, check out the next section.
+## Building the client from source
+
+If you're making changes to Lumogon, or just interested in seeing how it works under the hood, you might want to try building from source. For this you'll need a few more things:
+
+ - Install [Go](https://golang.org/dl/), version 1.8 or later
+ - Install `make`
+ - Set your `$GOPATH` variable to the path where you want to keep your Go sources -- for example, `${HOME}/go`.
+ - Download the Lumogon source code
+ - Build the Docker image
+
+The terminal commands to do this are:
+
+```shell
+export GOPATH="${HOME}/go"
+mkdir -p ${GOPATH}/src/github.com/puppetlabs
+cd ${GOPATH}/src/github.com/puppetlabs
+git clone https://github.com/puppetlabs/lumogon
+cd $GOPATH/src/github.com/puppetlabs/lumogon
+make all
+```
+
+Note that this build process isn't widely tested away from macOS just yet but will eventually work everywhere.
+
+
+## Giving us feedback
+
+We'd love to hear from you. We have a [Slack channel](https://puppetcommunity.slack.com/messages/G58F97FC5) for talking about Lumogon and please do open issues against [the repository](https://github.com/puppetlabs/lumogon/issues).
