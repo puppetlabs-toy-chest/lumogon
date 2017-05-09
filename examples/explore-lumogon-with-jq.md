@@ -1,26 +1,25 @@
 # Querying Lumogon with JQ
 
-Lumogon is purposefully a low level tool and currently only exposes JSON
-when run. But that doesn't mean you can't ask specific questions of the
-data returned. Lets see some examples of doing that with the excellent
-[jq](https://stedolan.github.io/jq/) JSON processor.
-
+Lumogon is a low level tool that exposes JSON output when run. But that doesn't
+mean you can't ask specific questions of the data returned. Lets see some examples
+of doing just that with the excellent [jq](https://stedolan.github.io/jq/) JSON
+processor.
 
 ## A handy alias
 
 Packaging up Lumogon as a Docker container has a number of advantages,
 but the verbose command to run it can get old quickly.
-Luckily you can just create an alias in your shell of choice to skip
-that.
+
+We recommend creating an alias in your shell of choice to skip the long command
+line invocation.
 
 ```
 alias lumogon="docker run --rm -v /var/run/docker.sock:/var/run/docker.sock puppet/lumogon"
 ```
 
-The above means you can just run all of the examples in this post with
-`lumogon` rather than the full incantation. We’ll use this for the next
-set of example.
-
+This alias allows you to run all of the examples in this post with
+`lumogon` rather than the full `docker` incantation. We’ll use this alias for
+the following examples.
 
 ## Looking at a containers labels
 
@@ -42,15 +41,14 @@ $ lumogon scan fixtures_ubuntu-xenial_1 | jq ".containers[].capabilities.label.p
 
 That’s not hugely interesting, you could do the same with `docker
 inspect -f "{{json .Config.Labels }}"`. So let’s do something more
-interesting that’s not available from the native tools.
+interesting that’s not available from the native Docker tools.
 
 ## Listing packages installed in a container
 
-Many containers are using Linux distributions as the userspace for their
-containers, which means they include a list of packages at specific
-versions. Lumogon collects that information (currently from the dpkg,
-rpm and apk package managers) and makes it available to us. For
-instance:
+Many containers are using Linux distributions as the user space for their
+containers, which means they contain a list of packages at specific
+versions. Lumogon collects that information (from the dpkg, rpm, and apk package
+managers) and makes it available to us. For instance:
 
 ```
 $ lumogon scan fixtures_ubuntu-xenial_1 | jq ".containers[].capabilities.dpkg.payload" | head
@@ -69,11 +67,11 @@ $ lumogon scan fixtures_ubuntu-xenial_1 | jq ".containers[].capabilities.dpkg.pa
 Here we start to see some of the value of Lumogon, it’s a single tool
 which can query information about your container from the outside (like
 labels which come from the Docker API) and the inside (like installed
-packages or the userspace OS details), without knowing anything about
+packages or the user space OS details), without knowing anything about
 the container in question beforehand.
 
 One more example before we move on, let’s grab the version of bash
-installed in this specific container:
+installed in a specific container:
 
 ```
 $ lumogon scan fixtures_ubuntu-xenial_1 | jq ".containers[].capabilities.dpkg.payload.bash"
@@ -85,7 +83,7 @@ $ lumogon scan fixtures_ubuntu-xenial_1 | jq ".containers[].capabilities.dpkg.pa
 All the examples so far have shown us gathering data about individual
 containers. Let’s expand that and collect information from all of the
 containers running on this host. To make this more interesting we’ll
-then filter than information, producing a list showing the container
+then filter that information, producing a list showing the container
 names and the version of bash installed via either rpm or dpkg.
 
 ```
@@ -98,7 +96,7 @@ $ lumogon scan | jq -r  '.containers[] | .container_name + "   " + .capabilities
 /fixtures_ubuntu-xenial_1   4.3-14ubuntu1.1
 ```
 
-Another example, this time lets search through all of our containers for
+Another example, this time we will search through all of our containers for
 those using a debian derivative.
 
 ```
@@ -109,14 +107,14 @@ $ lumogon scan | jq -r '.containers[] | select(.capabilities.host.payload.platfo
 /fixtures_ubuntu-xenial_1
 ```
 
-Note that this is much more powerful than simply relying on the parent
+This type of inspection is much more powerful than simply relying on the parent
 image for this information. We’re inspecting the file system itself
 rather than relying on usefully named images.
 
-Consider how you would do those without Lumogon? Invariably It’s a
-multi-step process which requires intimate implementation knowledge.
-with Lumogon we want to set that information free so we can build tools
-to quickly  answer questions and solve real user problems.
+Consider how you would do verify this information without Lumogon? It’s a
+multi-step process that requires intimate implementation knowledge. With Lumogon
+we want to set that information free so we can build tools to quickly answer
+questions and solve real user problems.
 
 If you're interested in these examples or have any questions about
 Lumogon then head over to our [Slack channel](https://puppetcommunity.slack.com/messages/G58F97FC5).

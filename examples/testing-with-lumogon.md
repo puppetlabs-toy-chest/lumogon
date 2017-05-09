@@ -1,7 +1,7 @@
 # Testing with Lumogon
 
 Given the ability to generate a data structure from a container or
-image, a useful usecase for Lumogon is introducing tests to the image
+image, a desirable use case for Lumogon is introducing tests to the image
 build process, or building a constant-compliance style test suite for
 production monitoring purposes. The following is a demonstration of how
 simple this is building on top of Lumogon, more than it being a full
@@ -46,7 +46,7 @@ Do try and write you're own assertions against the returned data, or
 change the `image_under_test` to your own Docker image.
 
 These tests could be used in a CI pipeline to verify that metadata was
-being set correctly, or that certain packages were installed, or that
+set correctly, or that certain packages were installed, or that
 known-vulnerable packages (across multiple different package managers or
 operating systems) were not present, or that all images where using the
 corporate standard operating system.
