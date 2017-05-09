@@ -50,3 +50,6 @@ being set correctly, or that certain packages were installed, or that
 known-vulnerable packages (across multiple different package managers or
 operating systems) were not present, or that all images where using the
 corporate standard operating system.
+
+If you're interested in these examples or have any questions about
+Lumogon then head over to our [Slack channel](https://puppetcommunity.slack.com/messages/G58F97FC5).
