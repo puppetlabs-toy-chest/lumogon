@@ -16,7 +16,7 @@ import (
 // by type, Attached or Docker API
 type CapabilitiesRegistry struct {
 	attached  []types.AttachedCapability
-	dockerAPI []types.DockerAPICapability
+	dockerAPI []dockeradapter.DockerAPICapability
 }
 
 // Registry provisioned capabilities
@@ -28,9 +28,9 @@ func (c CapabilitiesRegistry) Add(capability interface{}) {
 	case types.AttachedCapability:
 		logging.Stderr("[Registry] Adding ATTACHED capability to registry: %s\n", capability.(types.AttachedCapability).Title)
 		Registry.attached = append(Registry.attached, capability.(types.AttachedCapability))
-	case types.DockerAPICapability:
-		logging.Stderr("[Registry] Adding DOCKER API capability to registry: %s\n", capability.(types.DockerAPICapability).Title)
-		Registry.dockerAPI = append(Registry.dockerAPI, capability.(types.DockerAPICapability))
+	case dockeradapter.DockerAPICapability:
+		logging.Stderr("[Registry] Adding DOCKER API capability to registry: %s\n", capability.(dockeradapter.DockerAPICapability).Title)
+		Registry.dockerAPI = append(Registry.dockerAPI, capability.(dockeradapter.DockerAPICapability))
 	default:
 		logging.Stdout("[Registry] Invalid capability type detected. Exiting..")
 		os.Exit(1)
@@ -60,7 +60,7 @@ func (c CapabilitiesRegistry) AttachedCapabilities() []types.AttachedCapability 
 }
 
 // DockerAPICapabilities returns a list of AttachedCapability types
-func (c CapabilitiesRegistry) DockerAPICapabilities() []types.DockerAPICapability {
+func (c CapabilitiesRegistry) DockerAPICapabilities() []dockeradapter.DockerAPICapability {
 	return c.dockerAPI
 }
 
@@ -91,20 +91,6 @@ func Harvest(client dockeradapter.Harvester, targetContainerID string) map[strin
 			logging.Stderr("- %s\n", attachedcapability.Name)
 			attachedcapability.Harvest(&attachedcapability, utils.GenerateUUID4(), []string{})
 			harvestedData[attachedcapability.Name] = attachedcapability.Capability
-		}
-	}
-
-	if client != nil {
-		// Will run on the scheduler
-		logging.Stderr("[Registry] Harvesting %d dockerAPI capabilities", len(Registry.DockerAPICapabilities()))
-		for _, dockerapicapability := range Registry.DockerAPICapabilities() {
-			logging.Stderr("- %s\n", dockerapicapability.Name)
-			logging.Stderr("[Registry] Harvesting %s\n", dockerapicapability.Name)
-			ctx := context.Background()
-			targetContainer := stringToTargetContainer(ctx, targetContainerID, client)
-			dockerapicapability.Harvest(&dockerapicapability, client, utils.GenerateUUID4(), targetContainer)
-			logging.Stderr("[Registry] Storing result %s\n", dockerapicapability.Name)
-			harvestedData[dockerapicapability.Name] = dockerapicapability.Capability
 		}
 	}
 
