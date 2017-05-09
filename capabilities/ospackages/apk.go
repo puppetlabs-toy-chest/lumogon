@@ -14,7 +14,7 @@ names installed on a container, returning the results as a map:
 map[string]string`
 
 // The apk capability output from the container runtime exec
-var apkCapability = types.DockerAPICapability{
+var apkCapability = dockeradapter.DockerAPICapability{
 	Capability: types.Capability{
 		Schema:      "http://puppet.com/lumogon/capability/label/draft-01/schema#1",
 		Title:       "Packages (APK)",
@@ -22,8 +22,9 @@ var apkCapability = types.DockerAPICapability{
 		Description: apkDescription,
 		Type:        "dockerapi",
 		Payload:     nil,
+		SupportedOS: map[string]int{"alpine": 1},
 	},
-	Harvest: func(capability *types.DockerAPICapability, client dockeradapter.Harvester, id string, target types.TargetContainer) {
+	Harvest: func(capability *dockeradapter.DockerAPICapability, client dockeradapter.Harvester, id string, target types.TargetContainer) {
 		logging.Stderr("[Apk] Harvesting packages from %s [%s], harvestid: %s", id)
 		capability.HarvestID = id
 

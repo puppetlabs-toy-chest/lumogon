@@ -14,7 +14,7 @@ names installed on a container, returning the results as a map:
 map[string]string`
 
 // The Dpkg capability output from the container runtime exec
-var dpkgCapability = types.DockerAPICapability{
+var dpkgCapability = dockeradapter.DockerAPICapability{
 	Capability: types.Capability{
 		Schema:      "http://puppet.com/lumogon/capability/label/draft-01/schema#1",
 		Title:       "Packages (DPKG)",
@@ -22,8 +22,9 @@ var dpkgCapability = types.DockerAPICapability{
 		Description: dpkgDescription,
 		Type:        "dockerapi",
 		Payload:     nil,
+		SupportedOS: map[string]int{"ubuntu": 1, "debian": 1},
 	},
-	Harvest: func(capability *types.DockerAPICapability, client dockeradapter.Harvester, id string, target types.TargetContainer) {
+	Harvest: func(capability *dockeradapter.DockerAPICapability, client dockeradapter.Harvester, id string, target types.TargetContainer) {
 		logging.Stderr("[Dpkg] Harvesting packages from %s [%s], harvestid: %s", id)
 		capability.HarvestID = id
 
