@@ -3,6 +3,7 @@ package dockeradapter
 import (
 	"context"
 	"fmt"
+	"io"
 
 	dockertypes "github.com/docker/docker/api/types"
 	dockercontainer "github.com/docker/docker/api/types/container"
@@ -23,6 +24,7 @@ type Client interface {
 	LogGetter
 	Lister
 	HostInspector
+	CopyFrom
 }
 
 // Harvester interface exposes methods used by Capabilties Harvest functions
@@ -89,6 +91,11 @@ type LogGetter interface {
 // Lister interface exposes methods required to list containers
 type Lister interface {
 	ContainerList(ctx context.Context) ([]string, error)
+}
+
+// CopyFrom interface exposes methods required to copy file data from a container
+type CopyFrom interface {
+	CopyFromContainer(ctx context.Context, container, srcPath string, followSymlink bool) (io.ReadCloser, dockertypes.ContainerPathStat, error)
 }
 
 // containerLogOptions type contains values used to control logs returned
@@ -229,6 +236,17 @@ func (c *concreteDockerClient) ContainerLogs(ctx context.Context, containerID st
 		return "", err
 	}
 	return stripDockerLogsHeader(logs), nil
+}
+
+// CopyFromContainer returns a ReadCloser containing the copied file and a
+// ContainerPathStat with the files attributes. Optionally follow symlinks.
+func (c *concreteDockerClient) CopyFromContainer(ctx context.Context, container, srcPath string, followSymlink bool) (io.ReadCloser, dockertypes.ContainerPathStat, error) {
+	readCloser, containerPathStat, err := c.Client.CopyFromContainer(ctx, container, srcPath)
+	if followSymlink && err == nil && containerPathStat.LinkTarget != "" {
+		logging.Stderr("[Docker Adapter] Resolving symlink for: %s, to: %s", srcPath, containerPathStat.LinkTarget)
+		readCloser, containerPathStat, err = c.Client.CopyFromContainer(ctx, container, containerPathStat.LinkTarget)
+	}
+	return readCloser, containerPathStat, err
 }
 
 // ContainerList returns a slice of container ID strings
