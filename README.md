@@ -171,7 +171,7 @@ Flags:
 
 Feel free to explore those command-line options. Of note:
 
- - The `--keep-harvesters` flag will preserve containers that are created on the fly to explore your other containers. You can use `docker logs <containerid>" to see more of what they found while running.
+ - The `--keep-harvesters` flag will preserve containers that are created on the fly to explore your other containers. You can use `docker logs <containerid>` to see more of what they found while running.
  - You can specify `scan` to collect data on all your running containers, or you can specify a specific container by passing `scan <containerid>`.
  - `--debug` will generate more verbose debugging output so you can see Lumogon exploring your containers.
 
