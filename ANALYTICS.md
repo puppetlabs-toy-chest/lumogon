@@ -33,7 +33,7 @@ Lumogon's analytics records the following different events:
 - a `screenview` hit type with the official Lumogon command you have run (with arguments stripped), e.g. `lumogon capabilities`
 - an `event` type that indicates that an upload to the report viewer service was at least attempted
 
-You can disable any analytics from being set by setting the variable `LUMOGON_DISABLE_ANALYTICS=1` in your environment. It is impossible for the Lumogon developers to match any particular event to any particular user.
+You can disable any analytics from being set by passing `--disable-analytics` on the command line. It is impossible for the Lumogon developers to match any particular event to any particular user.
 
 
 ## When/Where?
@@ -53,14 +53,8 @@ report viewer service.
 The code is viewable in [analytics](https://github.com/puppetlabs/lumogon/blob/master/analytics/ga.go). They are done in a separate background process and fail fast to avoid delaying any execution. They will fail immediately and silently if you have no network connection.
 
 ## Opting out
-Lumogon analytics helps us maintainers and leaving it on is appreciated. However, if you want to opt out of Lumogon's analytics, you can set this variable in your environment:
+Lumogon analytics helps us maintainers and leaving it on is appreciated. However, if you want to opt out of Lumogon's analytics, you can pass the following CLI argument at runtime:
 
 ```sh
-export LUMOGON_DISABLE_ANALYTICS=1
-```
-
-Alternatively, you can pass the following CLI argument at runtime
-
-```sh
-docker run --rm -v /var/run/docker.sock:/var/run/docker.sock local/lumogon --disable-analytics
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock puppet/lumogon --disable-analytics
 ```

@@ -186,8 +186,9 @@ Available Commands:
   version     Lumogon client version
 
 Flags:
-  -d, --debug             Print debug logging
-  -k, --keep-harvesters   Keeps harvester containers instead of automatically deleting
+  -d, --debug               Print debug logging
+      --disable-analytics   Disable sending anonymous data for product improvement
+  -k, --keep-harvesters     Keeps harvester containers instead of automatically deleting
 ```
 
 Feel free to explore those command-line options.  Of note:
