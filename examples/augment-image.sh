@@ -10,7 +10,7 @@
 IMAGE=${1?"Usage: $0 IMAGE[:TAG]"}
 
 CONTAINER_ID=$(docker run --rm -di --entrypoint "" "$IMAGE" /bin/sh -c "while true; do echo hello world; sleep 1; done")
-docker run --rm  -v /var/run/docker.sock:/var/run/docker.sock local/tc container "$CONTAINER_ID" > output.json
+docker run --rm  -v /var/run/docker.sock:/var/run/docker.sock puppet/lumogon scan "$CONTAINER_ID" > output.json
 docker cp ./output.json "$CONTAINER_ID":/lumogon.json
 docker commit "$CONTAINER_ID" "$IMAGE"
 docker kill "$CONTAINER_ID"
