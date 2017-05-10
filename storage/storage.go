@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/puppetlabs/lumogon/analytics"
 	"github.com/puppetlabs/lumogon/logging"
 	"github.com/puppetlabs/lumogon/utils"
 )
@@ -45,6 +46,8 @@ func StoreResult(result string, consumerURL string) error {
 		logging.Stderr(errorMsg)
 		os.Exit(1)
 	}
+
+	analytics.Event("upload", "UX")
 
 	err = json.NewDecoder(resp.Body).Decode(&postResponse)
 	if err != nil {

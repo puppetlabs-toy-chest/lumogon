@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/puppetlabs/lumogon/analytics"
 	"github.com/puppetlabs/lumogon/scheduler"
 	"github.com/puppetlabs/lumogon/types"
 	"github.com/spf13/cobra"
@@ -13,6 +14,9 @@ var scanCmd = &cobra.Command{
 	Use:   "scan",
 	Short: "Scan one or more containers and print the collected information",
 	Long:  `Creates and attaches a container to the specified containers, inspect the container and then output that information as JSON to STDOUT`,
+	PreRun: func(cmd *cobra.Command, args []string) {
+		analytics.ScreenView("scan")
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		scheduler := scheduler.New(args, opts)
 		scheduler.Run()
@@ -23,6 +27,9 @@ var reportCmd = &cobra.Command{
 	Use:   "report",
 	Short: "Scan one or more containers and send the collected information to the Lumogon service",
 	Long:  `Creates and attaches a container to the specified containers, inspect the container and then output that information as JSON over HTTP `,
+	PreRun: func(cmd *cobra.Command, args []string) {
+		analytics.ScreenView("report")
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		if opts.ConsumerURL == "" {
 			opts.ConsumerURL = os.Getenv("LUMOGON_ENDPOINT")
