@@ -64,7 +64,7 @@ func getContainerOS(ctx context.Context, containerID string, client CopyFrom) (s
 			logging.Stderr("[Targets] File not found - assuming scratch")
 			return "scratch", nil
 		}
-		logging.Stderr("[Targets] Error reading file: %s\n, setting type to unknown", err)
+		logging.Stderr("[Targets] Error reading file: %s, setting type to unknown", err)
 		return "unknown", err
 	}
 	defer reader.Close()
@@ -84,10 +84,10 @@ func getContainerOS(ctx context.Context, containerID string, client CopyFrom) (s
 		scanner := bufio.NewScanner(tr)
 		for scanner.Scan() {
 			line := scanner.Text()
-			logging.Stderr("[Targets] Line: %s", line)
+			logging.Stderr("[Targets] Line: %q", line)
 			splitString := strings.SplitN(line, "=", 2)
 			if len(splitString) != 2 {
-				logging.Stderr("[Targets] Unable to extract key and value from line: %s", line)
+				logging.Stderr("[Targets] Unable to extract key and value from line: %q", line)
 				continue
 			}
 			key := strings.Trim(splitString[0], "\" '")
@@ -105,7 +105,7 @@ func getContainerOS(ctx context.Context, containerID string, client CopyFrom) (s
 
 	if val, ok := osRelease["ID"]; ok {
 		if val != "" {
-			logging.Stderr("[Targets] detected OS Release ID: %s", val)
+			logging.Stderr("[Targets] detected OS Release ID: %q", val)
 			return val, nil
 		}
 	}
@@ -118,7 +118,7 @@ func getContainerOS(ctx context.Context, containerID string, client CopyFrom) (s
 func stringToTargetContainer(ctx context.Context, containerIDOrName string, client Inspector) (*types.TargetContainer, error) {
 	containerJSON, err := client.ContainerInspect(ctx, containerIDOrName)
 	if err != nil {
-		error := fmt.Sprintf("Unable to find target container: %s, error: %s", containerIDOrName, err)
+		error := fmt.Sprintf("Unable to find target container: %q, error: %s", containerIDOrName, err)
 		logging.Stderr("[Targets] ", error)
 		return &types.TargetContainer{}, err
 	}

@@ -162,6 +162,15 @@ var getContainerOSTests = []struct {
 		expected:    "unknown",
 		expectError: true,
 	},
+	{
+		title:       "ID key and value surrounded by different quotes with trailing and leading spaces",
+		containerID: "testid",
+		mockCopyFromContainer: &mocks.MockDockerClient{
+			CopyFromContainerFn: osReleaseCopyFromContainer("/etc/os-release", "\"ID\"='   opensuse   '\nDUMMYKEY2=dummyval2\n\n\n"),
+		},
+		expected:    "opensuse",
+		expectError: false,
+	},
 }
 
 func Test_getContainerOS(t *testing.T) {
