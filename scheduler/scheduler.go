@@ -64,8 +64,8 @@ func (s *Scheduler) Run() {
 	resultsChannel := make(chan types.ContainerReport)
 	s.getTargetContainers()
 	if s.err != nil {
-		logging.Stdout("No valid or running target containers found. Exiting...")
-		return
+		fmt.Fprintln(os.Stderr, "No valid or running target containers found. Exiting...")
+		os.Exit(1)
 	}
 
 	wg.Add(1)
