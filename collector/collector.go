@@ -7,7 +7,6 @@ import (
 
 	"encoding/json"
 
-	"github.com/puppetlabs/lumogon/capabilities/registry"
 	"github.com/puppetlabs/lumogon/logging"
 	"github.com/puppetlabs/lumogon/storage"
 	"github.com/puppetlabs/lumogon/types"
@@ -21,19 +20,17 @@ var results map[string]types.ContainerReport
 // RunCollector starts the collector which will block on reading all
 // expected ContainerReports from the results channel, before creating
 // and storing a report.
-func RunCollector(ctx context.Context, wg *sync.WaitGroup, targets []types.TargetContainer, resultsCh chan types.ContainerReport, consumerURL string) {
-	logging.Stderr("[Collector] Running")
+func RunCollector(ctx context.Context, wg *sync.WaitGroup, expectedResults int, resultsCh chan types.ContainerReport, consumerURL string) {
+	logging.Stderr("[Collector] Running, expecting %d results", expectedResults)
 	defer logging.Stderr("[Collector] Exiting")
 	defer wg.Done()
 
 	results = make(map[string]types.ContainerReport)
-	// Expecting a result per type for each target container
-	expectedResults := len(targets) * registry.Registry.TypesCount()
 
 	logging.Stderr("[Collector] Waiting for %d results", expectedResults)
 	for i := 1; i <= expectedResults; i++ {
-		logging.Stderr("[Collector] Received result [%d]", i)
 		result := <-resultsCh
+		logging.Stderr("[Collector] Received result [%d]", i)
 		cacheResult(result)
 		logging.Stderr("[Collector] Result received from name: %s, ID: %s", result.ContainerName, result.ContainerID)
 	}
@@ -44,7 +41,6 @@ func RunCollector(ctx context.Context, wg *sync.WaitGroup, targets []types.Targe
 		return
 	}
 	storeReport(report, consumerURL)
-
 }
 
 // cacheResult caches the supplied types.ContainerReport.

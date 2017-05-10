@@ -3,6 +3,7 @@ package mocks
 import (
 	"context"
 	"fmt"
+	"io"
 
 	dockertypes "github.com/docker/docker/api/types"
 	dockercontainer "github.com/docker/docker/api/types/container"
@@ -27,7 +28,8 @@ type MockDockerClient struct {
 	ContainerExecStartFn   func(ctx context.Context, execID string) error
 	ContainerExecAttachFn  func(ctx context.Context, execID string, cmd []string, attachStdout bool, attachStderr bool) (dockertypes.HijackedResponse, error)
 	ContainerExecInspectFn func(ctx context.Context, execID string) (dockertypes.ContainerExecInspect, error)
-	ImageInspectfn         func(ctx context.Context, imageName string) (dockertypes.ImageInspect, error)
+	ImageInspectFn         func(ctx context.Context, imageName string) (dockertypes.ImageInspect, error)
+	CopyFromContainerFn    func(ctx context.Context, container, srcPath string, followSymlink bool) (io.ReadCloser, dockertypes.ContainerPathStat, error)
 }
 
 // ImagePull is a mock implementation of dockeradapter.ImagePull
@@ -177,11 +179,20 @@ func (c *MockDockerClient) ContainerExecInspect(ctx context.Context, execID stri
 
 // ImageInspect is a mock implementation of dockeradapter.ImageInspect
 func (c MockDockerClient) ImageInspect(ctx context.Context, imageName string) (dockertypes.ImageInspect, error) {
-	if c.ContainerLogsFn != nil {
+	if c.ImageInspectFn != nil {
 		fmt.Println("[MockDockerClient] In ", utils.CurrentFunctionName())
 		fmt.Println("[MockDockerClient]  - ctx: ", ctx)
 		fmt.Println("[MockDockerClient]  - imageName: ", imageName)
-		return c.ImageInspect(ctx, imageName)
+		return c.ImageInspectFn(ctx, imageName)
+	}
+	panic(fmt.Sprintf("No function defined for: %s", utils.CurrentFunctionName()))
+}
+
+// CopyFromContainer is a mock implementation of dockeradapter.CopyFromContainer
+func (c MockDockerClient) CopyFromContainer(ctx context.Context, container, srcPath string, followSymlink bool) (io.ReadCloser, dockertypes.ContainerPathStat, error) {
+	if c.CopyFromContainerFn != nil {
+		fmt.Println("[MockDockerClient] In ", utils.CurrentFunctionName())
+		return c.CopyFromContainerFn(ctx, container, srcPath, followSymlink)
 	}
 	panic(fmt.Sprintf("No function defined for: %s", utils.CurrentFunctionName()))
 }

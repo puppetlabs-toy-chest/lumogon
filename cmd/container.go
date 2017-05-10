@@ -1,11 +1,13 @@
 package cmd
 
 import (
+	"os"
+
 	"github.com/puppetlabs/lumogon/analytics"
+	"github.com/puppetlabs/lumogon/capabilities/registry"
 	"github.com/puppetlabs/lumogon/scheduler"
 	"github.com/puppetlabs/lumogon/types"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 var opts = types.ClientOptions{}
@@ -19,7 +21,7 @@ var scanCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		scheduler := scheduler.New(args, opts)
-		scheduler.Run()
+		scheduler.Run(registry.Registry)
 	},
 }
 
@@ -35,7 +37,7 @@ var reportCmd = &cobra.Command{
 			opts.ConsumerURL = os.Getenv("LUMOGON_ENDPOINT")
 		}
 		scheduler := scheduler.New(args, opts)
-		scheduler.Run()
+		scheduler.Run(registry.Registry)
 	},
 }
 

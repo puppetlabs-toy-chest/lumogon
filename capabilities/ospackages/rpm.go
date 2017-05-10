@@ -14,7 +14,7 @@ names installed on a container, returning the results as a map:
 map[string]string`
 
 // The rpm capability output from the container runtime exec
-var rpmCapability = types.DockerAPICapability{
+var rpmCapability = dockeradapter.DockerAPICapability{
 	Capability: types.Capability{
 		Schema:      "http://puppet.com/lumogon/capability/label/draft-01/schema#1",
 		Title:       "Packages (RPM)",
@@ -22,8 +22,9 @@ var rpmCapability = types.DockerAPICapability{
 		Description: rpmDescription,
 		Type:        "dockerapi",
 		Payload:     nil,
+		SupportedOS: map[string]int{"fedora": 1, "rhel": 1, "centos": 1, "opensuse": 1, "suse": 1, "ol": 1},
 	},
-	Harvest: func(capability *types.DockerAPICapability, client dockeradapter.Harvester, id string, target types.TargetContainer) {
+	Harvest: func(capability *dockeradapter.DockerAPICapability, client dockeradapter.Harvester, id string, target types.TargetContainer) {
 		logging.Stderr("[Rpm] Harvesting packages from %s [%s], harvestid: %s", id)
 		capability.HarvestID = id
 
