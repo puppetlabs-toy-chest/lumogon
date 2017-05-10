@@ -58,7 +58,7 @@ func getContainerOS(ctx context.Context, containerID string, client CopyFrom) (s
 			return "scratch", nil
 		}
 		logging.Stderr("[Targets] Error reading file: %s\n, setting type to unknown", err)
-		return "", err
+		return "unknown", err
 	}
 	defer reader.Close()
 
