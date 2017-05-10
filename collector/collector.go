@@ -2,6 +2,7 @@ package collector
 
 import (
 	"context"
+	"time"
 
 	"sync"
 
@@ -30,12 +31,25 @@ func RunCollector(ctx context.Context, wg *sync.WaitGroup, targets []types.Targe
 	// Expecting a result per type for each target container
 	expectedResults := len(targets) * registry.Registry.TypesCount()
 
+	timeout := make(chan bool, 1)
+	go func() {
+		time.Sleep(10 * time.Second)
+		timeout <- true
+	}()
+
 	logging.Stderr("[Collector] Waiting for %d results", expectedResults)
 	for i := 1; i <= expectedResults; i++ {
 		logging.Stderr("[Collector] Received result [%d]", i)
-		result := <-resultsCh
-		cacheResult(result)
-		logging.Stderr("[Collector] Result received from name: %s, ID: %s", result.ContainerName, result.ContainerID)
+		// the following implements a fixed timeout to hear back from all of the harvesters
+		// without some sort of timeout if one or more harvesters fail to connect to the RPC
+		// socket then this blocks indefinitely
+		select {
+		case result := <-resultsCh:
+			cacheResult(result)
+			logging.Stderr("[Collector] Result received from name: %s, ID: %s", result.ContainerName, result.ContainerID)
+		case <-timeout:
+			logging.Stderr("[Collector] We didn't hear back from a harvester after 10s. Skipping.")
+		}
 	}
 	logging.Stderr("[Collector] Creating report")
 
