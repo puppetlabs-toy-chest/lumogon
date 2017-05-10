@@ -5,7 +5,6 @@ import (
 
 	"sync"
 
-	"github.com/puppetlabs/lumogon/capabilities/registry"
 	"github.com/puppetlabs/lumogon/dockeradapter"
 	"github.com/puppetlabs/lumogon/logging"
 	"github.com/puppetlabs/lumogon/types"
@@ -29,7 +28,7 @@ func RunDockerAPIHarvester(ctx context.Context, wg *sync.WaitGroup, targets []*t
 	dockerAPIResultsCh := make(chan *types.ContainerReport)
 
 	for _, target := range targets {
-		go harvestDockerAPICapabilities(*target, client, dockerAPIResultsCh)
+		go harvestDockerAPICapabilities(*target, client, capabilites, dockerAPIResultsCh)
 	}
 
 	for i := range targets {
@@ -42,20 +41,19 @@ func RunDockerAPIHarvester(ctx context.Context, wg *sync.WaitGroup, targets []*t
 	return nil
 }
 
-func harvestDockerAPICapabilities(target types.TargetContainer, client dockeradapter.Harvester, dockerAPIResultsCh chan *types.ContainerReport) {
+func harvestDockerAPICapabilities(target types.TargetContainer, client dockeradapter.Harvester, capabilites []dockeradapter.DockerAPICapability, dockerAPIResultsCh chan *types.ContainerReport) {
 	harvestedData := map[string]types.Capability{}
-	dockerAPICapabilities := registry.Registry.DockerAPICapabilities()
 
-	logging.Stderr("[DockerAPI Harvester] Harvesting %d dockerAPI capabilities", len(dockerAPICapabilities))
-	for _, dockerapicapability := range dockerAPICapabilities {
-		if !utils.KeyInMap("all", dockerapicapability.SupportedOS) && !utils.KeyInMap(target.OSID, dockerapicapability.SupportedOS) {
-			logging.Stderr("[DockerAPI Harvester] skipping capability: %s, incompatible target OS: %s", dockerapicapability.Name, target.OSID)
+	logging.Stderr("[DockerAPI Harvester] Harvesting %d dockerAPI capabilities", len(capabilites))
+	for _, capability := range capabilites {
+		if !utils.KeyInMap("all", capability.SupportedOS) && !utils.KeyInMap(target.OSID, capability.SupportedOS) {
+			logging.Stderr("[DockerAPI Harvester] skipping capability: %s, incompatible target OS: %s", capability.Name, target.OSID)
 			continue
 		}
-		logging.Stderr("[DockerAPI Harvester] Harvesting %s\n", dockerapicapability.Name)
-		dockerapicapability.Harvest(&dockerapicapability, client, utils.GenerateUUID4(), target)
-		logging.Stderr("[DockerAPI Harvester] Storing result %s\n", dockerapicapability.Name)
-		harvestedData[dockerapicapability.Name] = dockerapicapability.Capability
+		logging.Stderr("[DockerAPI Harvester] Harvesting %s\n", capability.Name)
+		capability.Harvest(&capability, client, utils.GenerateUUID4(), target)
+		logging.Stderr("[DockerAPI Harvester] Storing result %s\n", capability.Name)
+		harvestedData[capability.Name] = capability.Capability
 	}
 
 	dockerAPIResultsCh <- GenerateContainerReport(target, harvestedData)
