@@ -240,6 +240,7 @@ func (c *concreteDockerClient) ContainerLogs(ctx context.Context, containerID st
 
 // CopyFromContainer returns a ReadCloser containing the copied file and a
 // ContainerPathStat with the files attributes. Optionally follow symlinks.
+// Note that the file returned is withing a tarball.
 func (c *concreteDockerClient) CopyFromContainer(ctx context.Context, container, srcPath string, followSymlink bool) (io.ReadCloser, dockertypes.ContainerPathStat, error) {
 	readCloser, containerPathStat, err := c.Client.CopyFromContainer(ctx, container, srcPath)
 	if followSymlink && err == nil && containerPathStat.LinkTarget != "" {
