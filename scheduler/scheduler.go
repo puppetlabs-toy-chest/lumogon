@@ -52,7 +52,7 @@ func New(args []string, opts types.ClientOptions) *Scheduler {
 }
 
 // Run starts the scheduler
-func (s *Scheduler) Run() {
+func (s *Scheduler) Run(r registry.IRegistry) {
 	defer logging.Stderr("[Scheduler] Exiting")
 	logging.Stderr("[Scheduler] Running")
 	// Exit immediately if a harvester error has already been thrown
@@ -69,19 +69,19 @@ func (s *Scheduler) Run() {
 	}
 	s.targets = targets
 
-	expectedResultCount := getExpectedResultCount(s.targets, registry.Registry)
+	expectedResultCount := getExpectedResultCount(s.targets, r)
 
 	wg.Add(1)
 	go collector.RunCollector(ctx, &wg, expectedResultCount, resultsChannel, s.opts.ConsumerURL)
 
 	wg.Add(1)
-	err = harvester.RunAttachedHarvester(ctx, &wg, s.targets, registry.Registry.AttachedCapabilities(), resultsChannel, *s.opts, s.client)
+	err = harvester.RunAttachedHarvester(ctx, &wg, s.targets, r.AttachedCapabilities(), resultsChannel, *s.opts, s.client)
 	if err != nil {
 		logging.Stderr("[Scheduler] Error running Attached harvesters: %s", err)
 	}
 
 	wg.Add(1)
-	err = harvester.RunDockerAPIHarvester(ctx, &wg, s.targets, registry.Registry.DockerAPICapabilities(), resultsChannel, s.client)
+	err = harvester.RunDockerAPIHarvester(ctx, &wg, s.targets, r.DockerAPICapabilities(), resultsChannel, s.client)
 	if err != nil {
 		logging.Stderr("[Scheduler] Error running Docker API harvesters")
 	}
@@ -89,7 +89,7 @@ func (s *Scheduler) Run() {
 	wg.Wait()
 }
 
-func getExpectedResultCount(targets []*types.TargetContainer, registry registry.CapabilitiesRegistry) int {
+func getExpectedResultCount(targets []*types.TargetContainer, registry registry.IRegistry) int {
 	expectedResults := 0
 	for _, target := range targets {
 		for _, capability := range registry.AttachedCapabilities() {
