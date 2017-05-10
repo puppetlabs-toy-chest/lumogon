@@ -23,13 +23,13 @@ func NormaliseTargets(ctx context.Context, args *[]string, client Client) ([]*ty
 	} else {
 		targetContainerIDs, err := client.ContainerList(ctx)
 		if err != nil {
-			logging.Stderr("[Scheduler] Unable to list containers, error: %s", err)
+			logging.Stderr("[Targets] Unable to list containers, error: %s", err)
 			return nil, err
 		}
 
 		localContainerID, err := utils.GetLocalContainerID("/proc/self/cgroup")
 		if err == nil {
-			logging.Stderr("[Scheduler] Excluding scheduler container from harvested containers, ID: %s", localContainerID)
+			logging.Stderr("[Targets] Excluding scheduler container from harvested containers, ID: %s", localContainerID)
 			targetContainerIDs = utils.RemoveStringFromSlice(targetContainerIDs, localContainerID)
 		}
 		targets = stringsToTargetContainers(ctx, targetContainerIDs, client)
@@ -37,7 +37,7 @@ func NormaliseTargets(ctx context.Context, args *[]string, client Client) ([]*ty
 	for _, target := range targets {
 		targetOS, err := getContainerOS(ctx, target.ID, client)
 		if err != nil {
-			logging.Stderr("[Scheduler] Error getting OS for target, ID: %s, removing from list of targets", target.ID)
+			logging.Stderr("[Targets] Error getting OS for target, ID: %s, removing from list of targets", target.ID)
 			target.OSID = "unknown"
 			continue
 		}
@@ -47,16 +47,17 @@ func NormaliseTargets(ctx context.Context, args *[]string, client Client) ([]*ty
 }
 
 func getContainerOS(ctx context.Context, containerID string, client CopyFrom) (string, error) {
+	logging.Stderr("[Targets] getting container OS for container %s", containerID)
 	osReleaseFile := "/etc/os-release"
 	fileNotFound := regexp.MustCompile(`no such file or directory`)
 
 	reader, _, err := client.CopyFromContainer(ctx, containerID, osReleaseFile, true)
 	if err != nil {
 		if fileNotFound.MatchString(err.Error()) {
-			logging.Stderr("[Scheduler] File not found - assuming scratch")
+			logging.Stderr("[Targets] File not found - assuming scratch")
 			return "scratch", nil
 		}
-		fmt.Printf("Error reading file: %s\n", err)
+		logging.Stderr("[Targets] Error reading file: %s\n, setting type to unknown", err)
 		return "", err
 	}
 	defer reader.Close()
@@ -72,19 +73,20 @@ func getContainerOS(ctx context.Context, containerID string, client CopyFrom) (s
 			log.Fatalln(err)
 		}
 
-		logging.Stderr("reading from file: %s", hdr.Name)
+		logging.Stderr("[Targets] Reading from file: %s", hdr.Name)
 		scanner := bufio.NewScanner(tr)
 		for scanner.Scan() {
 			line := scanner.Text()
+			logging.Stderr("[Targets] Line: %s", line)
 			splitString := strings.SplitN(line, "=", 2)
 			if len(splitString) != 2 {
-				logging.Stderr("unable to extract key and value from line: %s", line)
+				logging.Stderr("[Targets] Unable to extract key and value from line: %s", line)
 				continue
 			}
 			key := splitString[0]
 			value := splitString[1]
 			if key == "" {
-				logging.Stderr("ignoring empty key from line: %s", line)
+				logging.Stderr("[Targets] Ignoring empty key from line: %s", line)
 				continue
 			}
 			osRelease[key] = value
@@ -96,12 +98,12 @@ func getContainerOS(ctx context.Context, containerID string, client CopyFrom) (s
 
 	if val, ok := osRelease["ID"]; ok {
 		if val != "" {
-			logging.Stderr("[Scheduler] detected OS Release ID: %s", val)
+			logging.Stderr("[Targets] detected OS Release ID: %s", val)
 			return val, nil
 		}
 	}
 
-	logging.Stderr("[Scheduler] unable to determine OS Release ID from file, setting to unknown")
+	logging.Stderr("[Targets] unable to determine OS Release ID from file, setting to unknown")
 	return "unknown", nil
 }
 
@@ -109,8 +111,8 @@ func getContainerOS(ctx context.Context, containerID string, client CopyFrom) (s
 func stringToTargetContainer(ctx context.Context, containerIDOrName string, client Inspector) (*types.TargetContainer, error) {
 	containerJSON, err := client.ContainerInspect(ctx, containerIDOrName)
 	if err != nil {
-		error := fmt.Sprintf("[Scheduler] Unable to find target container: %s, error: %s", containerIDOrName, err)
-		logging.Stderr(error)
+		error := fmt.Sprintf("Unable to find target container: %s, error: %s", containerIDOrName, err)
+		logging.Stderr("[Targets] ", error)
 		return &types.TargetContainer{}, err
 	}
 	targetContainer := types.TargetContainer{
