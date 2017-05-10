@@ -2,7 +2,7 @@ package scheduler
 
 import (
 	"context"
-	"fmt"
+	"os"
 
 	"sync"
 
@@ -21,7 +21,7 @@ import (
 type Scheduler struct {
 	harvesters   []harvester.AttachedContainer
 	capabilities registry.CapabilitiesRegistry
-	targets      []types.TargetContainer
+	targets      []*types.TargetContainer
 	client       dockeradapter.Client
 	report       types.Report
 	args         *[]string
@@ -52,7 +52,7 @@ func New(args []string, opts types.ClientOptions) *Scheduler {
 }
 
 // Run starts the scheduler
-func (s *Scheduler) Run() {
+func (s *Scheduler) Run(r registry.IRegistry) {
 	defer logging.Stderr("[Scheduler] Exiting")
 	logging.Stderr("[Scheduler] Running")
 	// Exit immediately if a harvester error has already been thrown
@@ -62,18 +62,26 @@ func (s *Scheduler) Run() {
 
 	ctx := context.Background()
 	resultsChannel := make(chan types.ContainerReport)
-	s.getTargetContainers()
-	wg.Add(1)
-	go collector.RunCollector(ctx, &wg, s.targets, resultsChannel, s.opts.ConsumerURL)
+	targets, err := dockeradapter.NormaliseTargets(ctx, s.args, s.client)
+	if err != nil {
+		logging.Stderr("[Scheduler] Unable to normalise targets: %s. Exiting...", err)
+		os.Exit(1)
+	}
+	s.targets = targets
+
+	expectedResultCount := getExpectedResultCount(s.targets, r)
 
 	wg.Add(1)
-	err := harvester.RunAttachedHarvester(ctx, &wg, s.targets, registry.Registry.AttachedCapabilities(), resultsChannel, *s.opts, s.client)
+	go collector.RunCollector(ctx, &wg, expectedResultCount, resultsChannel, s.opts.ConsumerURL)
+
+	wg.Add(1)
+	err = harvester.RunAttachedHarvester(ctx, &wg, s.targets, r.AttachedCapabilities(), resultsChannel, *s.opts, s.client)
 	if err != nil {
-		logging.Stderr("[Scheduler] Error running Attached harvesters")
+		logging.Stderr("[Scheduler] Error running Attached harvesters: %s", err)
 	}
 
 	wg.Add(1)
-	err = harvester.RunDockerAPIHarvester(ctx, &wg, s.targets, registry.Registry.DockerAPICapabilities(), resultsChannel, s.client)
+	err = harvester.RunDockerAPIHarvester(ctx, &wg, s.targets, r.DockerAPICapabilities(), resultsChannel, s.client)
 	if err != nil {
 		logging.Stderr("[Scheduler] Error running Docker API harvesters")
 	}
@@ -81,50 +89,21 @@ func (s *Scheduler) Run() {
 	wg.Wait()
 }
 
-func (s *Scheduler) getTargetContainers() {
-	ctx := context.Background()
-	if len(*s.args) > 0 {
-		s.targets = stringsToTargetContainers(ctx, *s.args, s.client)
-	} else {
-		targetContainerIDs, err := s.client.ContainerList(ctx)
-		if err != nil {
-			errorMsg := fmt.Errorf("[Scheduler] Unable to list containers, error: %s", err)
-			s.err = errorMsg
+func getExpectedResultCount(targets []*types.TargetContainer, registry registry.IRegistry) int {
+	expectedResults := 0
+	for _, target := range targets {
+		for _, capability := range registry.AttachedCapabilities() {
+			if utils.KeyInMap("all", capability.SupportedOS) || utils.KeyInMap(target.OSID, capability.SupportedOS) {
+				expectedResults++
+				break
+			}
 		}
-
-		localContainerID, err := utils.GetLocalContainerID("/proc/self/cgroup")
-		if err == nil {
-			logging.Stderr("[Scheduler] Excluding scheduler container from harvested containers, ID: %s", localContainerID)
-			targetContainerIDs = utils.RemoveStringFromSlice(targetContainerIDs, localContainerID)
+		for _, capability := range registry.DockerAPICapabilities() {
+			if utils.KeyInMap("all", capability.SupportedOS) || utils.KeyInMap(target.OSID, capability.SupportedOS) {
+				expectedResults++
+				break
+			}
 		}
-		s.targets = stringsToTargetContainers(ctx, targetContainerIDs, s.client)
 	}
-}
-
-// stringToTargetContainer converts a container ID or Name string into types.TargetContainer
-func stringToTargetContainer(ctx context.Context, containerIDOrName string, client dockeradapter.Inspector) (types.TargetContainer, error) {
-	containerJSON, err := client.ContainerInspect(ctx, containerIDOrName)
-	if err != nil {
-		error := fmt.Sprintf("[Scheduler] Unable to find target container: %s, error: %s", containerIDOrName, err)
-		logging.Stderr(error)
-		return types.TargetContainer{}, err
-	}
-	targetContainer := types.TargetContainer{
-		ID:   containerJSON.ContainerJSONBase.ID,
-		Name: containerJSON.ContainerJSONBase.Name,
-	}
-	return targetContainer, nil
-}
-
-// stringsToTargetContainers converts a slice of container ID or Name strings into a slice of types.TargetContainer
-func stringsToTargetContainers(ctx context.Context, containerIDsOrNames []string, client dockeradapter.Inspector) []types.TargetContainer {
-	targetContainers := []types.TargetContainer{}
-	for _, containerIDOrName := range containerIDsOrNames {
-		targetContainer, err := stringToTargetContainer(ctx, containerIDOrName, client)
-		if err != nil {
-			continue
-		}
-		targetContainers = append(targetContainers, targetContainer)
-	}
-	return targetContainers
+	return expectedResults
 }

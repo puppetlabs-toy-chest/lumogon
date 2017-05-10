@@ -33,6 +33,7 @@ var hostCapability = types.AttachedCapability{
 		Description: hostDescription,
 		Type:        "attached",
 		Payload:     nil,
+		SupportedOS: map[string]int{"all": 1},
 	},
 	Harvest: func(capability *types.AttachedCapability, id string, args []string) {
 		logging.Stderr("[Host] Harvesting host capability, capability harvest id: %s", id)

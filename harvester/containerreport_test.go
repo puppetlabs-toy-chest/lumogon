@@ -31,7 +31,7 @@ func TestGenerateContainerReport(t *testing.T) {
 		t.Errorf("Generated ContainerName [%s] does not match expected value [%s]", generatedReport.ContainerName, target.Name)
 	}
 	if len(generatedReport.Capabilities) != len(capabiltyData) {
-		t.Errorf("Generated ContainerName [%s] does not match expected value [%s]", generatedReport.Capabilities, capabiltyData)
+		t.Errorf("Number of Capabilities [%d] does not match expected value [%d]", len(generatedReport.Capabilities), len(capabiltyData))
 	}
 }
 
