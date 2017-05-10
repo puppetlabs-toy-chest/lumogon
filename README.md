@@ -21,8 +21,8 @@ docker pull puppet/lumogon
 ### Running Lumogon
 
 Now that you have Lumogon installed, let's run it to find out which
-containers you have running and what we can learn about them. The output of the
-client will be a [JSON](https://en.wikipedia.org/wiki/JSON) listing of all the
+containers you have running and what we can learn about them. The output from a
+Lumogon scan will be a [JSON](https://en.wikipedia.org/wiki/JSON) listing of all the
 containers found and what Lumogon could learn about them.
 
 Since JSON can be hard to read as one big unstructured message, you might want
@@ -126,22 +126,20 @@ After a few seconds you should see your JSON data:
 }
 ```
 
-Since this output is valid JSON, you can slice and dice it with `jq`, or pass it
+Since Lumogon's output is valid JSON, you can slice and dice it with `jq`, or pass it
 along to any other tool you use that can accept JSON input.
 
 ### Sending reports to the Lumogon service
 
-As well as being able to access raw data we're building a web service
-which can provide more visual reports.
-
+Lumogon provides an optional web service that can translate your JSON data into
+more human friendly reports.
 
 ``` shell
 docker run --rm -v /var/run/docker.sock:/var/run/docker.sock puppet/lumogon report
 ```
 
-This collects the same data as `scan` but sends it over HTTPS to our
-service. Instead of returning the raw data you should get a URL to view
-the report, like this one:
+The `report` command generates the same data as `scan`, but sends it over HTTPS to
+the Lumogon reporting service and returns a URL to view your report.
 
 ```
 http://reporter.app.lumogon.com/aHrhCcXT2sJBrrewEFCGaWEYbJnqV0vQWMwzO3Dzhbc=
@@ -172,9 +170,9 @@ Flags:
 
 Feel free to explore those command-line options. Of note:
 
- - The `--keep-harvesters` flag will preserve containers that are created on the fly to explore your other containers. You can use `docker logs <containerid>` to see more of what they found while running.
- - You can specify `scan` to collect data on all your running containers, or you can specify a specific container by passing `scan <containerid>`.
- - `--debug` will generate more verbose debugging output so you can see Lumogon exploring your containers.
+ - The `--keep-harvesters` flag will preserve temporary containers created on the fly to explore your other containers. You can use `docker logs <containerid>` to see more of what they found while running.
+ - You can specify `scan` to collect data on all your running containers, or you can target a specific container by passing `scan <containerid>`.
+ - `--debug` will generate verbose debugging output so you can see how Lumogon explores your containers.
 
 
 ## Building the client from source
@@ -198,7 +196,7 @@ cd $GOPATH/src/github.com/puppetlabs/lumogon
 make all
 ```
 
-Note that this build process isn't widely tested away from macOS just yet but will eventually work everywhere.
+Note that this build process isn't widely tested away from macOS yet but will eventually work everywhere.
 
 
 ## Giving us feedback

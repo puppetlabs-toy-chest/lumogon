@@ -1,20 +1,17 @@
 # Anonymous Aggregate User Behaviour Analytics
 
-Lumogon has begun gathering anonymous aggregate user behaviour analytics and reporting these to Google Analytics.
+Lumogon gathers anonymous aggregate user behaviour analytics and reports these to Google Analytics.
 
 ## Why?
 
-We are interested in learning how users are succeeding in using Lumogon to
-explore their container deployments. Gathering information on which lumogon
-commands are being run, and how frequently, gives us a basic insight into what
-features are the most used.  We're also interested in learning whether the
-client tooling on its own is useful, or whether users are finding that
-uploading container data to the reporting service for visualization has value
-as well.  By collecting anonymous counts of these actions we have a starting
-point to explore what is working or not working for users of the tool.  If our
-statistics tell us that more reports are being uploaded than we receive then we
-have an indication that our report viewer service is potentially not keeping up
-with demand from users.
+The Lumogon team is interested in learning how users are using Lumogon to explore
+their containers. This aggregate data helps us to prioritize issues and new features
+based on how Lumogon is actually used.
+
+We will also use the analytics to help monitor the health of the Lumogon reporting
+service. If our analytics data suggests that more reports are uploaded than our
+service receives, then this might be an indication that our service is not keeping
+up with user demand.
 
 ## What?
 Lumogon's analytics record some shared information for every event:
@@ -27,33 +24,33 @@ Lumogon's analytics record some shared information for every event:
 - The Lumogon analytics hit type, e.g. `screenview` (https://developers.google.com/analytics/devguides/collection/protocol/v1/parameters#t)
 - The Lumogon analytics screen view, e.g. `list` (https://developers.google.com/analytics/devguides/collection/protocol/v1/parameters#cd)
 
-
 Lumogon's analytics records the following different events:
 
-- a `screenview` hit type with the official Lumogon command you have run (with arguments stripped), e.g. `lumogon capabilities`
+- a `screenview` hit type with the official Lumogon command you ran (with arguments stripped), e.g. `lumogon capabilities`
 - an `event` type that indicates that an upload to the report viewer service was at least attempted
 
-You can disable any analytics from being set by passing `--disable-analytics` on the command line. It is impossible for the Lumogon developers to match any particular event to any particular user.
+You can disable all analytics by passing `--disable-analytics` on the command line.
 
+It is impossible for the Lumogon team to match any particular event to any particular user.
 
 ## When/Where?
-Lumogon's analytics are sent throughout Lumogon's execution to Google Analytics over HTTPS.
+Lumogon's analytics are sent during Lumogon's execution to Google Analytics over HTTPS.
 
 ## Who?
 
-This anonymized statistics data is accessible to the Lumogon development team
-at Puppet, Inc. We can look at trends in a standard Google Analytics dashboard
-to get a sense of which commands are being run, and how often users are
-attempting to upload reports to the report viewer service. This helps us focus
-on popular features, as well as how much we should be focusing on scaling our
-report viewer service.
-
+The anonymous aggregate data is accessible to the Lumogon team at Puppet, Inc.
 
 ## How?
-The code is viewable in [analytics](https://github.com/puppetlabs/lumogon/blob/master/analytics/ga.go). They are done in a separate background process and fail fast to avoid delaying any execution. They will fail immediately and silently if you have no network connection.
+
+The code is viewable in [analytics](https://github.com/puppetlabs/lumogon/blob/master/analytics/ga.go).
+Analytics are processed in a separate background process and fail fast to avoid delaying any execution.
+They will fail immediately and silently if you have no network connection.
 
 ## Opting out
-Lumogon analytics helps us maintainers and leaving it on is appreciated. However, if you want to opt out of Lumogon's analytics, you can pass the following CLI argument at runtime:
+
+Lumogon analytics help improve the quality and direction of the Lumogon project
+and leaving analytics enabled is appreciated. However, if you want to opt out of
+Lumogon's analytics, you can pass the following CLI argument at runtime:
 
 ```sh
 docker run --rm -v /var/run/docker.sock:/var/run/docker.sock puppet/lumogon --disable-analytics

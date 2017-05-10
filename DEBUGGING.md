@@ -4,9 +4,9 @@
 
 It is straightforward to run a Golang debugger on the `lumogon` program (e.g.,
 by directing the debugger to start at the `main` function in `lumogon.go` and
-proceeding from there). Note, however, that once the `lumogon` program hands off
-execution to code running in a container in the Docker infrastructure under
-examination the debugger does not follow the execution inside the container.
+proceeding from there). However, once the `lumogon` program hands off execution
+to code running in a container in the Docker infrastructure under examination
+the debugger does not follow the execution inside the container.
 
 **Debugging with Visual Studio Code**
 
@@ -39,7 +39,7 @@ development environment, here is a sample `launch.json` file to use when running
 
 The [`go-spew`](https://github.com/davecgh/go-spew) Golang library implements a
 pretty-printer that can recursively and verbosely describe the contents of Go
-data structures.  Here is an example of a helper method which wraps `spew` and
+data structures. Here is an example of a helper method which wraps `spew` and
 provides tagged log output (including the file+line location of the calling
 function) for dumping an arbitrary data structure:
 
@@ -55,10 +55,10 @@ import "github.com/davecgh/go-spew/spew"
 
 // LogDump outputs a delimited log section with the message string and a structured dump of the provided data object
 func LogDump(message string, data interface{}) {
-	logging.Stderr("\n\n====BEGIN======================================")
-	_, file, line, _ := runtime.Caller(1)
-	logging.Stderr(fmt.Sprintf("Debug - %s @ %s:%d:\n", message, file, line), spew.Sdump(data))
-	logging.Stderr("====END=======================================\n\n")
+    logging.Stderr("\n\n====BEGIN======================================")
+    _, file, line, _ := runtime.Caller(1)
+    logging.Stderr(fmt.Sprintf("Debug - %s @ %s:%d:\n", message, file, line), spew.Sdump(data))
+    logging.Stderr("====END=======================================\n\n")
 }
 ```
 
@@ -69,13 +69,13 @@ import "github.com/puppetlabs/transparent-containers/cli/debug"
 
 // ...
 
-	for scanner.Scan() {
-		txt := strings.Replace(scanner.Text(), "'", "", 2)
-		if txt != "" {
-    		debug.LogDump("data", data)
-			data = append(data, txt)
-		}
-	}
+        for scanner.Scan() {
+            txt := strings.Replace(scanner.Text(), "'", "", 2)
+            if txt != "" {
+                debug.LogDump("data", data)
+                data = append(data, txt)
+            }
+        }
 ```
 
 Sample output:
