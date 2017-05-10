@@ -6,7 +6,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log"
 	"regexp"
 	"strings"
 
@@ -15,7 +14,8 @@ import (
 	"github.com/puppetlabs/lumogon/utils"
 )
 
-// NormaliseTargets TODO
+// NormaliseTargets takes a slice of strings which can be Container IDs or
+// Names, and returns a slice of types.TargetContainers.
 func NormaliseTargets(ctx context.Context, args *[]string, client Client) ([]*types.TargetContainer, error) {
 	targets := []*types.TargetContainer{}
 	if len(*args) > 0 {
@@ -46,6 +46,13 @@ func NormaliseTargets(ctx context.Context, args *[]string, client Client) ([]*ty
 	return targets, nil
 }
 
+// getContainerOS identifies the OS that a target container is running
+// from the ID in /etc/os-release on that container.
+// If no /etc/os-release file is found it will identify the target as a
+// scratch container (this identifies the most common base images
+// currently on Docker Hub).
+// If an error is thrown when attempting to read the /etc/os-release file
+// the container is identified as unknown.
 func getContainerOS(ctx context.Context, containerID string, client CopyFrom) (string, error) {
 	logging.Stderr("[Targets] getting container OS for container %s", containerID)
 	osReleaseFile := "/etc/os-release"
@@ -70,7 +77,7 @@ func getContainerOS(ctx context.Context, containerID string, client CopyFrom) (s
 			break
 		}
 		if err != nil {
-			log.Fatalln(err)
+			return "unknown", err
 		}
 
 		logging.Stderr("[Targets] Reading from file: %s", hdr.Name)
