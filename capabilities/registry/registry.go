@@ -19,6 +19,15 @@ type CapabilitiesRegistry struct {
 	dockerAPI []dockeradapter.DockerAPICapability
 }
 
+// IRegistry TODO
+type IRegistry interface {
+	AttachedCapabilities() []types.AttachedCapability
+	DockerAPICapabilities() []dockeradapter.DockerAPICapability
+	Count() int
+	TypesCount() int
+	DescribeCapability(capabilityID string) (string, error)
+}
+
 // Registry provisioned capabilities
 var Registry CapabilitiesRegistry
 
