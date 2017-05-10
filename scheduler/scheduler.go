@@ -3,7 +3,7 @@ package scheduler
 import (
 	"context"
 	"fmt"
-
+	"os"
 	"sync"
 
 	"github.com/puppetlabs/lumogon/capabilities/registry"
@@ -121,6 +121,11 @@ func stringToTargetContainer(ctx context.Context, containerIDOrName string, clie
 	if !containerJSON.State.Running {
 		error := fmt.Sprintf("[Scheduler] Target container: %s is not running", containerIDOrName)
 		logging.Stderr(error)
+		// Print skipped container details to Stderr so as not to interfere with piping scan output to
+		// other commands.
+		// TODO - push the container State into types.TargetContainer, would allow giving feedback on stopped
+		//        containers on a single line etc
+		fmt.Fprintf(os.Stderr, "Skipping stopped container: %s [id: %s]\n", containerJSON.Name, containerJSON.ID)
 		return nil, err
 	}
 	targetContainer := &types.TargetContainer{
