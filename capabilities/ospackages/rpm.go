@@ -22,7 +22,7 @@ var rpmCapability = dockeradapter.DockerAPICapability{
 		Description: rpmDescription,
 		Type:        "dockerapi",
 		Payload:     nil,
-		SupportedOS: map[string]int{"fedora": 1, "rhel": 1},
+		SupportedOS: map[string]int{"fedora": 1, "rhel": 1, "centos": 1, "opensuse": 1, "suse": 1},
 	},
 	Harvest: func(capability *dockeradapter.DockerAPICapability, client dockeradapter.Harvester, id string, target types.TargetContainer) {
 		logging.Stderr("[Rpm] Harvesting packages from %s [%s], harvestid: %s", id)
