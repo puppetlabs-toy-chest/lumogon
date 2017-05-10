@@ -90,8 +90,8 @@ func getContainerOS(ctx context.Context, containerID string, client CopyFrom) (s
 				logging.Stderr("[Targets] Unable to extract key and value from line: %s", line)
 				continue
 			}
-			key := splitString[0]
-			value := splitString[1]
+			key := strings.Trim(splitString[0], "\" '")
+			value := strings.Trim(splitString[1], "\" '")
 			if key == "" {
 				logging.Stderr("[Targets] Ignoring empty key from line: %s", line)
 				continue
