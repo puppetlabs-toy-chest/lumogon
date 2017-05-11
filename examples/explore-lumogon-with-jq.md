@@ -117,4 +117,4 @@ we want to set that information free so we can build tools to quickly answer
 questions and solve real user problems.
 
 If you're interested in these examples or have any questions about
-Lumogon then head over to our [Slack channel](https://puppetcommunity.slack.com/messages/G58F97FC5).
+Lumogon then head over to our [Slack channel](https://puppetcommunity.slack.com/messages/C5CT7GMKQ).
