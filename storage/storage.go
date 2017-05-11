@@ -25,18 +25,18 @@ type ReportStorage interface {
 
 // Store marshalls the supplied types.Report before storing it
 func (s Storage) Store(report types.Report) error {
-	logging.Stderr("[Collector] Storing report")
+	logging.Stderr("[Storage] Storing report")
 	marshalledReport, err := json.Marshal(report)
 	if err != nil {
-		logging.Stderr("[Collector] Error marshalling report: %s ", err)
+		logging.Stderr("[Storage] Error marshalling report: %s ", err)
 		return err
 	}
 	err = storeResult(string(marshalledReport), s.ConsumerURL)
 	if err != nil {
-		logging.Stderr("[Collector] Error storing report: %s ", err)
+		logging.Stderr("[Storage] Error storing report: %s ", err)
 		return err
 	}
-	logging.Stderr("[Collector] Report stored")
+	logging.Stderr("[Storage] Report stored")
 	return nil
 }
 
