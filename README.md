@@ -142,7 +142,7 @@ The `report` command generates the same data as `scan`, but sends it over HTTPS 
 the Lumogon reporting service and returns a URL to view your report.
 
 ```
-http://reporter.app.lumogon.com/aHrhCcXT2sJBrrewEFCGaWEYbJnqV0vQWMwzO3Dzhbc=
+https://reporter.app.lumogon.com/UuokYc0VMgA4oAZYaJRaN6O7xMqakDLsqgHGs0dBmJY=
 ```
 
 ### More ways to use Lumogon
