@@ -20,7 +20,7 @@ var results map[string]types.ContainerReport
 // RunCollector starts the collector which will block on reading all
 // expected ContainerReports from the results channel, before creating
 // and storing a report.
-func RunCollector(ctx context.Context, wg *sync.WaitGroup, expectedResults int, resultsCh chan types.ContainerReport, consumerURL string) {
+func RunCollector(ctx context.Context, wg *sync.WaitGroup, expectedResults int, resultsCh chan types.ContainerReport, backend storage.ReportStorage) {
 	logging.Stderr("[Collector] Running, expecting %d results", expectedResults)
 	defer logging.Stderr("[Collector] Exiting")
 	defer wg.Done()
@@ -40,7 +40,7 @@ func RunCollector(ctx context.Context, wg *sync.WaitGroup, expectedResults int, 
 	if err != nil {
 		return
 	}
-	storeReport(report, consumerURL)
+	backend.Store(report)
 }
 
 // cacheResult caches the supplied types.ContainerReport.
@@ -70,22 +70,4 @@ func createReport(results map[string]types.ContainerReport) (types.Report, error
 	report.Containers = results
 	logging.Stderr("[Collector] Report created")
 	return *report, nil //TODO do we really want a pointer here?
-}
-
-// storeReport marshalls the supplied types.Report and sends it to the
-// storage package for persistance to the specified consumerURL.
-func storeReport(report types.Report, consumerURL string) error {
-	logging.Stderr("[Collector] Storing report")
-	marshalledReport, err := json.Marshal(report)
-	if err != nil {
-		logging.Stderr("[Collector] Error marshalling report: %s ", err)
-		return err
-	}
-	err = storage.StoreResult(string(marshalledReport), consumerURL)
-	if err != nil {
-		logging.Stderr("[Collector] Error storing report: %s ", err)
-		return err
-	}
-	logging.Stderr("[Collector] Report stored")
-	return nil
 }

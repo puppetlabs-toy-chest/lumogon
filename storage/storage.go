@@ -9,18 +9,41 @@ import (
 
 	"github.com/puppetlabs/lumogon/analytics"
 	"github.com/puppetlabs/lumogon/logging"
+	"github.com/puppetlabs/lumogon/types"
 	"github.com/puppetlabs/lumogon/utils"
 )
 
 // Storage submits the captured data an appropriate destination
-type Storage interface {
-	StoreResult(result string, consumerURL string) error
+type Storage struct {
+	ConsumerURL string
 }
 
-// StoreResult stores the harvested result, currently this just
+// ReportStorage TODO
+type ReportStorage interface {
+	Store(report types.Report) error
+}
+
+// Store marshalls the supplied types.Report before storing it
+func (s Storage) Store(report types.Report) error {
+	logging.Stderr("[Collector] Storing report")
+	marshalledReport, err := json.Marshal(report)
+	if err != nil {
+		logging.Stderr("[Collector] Error marshalling report: %s ", err)
+		return err
+	}
+	err = storeResult(string(marshalledReport), s.ConsumerURL)
+	if err != nil {
+		logging.Stderr("[Collector] Error storing report: %s ", err)
+		return err
+	}
+	logging.Stderr("[Collector] Report stored")
+	return nil
+}
+
+// storeResult stores the harvested result, currently this just
 // involves printing it to stdout where its manually passed to the
 // Lambda consumer
-func StoreResult(result string, consumerURL string) error {
+func storeResult(result string, consumerURL string) error {
 	var postResponse struct {
 		Token string
 		URL   string

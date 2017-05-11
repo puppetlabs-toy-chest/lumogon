@@ -11,6 +11,7 @@ import (
 	"github.com/puppetlabs/lumogon/dockeradapter"
 	"github.com/puppetlabs/lumogon/harvester"
 	"github.com/puppetlabs/lumogon/logging"
+	"github.com/puppetlabs/lumogon/storage"
 	"github.com/puppetlabs/lumogon/types"
 	"github.com/puppetlabs/lumogon/utils"
 )
@@ -71,8 +72,9 @@ func (s *Scheduler) Run(r registry.IRegistry) {
 
 	expectedResultCount := getExpectedResultCount(s.targets, r)
 
+	storageBackend := storage.Storage{ConsumerURL: s.opts.ConsumerURL}
 	wg.Add(1)
-	go collector.RunCollector(ctx, &wg, expectedResultCount, resultsChannel, s.opts.ConsumerURL)
+	go collector.RunCollector(ctx, &wg, expectedResultCount, resultsChannel, storageBackend)
 
 	wg.Add(1)
 	err = harvester.RunAttachedHarvester(ctx, &wg, s.targets, r.AttachedCapabilities(), resultsChannel, *s.opts, s.client)
