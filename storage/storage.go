@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/puppetlabs/lumogon/analytics"
 	"github.com/puppetlabs/lumogon/logging"
 	"github.com/puppetlabs/lumogon/types"
 	"github.com/puppetlabs/lumogon/utils"
+	"github.com/puppetlabs/lumogon/version"
 )
 
 // Storage submits the captured data an appropriate destination
@@ -20,11 +22,17 @@ type Storage struct {
 
 // ReportStorage TODO
 type ReportStorage interface {
-	Store(report types.Report) error
+	Store(map[string]types.ContainerReport) error
 }
 
 // Store marshalls the supplied types.Report before storing it
-func (s Storage) Store(report types.Report) error {
+func (s Storage) Store(results map[string]types.ContainerReport) error {
+
+	report, err := createReport(results)
+	if err != nil {
+		return err
+	}
+
 	logging.Stderr("[Storage] Storing report")
 	marshalledReport, err := json.Marshal(report)
 	if err != nil {
@@ -85,4 +93,27 @@ func storeResult(result string, consumerURL string) error {
 	fmt.Fprintf(os.Stdout, "\n%s\n", finalURL)
 
 	return nil
+}
+
+// createReport returns a pointer to a types.Report built from the supplied
+// map of container IDs to types.ContainerReport.
+func createReport(results map[string]types.ContainerReport) (types.Report, error) {
+	logging.Stdout("[Storage] Marshalling JSON")
+	marshalledResult, err := json.Marshal(results)
+	if err != nil {
+		return types.Report{}, err
+	}
+	logging.Stdout("[Storage] Marshalling successful %s", string(marshalledResult))
+
+	report := types.Report{
+		Schema:        "http://puppet.com/lumogon/core/draft-01/schema#1",
+		Generated:     time.Now().String(),
+		Owner:         "default",
+		Group:         []string{"default"},
+		ClientVersion: version.Version,
+		ReportID:      utils.GenerateUUID4(),
+		Containers:    results,
+	}
+	logging.Stdout("[Storage] Report created")
+	return report, nil //TODO do we really want a pointer here?
 }
