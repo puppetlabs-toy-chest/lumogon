@@ -1,5 +1,5 @@
 #!/bin/bash -e
-# This script temporarly mounts a specified Docker image and then scans the
+# This script temporarily mounts a specified Docker image and then scans the
 # resulting container with Lumgon. Outputs from the scan are returned to stdout.
 
 IMAGE=${1?"Usage: $0 IMAGE[:TAG]"}
