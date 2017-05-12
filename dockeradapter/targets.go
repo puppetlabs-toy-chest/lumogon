@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"os"
 	"regexp"
 	"strings"
 
@@ -120,7 +121,17 @@ func stringToTargetContainer(ctx context.Context, containerIDOrName string, clie
 	if err != nil {
 		error := fmt.Sprintf("Unable to find target container: %q, error: %s", containerIDOrName, err)
 		logging.Stderr("[Targets] ", error)
-		return &types.TargetContainer{}, err
+		return nil, err
+	}
+	if !containerJSON.State.Running {
+		error := fmt.Sprintf("[Targets] Target container: %s is not running", containerIDOrName)
+		logging.Stderr(error)
+		// Print skipped container details to Stderr so as not to interfere with piping scan output to
+		// other commands.
+		// TODO - push the container State into types.TargetContainer, would allow giving feedback on stopped
+		//        containers on a single line etc
+		fmt.Fprintf(os.Stderr, "Skipping stopped container: %s [id: %s]\n", containerJSON.Name, containerJSON.ID)
+		return nil, err
 	}
 	targetContainer := types.TargetContainer{
 		ID:   containerJSON.ContainerJSONBase.ID,
@@ -137,7 +148,10 @@ func stringsToTargetContainers(ctx context.Context, containerIDsOrNames []string
 		if err != nil {
 			continue
 		}
-		targetContainers = append(targetContainers, targetContainer)
+		if targetContainer != nil {
+			targetContainers = append(targetContainers, targetContainer)
+		}
 	}
+	logging.Stderr("[Targets] Found %d valid target containers: %v", len(targetContainers), targetContainers)
 	return targetContainers
 }
