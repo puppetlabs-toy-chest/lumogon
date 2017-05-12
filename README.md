@@ -2,6 +2,7 @@
 
 [![Build
 Status](https://travis-ci.org/puppetlabs/lumogon.svg?branch=master)](https://travis-ci.org/puppetlabs/lumogon)
+[![Go Report Card](https://goreportcard.com/badge/github.com/puppetlabs/lumogon)](https://goreportcard.com/report/github.com/puppetlabs/lumogon)
 
 Lumogon provides a way to inspect, analyze and report on your running
 [Docker](https://www.docker.com/) containers.

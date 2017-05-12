@@ -73,7 +73,7 @@ func createReport(results map[string]types.ContainerReport) (types.Report, error
 }
 
 // storeReport marshalls the supplied types.Report and sends it to the
-// storage package for persistance to the specified consumerURL.
+// storage package for persistence to the specified consumerURL.
 func storeReport(report types.Report, consumerURL string) error {
 	logging.Stderr("[Collector] Storing report")
 	marshalledReport, err := json.Marshal(report)
