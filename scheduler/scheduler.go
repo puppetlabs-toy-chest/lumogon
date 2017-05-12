@@ -3,6 +3,7 @@ package scheduler
 import (
 	"context"
 	"os"
+	"time"
 
 	"sync"
 
@@ -61,7 +62,10 @@ func (s *Scheduler) Run(r registry.IRegistry) {
 		return
 	}
 
-	ctx := context.Background()
+	timeout := s.opts.Timeout
+	logging.Stderr("[Scheduler] Creating context with timeout [%d]", timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
+	defer cancel()
 	resultsChannel := make(chan types.ContainerReport)
 	targets, err := dockeradapter.NormaliseTargets(ctx, s.args, s.client)
 	if err != nil {
@@ -77,17 +81,12 @@ func (s *Scheduler) Run(r registry.IRegistry) {
 	go collector.RunCollector(ctx, &wg, expectedResultCount, resultsChannel, storageBackend)
 
 	wg.Add(1)
-	err = harvester.RunAttachedHarvester(ctx, &wg, s.targets, r.AttachedCapabilities(), resultsChannel, *s.opts, s.client)
-	if err != nil {
-		logging.Stderr("[Scheduler] Error running Attached harvesters: %s", err)
-	}
+	go harvester.RunAttachedHarvester(ctx, &wg, s.targets, r.AttachedCapabilities(), resultsChannel, *s.opts, s.client)
 
 	wg.Add(1)
-	err = harvester.RunDockerAPIHarvester(ctx, &wg, s.targets, r.DockerAPICapabilities(), resultsChannel, s.client)
-	if err != nil {
-		logging.Stderr("[Scheduler] Error running Docker API harvesters")
-	}
+	go harvester.RunDockerAPIHarvester(ctx, &wg, s.targets, r.DockerAPICapabilities(), resultsChannel, s.client)
 
+	logging.Stderr("[Scheduler] Waiting")
 	wg.Wait()
 }
 

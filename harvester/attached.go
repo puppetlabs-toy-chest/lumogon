@@ -23,6 +23,7 @@ import (
 func RunAttachedHarvester(ctx context.Context, wg *sync.WaitGroup, targets []*types.TargetContainer, capabilites []types.AttachedCapability, resultsCh chan types.ContainerReport, opts types.ClientOptions, client dockeradapter.Client) error {
 	defer logging.Stderr("[Attached Harvester] Exiting")
 	defer wg.Done()
+	logging.Stderr("[Attached Harvester] Running")
 
 	validTargets := []*types.TargetContainer{}
 	for _, target := range targets {
@@ -39,7 +40,7 @@ func RunAttachedHarvester(ctx context.Context, wg *sync.WaitGroup, targets []*ty
 	}
 
 	if len(validTargets) == 0 {
-		errorMsg := fmt.Errorf("[Scheduler] No targets found with supported capabilities")
+		errorMsg := fmt.Errorf("[Attached Harvester] No targets found with supported capabilities")
 		return errorMsg
 	}
 	logging.Stderr("[Attached Harvester] Running")
@@ -58,14 +59,28 @@ func RunAttachedHarvester(ctx context.Context, wg *sync.WaitGroup, targets []*ty
 		go createAndRunHarvester(ctx, client, *target, opts, rpcReceiverResultsCh)
 	}
 
-	for _ = range validTargets {
-		result := <-rpcReceiverResultsCh
-		logging.Stderr("[Attached Harvester] RPC result received from name: %s, ID: %s", result.ContainerName, result.ContainerID)
-		removeContainer(ctx, client, result.HarvesterContainerID, opts)
-		logging.Stderr("[Attached Harvester] Sending to collector via resultsCh")
-		resultsCh <- result
+	doneChannel := make(chan int)
+	go func() {
+		for i := 1; i <= len(validTargets); i++ {
+			result := <-rpcReceiverResultsCh
+			logging.Stderr("[Attached Harvester] RPC result received from name: %s, ID: %s", result.ContainerName, result.ContainerID)
+			removeContainer(ctx, client, result.HarvesterContainerID, opts)
+			logging.Stderr("[Attached Harvester] Sending to collector via resultsCh")
+			resultsCh <- result
+		}
+		doneChannel <- 0
+	}()
+
+	var err error
+	select {
+	case <-doneChannel:
+		logging.Stdout("[Attached Harvester] All expected results received")
+	case <-ctx.Done():
+		logging.Stdout("[Attached Harvester] Context timed out waiting for results, continuing...")
+		err = ctx.Err()
 	}
-	return nil
+
+	return err
 }
 
 // createAndRunHarvester creates and runs a container attached to the namespace of the target
