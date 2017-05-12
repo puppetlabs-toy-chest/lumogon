@@ -15,12 +15,12 @@ import (
 // It creates a ContainerReport for each target container populated with the output of the
 // Harvest function from each capabilitie before sending the result to the collector via the
 // main results channel, resultsCh.
-func RunDockerAPIHarvester(ctx context.Context, wg *sync.WaitGroup, targets []*types.TargetContainer, capabilites []dockeradapter.DockerAPICapability, resultsCh chan types.ContainerReport, client dockeradapter.Harvester) error {
+func RunDockerAPIHarvester(ctx context.Context, wg *sync.WaitGroup, targets []*types.TargetContainer, capabilities []dockeradapter.DockerAPICapability, resultsCh chan types.ContainerReport, client dockeradapter.Harvester) error {
 	defer logging.Stderr("[DockerAPI Harvester] Exiting")
 	defer wg.Done()
 
 	logging.Stderr("[DockerAPI Harvester] Running")
-	if len(capabilites) == 0 {
+	if len(capabilities) == 0 {
 		logging.Stderr("[DockerAPI Harvester] No Docker API Capabilities found")
 		return nil
 	}
@@ -28,7 +28,7 @@ func RunDockerAPIHarvester(ctx context.Context, wg *sync.WaitGroup, targets []*t
 	dockerAPIResultsCh := make(chan *types.ContainerReport)
 
 	for _, target := range targets {
-		go harvestDockerAPICapabilities(*target, client, capabilites, dockerAPIResultsCh)
+		go harvestDockerAPICapabilities(*target, client, capabilities, dockerAPIResultsCh)
 	}
 
 	for i := range targets {
@@ -41,11 +41,11 @@ func RunDockerAPIHarvester(ctx context.Context, wg *sync.WaitGroup, targets []*t
 	return nil
 }
 
-func harvestDockerAPICapabilities(target types.TargetContainer, client dockeradapter.Harvester, capabilites []dockeradapter.DockerAPICapability, dockerAPIResultsCh chan *types.ContainerReport) {
+func harvestDockerAPICapabilities(target types.TargetContainer, client dockeradapter.Harvester, capabilities []dockeradapter.DockerAPICapability, dockerAPIResultsCh chan *types.ContainerReport) {
 	harvestedData := map[string]types.Capability{}
 
-	logging.Stderr("[DockerAPI Harvester] Harvesting %d dockerAPI capabilities", len(capabilites))
-	for _, capability := range capabilites {
+	logging.Stderr("[DockerAPI Harvester] Harvesting %d dockerAPI capabilities", len(capabilities))
+	for _, capability := range capabilities {
 		if !utils.KeyInMap("all", capability.SupportedOS) && !utils.KeyInMap(target.OSID, capability.SupportedOS) {
 			logging.Stderr("[DockerAPI Harvester] skipping capability: %s, incompatible target OS: %s", capability.Name, target.OSID)
 			continue
