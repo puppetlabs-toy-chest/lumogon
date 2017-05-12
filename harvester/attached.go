@@ -58,7 +58,7 @@ func RunAttachedHarvester(ctx context.Context, wg *sync.WaitGroup, targets []*ty
 		go createAndRunHarvester(ctx, client, *target, opts, rpcReceiverResultsCh)
 	}
 
-	for _ = range validTargets {
+	for range validTargets {
 		result := <-rpcReceiverResultsCh
 		logging.Stderr("[Attached Harvester] RPC result received from name: %s, ID: %s", result.ContainerName, result.ContainerID)
 		removeContainer(ctx, client, result.HarvesterContainerID, opts)

@@ -20,12 +20,12 @@ var getExpectedResultCountTests = []struct {
 	{
 		title: "AttachedCapabilities, all supportedOS, multiple targets",
 		targets: []*types.TargetContainer{
-			&types.TargetContainer{
+			{
 				ID:   "target1ID",
 				Name: "target1Name",
 				OSID: "debian",
 			},
-			&types.TargetContainer{
+			{
 				ID:   "target2ID",
 				Name: "target2Name",
 				OSID: "alpine",
@@ -41,12 +41,12 @@ var getExpectedResultCountTests = []struct {
 	{
 		title: "DockerAPICapabilities, all supportedOS, multiple targets",
 		targets: []*types.TargetContainer{
-			&types.TargetContainer{
+			{
 				ID:   "target1ID",
 				Name: "target1Name",
 				OSID: "debian",
 			},
-			&types.TargetContainer{
+			{
 				ID:   "target2ID",
 				Name: "target2Name",
 				OSID: "alpine",
@@ -62,12 +62,12 @@ var getExpectedResultCountTests = []struct {
 	{
 		title: "DockerAPICapabilities and AttachedCapabilities, all supportedOS, multiple targets",
 		targets: []*types.TargetContainer{
-			&types.TargetContainer{
+			{
 				ID:   "target1ID",
 				Name: "target1Name",
 				OSID: "debian",
 			},
-			&types.TargetContainer{
+			{
 				ID:   "target2ID",
 				Name: "target2Name",
 				OSID: "alpine",
@@ -83,12 +83,12 @@ var getExpectedResultCountTests = []struct {
 	{
 		title: "DockerAPICapabilities and AttachedCapabilities, only API with matching supported OS",
 		targets: []*types.TargetContainer{
-			&types.TargetContainer{
+			{
 				ID:   "target1ID",
 				Name: "target1Name",
 				OSID: "debian",
 			},
-			&types.TargetContainer{
+			{
 				ID:   "target2ID",
 				Name: "target2Name",
 				OSID: "alpine",
@@ -104,12 +104,12 @@ var getExpectedResultCountTests = []struct {
 	{
 		title: "AttachedCapabilities match subset of targets",
 		targets: []*types.TargetContainer{
-			&types.TargetContainer{
+			{
 				ID:   "target1ID",
 				Name: "target1Name",
 				OSID: "debian",
 			},
-			&types.TargetContainer{
+			{
 				ID:   "target2ID",
 				Name: "target2Name",
 				OSID: "alpine",
@@ -125,12 +125,12 @@ var getExpectedResultCountTests = []struct {
 	{
 		title: "DockerAPICapabilities match subset of targets",
 		targets: []*types.TargetContainer{
-			&types.TargetContainer{
+			{
 				ID:   "target1ID",
 				Name: "target1Name",
 				OSID: "debian",
 			},
-			&types.TargetContainer{
+			{
 				ID:   "target2ID",
 				Name: "target2Name",
 				OSID: "alpine",
@@ -146,12 +146,12 @@ var getExpectedResultCountTests = []struct {
 	{
 		title: "No valid capabilities",
 		targets: []*types.TargetContainer{
-			&types.TargetContainer{
+			{
 				ID:   "target1ID",
 				Name: "target1Name",
 				OSID: "debian",
 			},
-			&types.TargetContainer{
+			{
 				ID:   "target2ID",
 				Name: "target2Name",
 				OSID: "alpine",
