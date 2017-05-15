@@ -20,7 +20,7 @@ type Storage struct {
 	ConsumerURL string
 }
 
-// ReportStorage TODO
+// ReportStorage handles persistence of generated container reports
 type ReportStorage interface {
 	Store(map[string]types.ContainerReport) error
 }

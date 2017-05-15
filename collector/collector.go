@@ -44,7 +44,6 @@ func RunCollector(ctx context.Context, wg *sync.WaitGroup, expectedResults int, 
 	case <-ctx.Done():
 		logging.Stderr("[Collector] Context timed out waiting for results, continuing...")
 		resultsWg.Done()
-		err = ctx.Err()
 	}
 	resultsWg.Wait()
 
