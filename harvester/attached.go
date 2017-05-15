@@ -64,7 +64,6 @@ func RunAttachedHarvester(ctx context.Context, wg *sync.WaitGroup, targets []*ty
 		for i := 1; i <= len(validTargets); i++ {
 			result := <-rpcReceiverResultsCh
 			logging.Stderr("[Attached Harvester] RPC result received from name: %s, ID: %s", result.ContainerName, result.ContainerID)
-			removeContainer(ctx, client, result.HarvesterContainerID, opts)
 			logging.Stderr("[Attached Harvester] Sending to collector via resultsCh")
 			resultsCh <- result
 		}
