@@ -1,7 +1,8 @@
 # Lumogon
 
 [![Build
-Status](https://travis-ci.com/puppetlabs/lumogon.svg?token=RqtxRv25TsPVz69Qso5L&branch=master)](https://travis-ci.com/puppetlabs/lumogon)
+Status](https://travis-ci.org/puppetlabs/lumogon.svg?branch=master)](https://travis-ci.org/puppetlabs/lumogon)
+[![Go Report Card](https://goreportcard.com/badge/github.com/puppetlabs/lumogon)](https://goreportcard.com/report/github.com/puppetlabs/lumogon)
 
 Lumogon provides a way to inspect, analyze and report on your running
 [Docker](https://www.docker.com/) containers.
@@ -147,9 +148,14 @@ https://reporter.app.lumogon.com/UuokYc0VMgA4oAZYaJRaN6O7xMqakDLsqgHGs0dBmJY=
 
 ### More ways to use Lumogon
 
+The [examples](examples/README.md) directory provides more thorough examples of
+how to use the data provided by Lumogon to test and build your images and containers.
+
+### Lumogon command options
+
 Let's get the usage for the Lumogon client:
 
-``` shell
+```
 docker run --rm  -v /var/run/docker.sock:/var/run/docker.sock puppet/lumogon --help
 Lumogon is a tool for inspecting, reporting on, and analyzing your container applications.
 
@@ -174,7 +180,6 @@ Feel free to explore those command-line options. Of note:
  - You can specify `scan` to collect data on all your running containers, or you can target a specific container by passing `scan <containerid>`.
  - `--debug` will generate verbose debugging output so you can see how Lumogon explores your containers.
 
-
 ## Building the client from source
 
 If you're making changes to Lumogon, or just interested in seeing how it works under the hood, you might want to try building from source. For this you'll need a few more things:
@@ -198,7 +203,6 @@ make all
 
 Note that this build process isn't widely tested away from macOS yet but will eventually work everywhere.
 
-
 ## Giving us feedback
 
-We'd love to hear from you. We have a [Slack channel](https://puppetcommunity.slack.com/messages/G58F97FC5) for talking about Lumogon and please do open issues against [the repository](https://github.com/puppetlabs/lumogon/issues).
+We'd love to hear from you. We have a [Slack channel](https://puppetcommunity.slack.com/messages/C5CT7GMKQ) for talking about Lumogon and please do open issues against [the repository](https://github.com/puppetlabs/lumogon/issues).

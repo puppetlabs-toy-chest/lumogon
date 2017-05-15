@@ -32,11 +32,11 @@ Activity-specific guidelines
 
 ### Getting technical help
 
-The Lumogon [Slack channel](https://puppetcommunity.slack.com/messages/G58F97FC5) and [Lumogon repository issues](https://github.com/puppetlabs/lumogon/issues) are the best places to seek out technical help.
+The Lumogon [Slack channel](https://puppetcommunity.slack.com/messages/C5CT7GMKQ) and [Lumogon repository issues](https://github.com/puppetlabs/lumogon/issues) are the best places to seek out technical help.
 
 ### Slack
 
-The [Lumogon Slack channel](https://puppetcommunity.slack.com/messages/G58F97FC5) on the [Puppet Community Slack](https://puppetcommunity.slack.com) is the official chat channel for the Lumogon project . The following guidelines apply to all Slack channels.
+The [Lumogon Slack channel](https://puppetcommunity.slack.com/messages/C5CT7GMKQ) on the [Puppet Community Slack](https://puppetcommunity.slack.com) is the official chat channel for the Lumogon project . The following guidelines apply to all Slack channels.
 
 -   Don't be a jerk: Treat people with respect and consideration.
 -   Be helpful: Be patient with new people and be willing to jump in to answer questions.
@@ -54,7 +54,7 @@ Here are a few guidelines that apply specifically to filing issues:
 
 -   Each report is for only one issue. If you find several issues, please separate them into several reports.
 -   Search before you file an issue, and try to avoid filing duplicates by taking a look at whether your issue has already been filed before.
--   Don't start debates on topics not directly related to the scope of a specific issue. We have [other places](https://puppetcommunity.slack.com/messages/G58F97FC5) for general discussions.
+-   Don't start debates on topics not directly related to the scope of a specific issue. We have [other places](https://puppetcommunity.slack.com/messages/C5CT7GMKQ) for general discussions.
 -   Remove unnecessary lines when quoting other comments.
 -   Please double check to make sure that the information you are including is public (not confidential), especially in attached log files or screenshots.
 

@@ -11,7 +11,7 @@ import (
 	"github.com/puppetlabs/lumogon/types"
 )
 
-// Ack contains the reponse from the RPC Receiver server
+// Ack contains the response from the RPC Receiver server
 type Ack bool
 
 // RemoteMethods is a dummy struct used to hang RPC remote methods off.

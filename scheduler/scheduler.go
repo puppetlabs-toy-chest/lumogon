@@ -2,10 +2,10 @@ package scheduler
 
 import (
 	"context"
+	"fmt"
 	"os"
-	"time"
-
 	"sync"
+	"time"
 
 	"github.com/puppetlabs/lumogon/capabilities/registry"
 	"github.com/puppetlabs/lumogon/collector"
@@ -67,9 +67,14 @@ func (s *Scheduler) Run(r registry.IRegistry) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
 	defer cancel()
 	resultsChannel := make(chan types.ContainerReport)
+
 	targets, err := dockeradapter.NormaliseTargets(ctx, s.args, s.client)
 	if err != nil {
-		logging.Stderr("[Scheduler] Unable to normalise targets: %s. Exiting...", err)
+		fmt.Fprintf(os.Stderr, "Unable to normalise target containers: %s.\nExiting...", err)
+		os.Exit(1)
+	}
+	if len(targets) == 0 {
+		fmt.Fprintln(os.Stderr, "No valid or running target containers found. Exiting...")
 		os.Exit(1)
 	}
 	s.targets = targets

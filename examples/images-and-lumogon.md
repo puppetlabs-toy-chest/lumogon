@@ -64,4 +64,4 @@ Lumogon and point the direction for the kinds of features we might add
 into the tool at a later stage.
 
 If you're interested in these examples or have any questions about Lumogon
-then head over to our [Slack channel](https://puppetcommunity.slack.com/messages/G58F97FC5).
+then head over to our [Slack channel](https://puppetcommunity.slack.com/messages/C5CT7GMKQ).
