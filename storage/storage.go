@@ -71,10 +71,10 @@ func storeResult(result string, consumerURL string) error {
 
 	jsonStr := []byte(result)
 	// TODO Move HTTP Post Helper method elsewhere
+	logging.Stderr("[Storage] Posting result to: %s", consumerURL)
 	resp, err := http.Post(consumerURL, "application/json", bytes.NewBuffer(jsonStr))
 	if err != nil {
-		errorMsg := fmt.Sprintf("[Storage] Unable to post message, [%s], exiting..", err)
-		logging.Stderr(errorMsg)
+		logging.Stderr("[Storage] Error posting result, [%s], exiting..", err)
 		os.Exit(1)
 	}
 
@@ -98,12 +98,12 @@ func storeResult(result string, consumerURL string) error {
 // createReport returns a pointer to a types.Report built from the supplied
 // map of container IDs to types.ContainerReport.
 func createReport(results map[string]types.ContainerReport) (types.Report, error) {
-	logging.Stdout("[Storage] Marshalling JSON")
+	logging.Stderr("[Storage] Marshalling JSON")
 	marshalledResult, err := json.Marshal(results)
 	if err != nil {
 		return types.Report{}, err
 	}
-	logging.Stdout("[Storage] Marshalling successful %s", string(marshalledResult))
+	logging.Stderr("[Storage] Marshalling successful %s", string(marshalledResult))
 
 	report := types.Report{
 		Schema:        "http://puppet.com/lumogon/core/draft-01/schema#1",
@@ -114,6 +114,6 @@ func createReport(results map[string]types.ContainerReport) (types.Report, error
 		ReportID:      utils.GenerateUUID4(),
 		Containers:    results,
 	}
-	logging.Stdout("[Storage] Report created")
+	logging.Stderr("[Storage] Report created")
 	return report, nil //TODO do we really want a pointer here?
 }

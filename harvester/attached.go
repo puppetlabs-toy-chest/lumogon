@@ -74,9 +74,9 @@ func RunAttachedHarvester(ctx context.Context, wg *sync.WaitGroup, targets []*ty
 	var err error
 	select {
 	case <-doneChannel:
-		logging.Stdout("[Attached Harvester] All expected results received")
+		logging.Stderr("[Attached Harvester] All expected results received")
 	case <-ctx.Done():
-		logging.Stdout("[Attached Harvester] Context timed out waiting for results, continuing...")
+		logging.Stderr("[Attached Harvester] Context timed out waiting for results, continuing...")
 		err = ctx.Err()
 	}
 
