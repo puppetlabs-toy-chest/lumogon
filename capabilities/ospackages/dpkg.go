@@ -25,7 +25,7 @@ var dpkgCapability = dockeradapter.DockerAPICapability{
 		SupportedOS: map[string]int{"ubuntu": 1, "debian": 1},
 	},
 	Harvest: func(capability *dockeradapter.DockerAPICapability, client dockeradapter.Harvester, id string, target types.TargetContainer) {
-		logging.Stderr("[Dpkg] Harvesting packages from %s [%s], harvestid: %s", id)
+		logging.Stderr("[Dpkg] Harvesting packages from target %s [%s], harvester id: %s", target.Name, target.ID, id)
 		capability.HarvestID = id
 
 		output := make(map[string]interface{})
