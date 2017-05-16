@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/go-querystring/query"
 	"github.com/puppetlabs/lumogon/dockeradapter"
+	"github.com/puppetlabs/lumogon/logging"
 	"github.com/puppetlabs/lumogon/version"
 	"github.com/spf13/viper"
 )
@@ -67,6 +68,7 @@ func ScreenView(screen string) {
 
 // Event is the public function to post a ScreenView event analytics message to GA
 func Event(action string, category string) {
+	logging.Stderr("[Analytics] Creating analytics event, %s", category)
 	u := *NewUserSession()
 	u.Type = "event"
 	u.Action = action
@@ -90,8 +92,10 @@ func (u UserSession) PostMeasurement() (*http.Response, error) {
 	}
 
 	if u.DisableTransmit == true {
+		logging.Stderr("[Analytics] Skipping submission of Google Analytics event")
 		return nil, nil
 	}
 
+	logging.Stderr("[Analytics] Submitting event to Google Analytics")
 	return u.HTTPClient.Do(req)
 }

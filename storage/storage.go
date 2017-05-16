@@ -6,21 +6,52 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/puppetlabs/lumogon/analytics"
 	"github.com/puppetlabs/lumogon/logging"
+	"github.com/puppetlabs/lumogon/types"
 	"github.com/puppetlabs/lumogon/utils"
+	"github.com/puppetlabs/lumogon/version"
 )
 
 // Storage submits the captured data an appropriate destination
-type Storage interface {
-	StoreResult(result string, consumerURL string) error
+type Storage struct {
+	ConsumerURL string
 }
 
-// StoreResult stores the harvested result, currently this just
+// ReportStorage handles persistence of generated container reports
+type ReportStorage interface {
+	Store(map[string]types.ContainerReport) error
+}
+
+// Store marshalls the supplied types.Report before storing it
+func (s Storage) Store(results map[string]types.ContainerReport) error {
+
+	report, err := createReport(results)
+	if err != nil {
+		return err
+	}
+
+	logging.Stderr("[Storage] Storing report")
+	marshalledReport, err := json.Marshal(report)
+	if err != nil {
+		logging.Stderr("[Storage] Error marshalling report: %s ", err)
+		return err
+	}
+	err = storeResult(string(marshalledReport), s.ConsumerURL)
+	if err != nil {
+		logging.Stderr("[Storage] Error storing report: %s ", err)
+		return err
+	}
+	logging.Stderr("[Storage] Report stored")
+	return nil
+}
+
+// storeResult stores the harvested result, currently this just
 // involves printing it to stdout where its manually passed to the
 // Lambda consumer
-func StoreResult(result string, consumerURL string) error {
+func storeResult(result string, consumerURL string) error {
 	var postResponse struct {
 		Token string
 		URL   string
@@ -40,10 +71,10 @@ func StoreResult(result string, consumerURL string) error {
 
 	jsonStr := []byte(result)
 	// TODO Move HTTP Post Helper method elsewhere
+	logging.Stderr("[Storage] Posting result to: %s", consumerURL)
 	resp, err := http.Post(consumerURL, "application/json", bytes.NewBuffer(jsonStr))
 	if err != nil {
-		errorMsg := fmt.Sprintf("[Storage] Unable to post message, [%s], exiting..", err)
-		logging.Stderr(errorMsg)
+		logging.Stderr("[Storage] Error posting result, [%s], exiting..", err)
 		os.Exit(1)
 	}
 
@@ -62,4 +93,29 @@ func StoreResult(result string, consumerURL string) error {
 	fmt.Fprintf(os.Stdout, "\n%s\n", finalURL)
 
 	return nil
+}
+
+// createReport returns a pointer to a types.Report built from the supplied
+// map of container IDs to types.ContainerReport.
+func createReport(results map[string]types.ContainerReport) (types.Report, error) {
+	logging.Stderr("[Storage] Marshalling JSON")
+	marshalledResult, err := json.Marshal(results)
+	if err != nil {
+		return types.Report{}, err
+	}
+	logging.Stderr("[Storage] Marshalling successful %s", string(marshalledResult))
+
+	hostname, _ := os.Hostname()
+	report := types.Report{
+		Schema:        "http://puppet.com/lumogon/core/draft-01/schema#1",
+		Generated:     time.Now().String(),
+		Host:          hostname,
+		Owner:         "default",
+		Group:         []string{"default"},
+		ClientVersion: version.Version,
+		ReportID:      utils.GenerateUUID4(),
+		Containers:    results,
+	}
+	logging.Stderr("[Storage] Report created")
+	return report, nil //TODO do we really want a pointer here?
 }
