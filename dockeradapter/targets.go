@@ -32,6 +32,8 @@ func NormaliseTargets(ctx context.Context, args *[]string, client Client) ([]*ty
 		if err == nil {
 			logging.Stderr("[Targets] Excluding scheduler container from harvested containers, ID: %s", localContainerID)
 			targetContainerIDs = utils.RemoveStringFromSlice(targetContainerIDs, localContainerID)
+		} else {
+			logging.Stderr("[Targets] Unable to get local containerID: %s", err)
 		}
 		targets = stringsToTargetContainers(ctx, targetContainerIDs, client)
 	}
