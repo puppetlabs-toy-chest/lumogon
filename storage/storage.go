@@ -25,6 +25,14 @@ type ReportStorage interface {
 	Store(map[string]types.ContainerReport) error
 }
 
+func (s Storage) marshalReportForStorage(report types.Report, consumerURL string) ([]byte, error) {
+	if consumerURL == "" {
+		return json.MarshalIndent(report, "", "  ")
+	}
+
+	return json.Marshal(report)
+}
+
 // Store marshalls the supplied types.Report before storing it
 func (s Storage) Store(results map[string]types.ContainerReport) error {
 
@@ -34,16 +42,20 @@ func (s Storage) Store(results map[string]types.ContainerReport) error {
 	}
 
 	logging.Stderr("[Storage] Storing report")
-	marshalledReport, err := json.Marshal(report)
+
+	marshalledReport, err := s.marshalReportForStorage(report, s.ConsumerURL)
+
 	if err != nil {
 		logging.Stderr("[Storage] Error marshalling report: %s ", err)
 		return err
 	}
+
 	err = storeResult(string(marshalledReport), s.ConsumerURL)
 	if err != nil {
 		logging.Stderr("[Storage] Error storing report: %s ", err)
 		return err
 	}
+
 	logging.Stderr("[Storage] Report stored")
 	return nil
 }
