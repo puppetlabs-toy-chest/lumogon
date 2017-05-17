@@ -45,6 +45,8 @@ func (s Storage) Store(results map[string]types.ContainerReport) error {
 	return nil
 }
 
+// outputResult pretty-prints a JSON marshalled version of the harvested
+// result to STDOUT
 func outputResult(report types.Report) error {
 	result, err := json.MarshalIndent(report, "", "  ")
 
@@ -63,9 +65,8 @@ func outputResult(report types.Report) error {
 	return nil
 }
 
-// storeResult stores the harvested result, currently this just
-// involves printing it to stdout where its manually passed to the
-// Lambda consumer
+// storeResult stores the harvested result, posting a JSON-marshalled
+// version of the report to the consumerURL.
 func storeResult(report types.Report, consumerURL string) error {
 	var postResponse struct {
 		Token string
