@@ -45,19 +45,38 @@ func (s Storage) Store(results map[string]types.ContainerReport) error {
 	return nil
 }
 
-// outputResult pretty-prints a JSON marshalled version of the harvested
-// result to STDOUT
-func outputResult(report types.Report) error {
-	result, err := json.MarshalIndent(report, "", "  ")
+// formatReport returns a properly formatted byte array of the JSON
+// marshalled version of the given Report, indented or unindented
+func formatReport(report types.Report, indent bool) ([]byte, error) {
+	var result []byte
+	var err error
 
-	if string(result[:]) == "" {
-		errorMsg := fmt.Sprintf("[Storage] No harvesting result found")
-		logging.Stderr(errorMsg)
-		return fmt.Errorf(errorMsg)
+	if indent {
+		result, err = json.MarshalIndent(report, "", "  ")
+	} else {
+		result, err = json.Marshal(report)
 	}
 
 	if err != nil {
 		logging.Stderr("[Storage] error marshalling report: %s", err)
+		return nil, err
+	}
+
+	resultString := string(result[:])
+	if resultString == "" {
+		errorMsg := fmt.Sprintf("[Storage] No harvesting result found")
+		logging.Stderr(errorMsg)
+		return nil, fmt.Errorf(errorMsg)
+	}
+
+	return result, nil
+}
+
+// outputResult pretty-prints a JSON marshalled version of the harvested
+// report to STDOUT
+func outputResult(report types.Report) error {
+	result, err := formatReport(report, true) // indented report
+	if err != nil {
 		return err
 	}
 
@@ -74,20 +93,10 @@ func storeResult(report types.Report, consumerURL string) error {
 	}
 
 	logging.Stderr("[Storage] Storing report")
-	result, err := json.Marshal(report)
-
-	if string(result[:]) == "" {
-		errorMsg := fmt.Sprintf("[Storage] No harvesting result found")
-		logging.Stderr(errorMsg)
-		return fmt.Errorf(errorMsg)
-	}
-
+	jsonStr, err := formatReport(report, false) // unindented report
 	if err != nil {
-		logging.Stderr("[Storage] error marshalling report: %s", err)
 		return err
 	}
-
-	jsonStr := []byte(result)
 
 	// TODO Move HTTP Post Helper method elsewhere
 	logging.Stderr("[Storage] Posting result to: %s", consumerURL)
