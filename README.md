@@ -26,6 +26,10 @@ containers you have running and what we can learn about them. The output from a
 Lumogon scan will be a [JSON](https://en.wikipedia.org/wiki/JSON) listing of all the
 containers found and what Lumogon could learn about them.
 
+```
+docker run --rm  -v /var/run/docker.sock:/var/run/docker.sock puppet/lumogon scan
+```
+
 After a few seconds you should see your JSON data:
 
 ``` json
