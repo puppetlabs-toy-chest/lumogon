@@ -39,7 +39,7 @@ type frameHeader struct {
 //
 // The following streamTypes are supported (from the Docker stdcopy package):
 //  - Stdin    - 0
-//  - Stderr   - 1
+//  - Stdout   - 1
 //  - Stderr   - 2
 //  - Systemerr - 3
 // The function works by walking the supplied stream alternating between reading
