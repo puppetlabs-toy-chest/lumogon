@@ -27,54 +27,82 @@ type ReportStorage interface {
 
 // Store marshalls the supplied types.Report before storing it
 func (s Storage) Store(results map[string]types.ContainerReport) error {
-
 	report, err := createReport(results)
 	if err != nil {
 		return err
 	}
 
-	logging.Stderr("[Storage] Storing report")
-	marshalledReport, err := json.Marshal(report)
-	if err != nil {
-		logging.Stderr("[Storage] Error marshalling report: %s ", err)
-		return err
+	if s.ConsumerURL == "" {
+		return outputResult(report)
 	}
-	err = storeResult(string(marshalledReport), s.ConsumerURL)
+
+	err = storeResult(report, s.ConsumerURL)
 	if err != nil {
 		logging.Stderr("[Storage] Error storing report: %s ", err)
 		return err
 	}
-	logging.Stderr("[Storage] Report stored")
+
 	return nil
 }
 
-// storeResult stores the harvested result, currently this just
-// involves printing it to stdout where its manually passed to the
-// Lambda consumer
-func storeResult(result string, consumerURL string) error {
+// formatReport returns a properly formatted byte array of the JSON
+// marshalled version of the given Report, indented or unindented
+func formatReport(report types.Report, indent bool) ([]byte, error) {
+	var result []byte
+	var err error
+
+	if indent {
+		result, err = json.MarshalIndent(report, "", "  ")
+	} else {
+		result, err = json.Marshal(report)
+	}
+
+	if err != nil {
+		logging.Stderr("[Storage] error marshalling report: %s", err)
+		return nil, err
+	}
+
+	resultString := string(result[:])
+	if resultString == "" {
+		errorMsg := fmt.Sprintf("[Storage] No harvesting result found")
+		logging.Stderr(errorMsg)
+		return nil, fmt.Errorf(errorMsg)
+	}
+
+	return result, nil
+}
+
+// outputResult pretty-prints a JSON marshalled version of the harvested
+// report to STDOUT
+func outputResult(report types.Report) error {
+	result, err := formatReport(report, true) // indented report
+	if err != nil {
+		return err
+	}
+
+	os.Stdout.WriteString(fmt.Sprintf("%s\n", result))
+	return nil
+}
+
+// storeResult stores the harvested result, posting a JSON-marshalled
+// version of the report to the consumerURL.
+func storeResult(report types.Report, consumerURL string) error {
 	var postResponse struct {
 		Token string
 		URL   string
 	}
 
-	if result == "" {
-		errorMsg := fmt.Sprintf("[Storage] No harvesting result found")
-		logging.Stderr(errorMsg)
-		return fmt.Errorf(errorMsg)
+	logging.Stderr("[Storage] Storing report")
+	jsonStr, err := formatReport(report, false) // unindented report
+	if err != nil {
+		return err
 	}
 
-	// When not communicating with a remote Consumer, simply output JSON on Stdout
-	if consumerURL == "" {
-		os.Stdout.WriteString(result + "\n")
-		return nil
-	}
-
-	jsonStr := []byte(result)
 	// TODO Move HTTP Post Helper method elsewhere
 	logging.Stderr("[Storage] Posting result to: %s", consumerURL)
 	resp, err := http.Post(consumerURL, "application/json", bytes.NewBuffer(jsonStr))
 	if err != nil {
-		logging.Stderr("[Storage] Error posting result, [%s], exiting..", err)
+		logging.Stderr("[Storage] Error posting result, [%s], exiting.", err)
 		os.Exit(1)
 	}
 
@@ -82,16 +110,17 @@ func storeResult(result string, consumerURL string) error {
 
 	err = json.NewDecoder(resp.Body).Decode(&postResponse)
 	if err != nil {
-		errorMsg := fmt.Sprintf("[Storage] Unable to decode JSON response from server [%s], exiting..", err)
+		errorMsg := fmt.Sprintf("[Storage] Unable to decode JSON response from server [%s], exiting.", err)
 		logging.Stderr(errorMsg)
 		os.Exit(1)
 	}
 
-	// When dealing with a remote Consumer, output an appropriate report URL
+	// output an appropriate report URL
 	// TODO Move user interface outside of StorageFunction (return values, handle in sched)
 	finalURL := utils.FormatReportURL(postResponse.URL, postResponse.Token)
 	fmt.Fprintf(os.Stdout, "\n%s\n", finalURL)
 
+	logging.Stderr("[Storage] Report stored")
 	return nil
 }
 
