@@ -3,7 +3,6 @@ package dockeradapter
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
 	"io"
 	"io/ioutil"
 
@@ -40,7 +39,7 @@ type frameHeader struct {
 //
 // The following streamTypes are supported (from the Docker stdcopy package):
 //  - Stdin    - 0
-//  - Stdout   - 1
+//  - Stderr   - 1
 //  - Stderr   - 2
 //  - Systemerr - 3
 // The function works by walking the supplied stream alternating between reading
@@ -51,6 +50,10 @@ func FilterDockerStream(reader io.Reader, streamType int) ([]string, error) {
 	defer logging.Stderr("[FilterDockerstream] leaving")
 	result := []string{}
 	h, err := readFrameHeader(reader)
+	if err != nil && err != io.EOF {
+		logging.Stderr("[FilterDockerstream] stream contains no initial header: %s", err)
+		return nil, err
+	}
 	for err == nil {
 		payload, err := readFramePayload(reader, h)
 		if err != nil {
@@ -71,12 +74,17 @@ func FilterDockerStream(reader io.Reader, streamType int) ([]string, error) {
 		if err == io.EOF {
 			break
 		}
+		if err != nil {
+			return nil, err
+		}
 	}
 	return result, nil
 }
 
 // readFrameHeader returns a Docker stream frameHeader from the supplied Reader
 // See - https://docs.docker.com/engine/api/v1.29/#operation/ContainerAttach
+// It returns io.EOF if the buffer is empty, any other errors returned should be
+// handled by the caller
 func readFrameHeader(reader io.Reader) (*frameHeader, error) {
 	logging.Stderr("[readFrameHeader] reading header")
 	prefix := make([]byte, stdWriterPrefixLen)
@@ -97,17 +105,17 @@ func readFrameHeader(reader io.Reader) (*frameHeader, error) {
 
 // readFrameHeader returns a payload byte array from the Reader whose length is
 // specified in the frameHeader
+// It does not return io.EOF at the end of the buffer as it uses ioutil.ReadAll,
+// any other errors returned should be handled by the caller
 func readFramePayload(r io.Reader, h *frameHeader) ([]byte, error) {
 	logging.Stderr("[readFramePayload] reading payloadSize: %d", h.payloadSize)
-	// payload := make([]byte, h.payloadSize)
 	lr := io.LimitReader(r, int64(h.payloadSize))
 	payload, err := ioutil.ReadAll(lr)
-	logging.Stderr("[readFramePayload] payload size: %d", len(payload))
 	if err != nil {
-		err = fmt.Errorf("[readFramePayload] Error reading payload: %s", err)
-		logging.Stderr(err.Error())
+		logging.Stderr("[readFramePayload] Error reading payload: %s", err)
 		return nil, err
 	}
+	logging.Stderr("[readFramePayload] payload size: %d", len(payload))
 	logging.Stderr("[readFramePayload] extracted payload: %s", payload)
 	return payload, nil
 }
