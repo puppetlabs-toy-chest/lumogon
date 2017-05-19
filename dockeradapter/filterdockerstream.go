@@ -14,7 +14,7 @@ const (
 	Stdin = iota
 	// Stdout represents standard output stream type.
 	Stdout
-	// Stderr represents standard error steam type.
+	// Stderr represents standard error stream type.
 	Stderr
 	// Systemerr represents errors originating from the system that make it
 	// into the the multiplexed stream.
@@ -24,7 +24,7 @@ const (
 	stdWriterSizeIndex = 4
 )
 
-// frameHeader holds the steam type and payload size for a Docker stream frame
+// frameHeader holds the stream type and payload size for a Docker stream frame
 type frameHeader struct {
 	streamType  int
 	payloadSize int
@@ -46,7 +46,7 @@ type frameHeader struct {
 // the prefix header bytes followed by the number of bytes specified in the prefix
 // size bytes.
 func FilterDockerStream(reader io.Reader, streamType int) ([]string, error) {
-	logging.Stderr("[FilterDockerstream] filtering reader for steam type: %d", streamType)
+	logging.Stderr("[FilterDockerstream] filtering reader for stream type: %d", streamType)
 	defer logging.Stderr("[FilterDockerstream] leaving")
 	result := []string{}
 	h, err := readFrameHeader(reader)
