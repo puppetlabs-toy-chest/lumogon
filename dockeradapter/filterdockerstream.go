@@ -3,8 +3,8 @@ package dockeradapter
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
 	"io"
+	"io/ioutil"
 
 	"github.com/puppetlabs/lumogon/logging"
 )
@@ -14,7 +14,7 @@ const (
 	Stdin = iota
 	// Stdout represents standard output stream type.
 	Stdout
-	// Stderr represents standard error steam type.
+	// Stderr represents standard error stream type.
 	Stderr
 	// Systemerr represents errors originating from the system that make it
 	// into the the multiplexed stream.
@@ -24,8 +24,14 @@ const (
 	stdWriterSizeIndex = 4
 )
 
+// frameHeader holds the stream type and payload size for a Docker stream frame
+type frameHeader struct {
+	streamType  int
+	payloadSize int
+}
+
 // FilterDockerStream reads the requested stream from *bufio.Reader, strips the
-// prefix headers added by Dockers stdWriter.Write(p []byte) and returns a slice
+// frameHeader added by Dockers stdWriter.Write(p []byte) and returns a slice
 // of strings for each line received (splitting on '/n').
 //
 // If the stream processes without error but no lines are found then it will
@@ -40,46 +46,76 @@ const (
 // the prefix header bytes followed by the number of bytes specified in the prefix
 // size bytes.
 func FilterDockerStream(reader io.Reader, streamType int) ([]string, error) {
-	logging.Stderr("[filterdockerstream] filtering reader for steam type: ", streamType)
-	var (
-		result        = []string{}
-		prefix        = make([]byte, stdWriterPrefixLen)
-		payloadLength int
-		// TODO how come I have to declare this rather than use the assignment
-		// operator in the loop below? Doing so causes the function to return
-		// and empty slice?
-		bytesReturned int
-	)
-	_, err := reader.Read(prefix)
+	logging.Stderr("[FilterDockerstream] filtering reader for stream type: %d", streamType)
+	defer logging.Stderr("[FilterDockerstream] leaving")
+	result := []string{}
+	h, err := readFrameHeader(reader)
+	if err != nil && err != io.EOF {
+		logging.Stderr("[FilterDockerstream] stream contains no initial header: %s", err)
+		return nil, err
+	}
 	for err == nil {
-		payloadLength = int(binary.BigEndian.Uint32(prefix[stdWriterSizeIndex:]))
-		payload := make([]byte, payloadLength)
-		bytesReturned, err = reader.Read(payload)
+		payload, err := readFramePayload(reader, h)
 		if err != nil {
-			return nil, fmt.Errorf("Error reading payload")
+			logging.Stderr("[FilterDockerstream] error reading payload: %s", err)
+			return result, err
 		}
-		if bytesReturned != payloadLength {
-			return nil,
-				fmt.Errorf("Bytes returned from stream [%d] does not match the length specified in the header [%d]",
-					bytesReturned,
-					payloadLength,
-				)
-		}
-		lines := bytes.Split(payload, []byte("\n"))
-		// Only extract the requested stream type
-		if int(prefix[0]) == streamType {
+		// Discard payload if streamType doesn't match requested
+		if h.streamType == streamType {
+			lines := bytes.Split(payload, []byte("\n"))
 			for _, line := range lines {
 				if len(line) != 0 {
-					logging.Stderr("[filterdockerstream] read line from stream: ", string(line))
+					logging.Stderr("[FilterDockerstream] extracted line: %s", string(line))
 					result = append(result, string(line))
 				}
 			}
 		}
-		_, err = reader.Read(prefix)
+		h, err = readFrameHeader(reader)
+		if err == io.EOF {
+			break
+		}
 		if err != nil {
-			continue
+			return nil, err
 		}
 	}
-
 	return result, nil
+}
+
+// readFrameHeader returns a Docker stream frameHeader from the supplied Reader
+// See - https://docs.docker.com/engine/api/v1.29/#operation/ContainerAttach
+// It returns io.EOF if the buffer is empty, any other errors returned should be
+// handled by the caller
+func readFrameHeader(reader io.Reader) (*frameHeader, error) {
+	logging.Stderr("[readFrameHeader] reading header")
+	prefix := make([]byte, stdWriterPrefixLen)
+
+	_, err := reader.Read(prefix)
+	if err != nil {
+		logging.Stderr("[readFrameHeader] error thrown reading frameHeader: %s", err)
+		return nil, err
+	}
+
+	header := frameHeader{
+		streamType:  int(prefix[0]),
+		payloadSize: int(binary.BigEndian.Uint32(prefix[stdWriterSizeIndex:])),
+	}
+	logging.Stderr("[readFrameHeader] extracted streamType: %d, payloadSize: %d", header.streamType, header.payloadSize)
+	return &header, nil
+}
+
+// readFrameHeader returns a payload byte array from the Reader whose length is
+// specified in the frameHeader
+// It does not return io.EOF at the end of the buffer as it uses ioutil.ReadAll,
+// any other errors returned should be handled by the caller
+func readFramePayload(r io.Reader, h *frameHeader) ([]byte, error) {
+	logging.Stderr("[readFramePayload] reading payloadSize: %d", h.payloadSize)
+	lr := io.LimitReader(r, int64(h.payloadSize))
+	payload, err := ioutil.ReadAll(lr)
+	if err != nil {
+		logging.Stderr("[readFramePayload] Error reading payload: %s", err)
+		return nil, err
+	}
+	logging.Stderr("[readFramePayload] payload size: %d", len(payload))
+	logging.Stderr("[readFramePayload] extracted payload: %s", payload)
+	return payload, nil
 }
