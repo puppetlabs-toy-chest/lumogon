@@ -68,6 +68,12 @@ func (s *Scheduler) Run(r registry.IRegistry) {
 	defer cancel()
 	resultsChannel := make(chan types.ContainerReport)
 
+	schedulerImageID, err := dockeradapter.LocalImageID(ctx, s.client)
+	if err != nil {
+		logging.Stderr("[Scheduler] unable to determine local containerID [%v]", err)
+		os.Exit(1)
+	}
+
 	targets, err := dockeradapter.NormaliseTargets(ctx, s.args, s.client)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to normalise target containers: %s.\nExiting...", err)
@@ -86,7 +92,7 @@ func (s *Scheduler) Run(r registry.IRegistry) {
 	go collector.RunCollector(ctx, &wg, expectedResultCount, resultsChannel, storageBackend)
 
 	wg.Add(1)
-	go harvester.RunAttachedHarvester(ctx, &wg, s.targets, r.AttachedCapabilities(), resultsChannel, *s.opts, s.client)
+	go harvester.RunAttachedHarvester(ctx, &wg, s.targets, r.AttachedCapabilities(), resultsChannel, *s.opts, s.client, schedulerImageID)
 
 	wg.Add(1)
 	go harvester.RunDockerAPIHarvester(ctx, &wg, s.targets, r.DockerAPICapabilities(), resultsChannel, s.client)
