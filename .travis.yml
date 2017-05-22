@@ -17,6 +17,7 @@ matrix:
 deploy:
 - provider: script
   script: make deploy
+  skip_cleanup: true
   on:
     all_branches: true
 notifications:
