@@ -34,9 +34,11 @@ test: lint vet
 watch: bootstrap
 	goconvey
 
-build: bootstrap
+bin/lumogon:
 	mkdir -p bin
 	GOOS=$(GOOS) GOARCH=$(GOARCH) CGO_ENABLED=0 go build -a -ldflags '$(LDFLAGS)' -o bin/lumogon lumogon.go
+
+build: bin/lumogon bootstrap
 
 image: bootstrap
 	docker build -t $(CONTAINER_NAME) -f ./Dockerfile.build .
