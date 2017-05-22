@@ -4,6 +4,8 @@ endif
 
 PACKAGE_NAME = github.com/puppetlabs/lumogon
 
+DOCKER_IMAGE_NAME ?= puppet/lumogon
+
 LDFLAGS += -X "$(PACKAGE_NAME)/version.BuildTime=$(shell date -u '+%Y-%m-%d %I:%M:%S %Z')"
 LDFLAGS += -X "$(PACKAGE_NAME)/version.BuildVersion=development"
 LDFLAGS += -X "$(PACKAGE_NAME)/version.BuildSHA=$(shell git rev-parse HEAD)"
@@ -27,7 +29,7 @@ dependencies: bootstrap
 	glide install
 
 test: lint vet
-	go test -v -cover `glide novendor` -ldflags '$(TESTLDFLAGS)'
+	GOOS= GOARCH= go test -v -cover `glide novendor` -ldflags '$(TESTLDFLAGS)'
 
 watch: bootstrap
 	goconvey
@@ -37,7 +39,7 @@ build: bootstrap
 	GOOS=$(GOOS) GOARCH=$(GOARCH) CGO_ENABLED=0 go build -a -ldflags '$(LDFLAGS)' -o bin/lumogon lumogon.go
 
 image: bootstrap
-	docker build -t puppet/lumogon -f ./Dockerfile.build .
+	docker build -t $(DOCKER_IMAGE_NAME) -f ./Dockerfile.build .
 
 todo:
 	grep -rnw "TODO" .
@@ -46,7 +48,7 @@ lint: bootstrap $(GOPATH)/src/github.com/golang/lint/golint
 	golint `glide novendor`
 
 vet: bootstrap
-	go vet `glide novendor`
+	GOOS= GOARCH= go vet `glide novendor`
 
 licenses: $(GOPATH)/bin/licenses
 	@licenses  $(PACKAGE_NAME) | grep $(PACKAGE_NAME)/vendor
