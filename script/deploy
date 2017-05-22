@@ -2,6 +2,8 @@
 
 set -e
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 ## Validations
 [ -z "${DOCKER_USER}" ] && { echo "Need to set DOCKER_USER"; exit 0; }
 [ -z "${DOCKER_PASSWORD}" ] && { echo "Need to set DOCKER_PASSWORD"; exit 0; }
@@ -49,7 +51,7 @@ fi
 docker login -u $DOCKER_USER -p $DOCKER_PASSWORD > /dev/null 2>&1
 
 # Build the image
-docker build -t ${DOCKER_IMAGE} -f Dockerfile.build .
+docker build -t ${DOCKER_IMAGE} -f Dockerfile.build $DIR/..
 
 # Tag the image
 docker tag $DOCKER_IMAGE $DOCKER_FINAL_NAME
