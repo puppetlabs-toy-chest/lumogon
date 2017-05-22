@@ -212,6 +212,13 @@ make all
 
 Note that this build process isn't widely tested away from macOS yet but will eventually work everywhere.
 
+### Building for ARM (Raspberry Pi)
+
+You can build a Lumogon container that will run on ARM based platforms (tested on the Raspberry Pi) as follows:
+```
+GOARCH=arm GOOS=linux DOCKER_IMAGE_NAME=yourname/lumogon-arm make all
+```
+
 ## Giving us feedback
 
 We'd love to hear from you. We have a [Slack channel](https://puppetcommunity.slack.com/messages/C5CT7GMKQ) for talking about Lumogon and please do open issues against [the repository](https://github.com/puppetlabs/lumogon/issues).
