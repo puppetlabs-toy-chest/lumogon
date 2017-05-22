@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+set -e
+
+## Validations
+[ -z "${DOCKER_USER}" ] && { echo "Need to set DOCKER_USER"; exit 0; }
+[ -z "${DOCKER_PASSWORD}" ] && { echo "Need to set DOCKER_PASSWORD"; exit 0; }
+[ -z "${DOCKER_IMAGE}" ] && { echo "Need to set DOCKER_IMAGE"; exit 0; }
+
+## Functions
+function docker_tag_exists() {
+    TOKEN=$(curl -s -H "Content-Type: application/json" -X POST -d '{"username": "'${DOCKER_USER}'", "password": "'${DOCKER_PASSWORD}'"}' https://hub.docker.com/v2/users/login/ | jq -r .token)
+    EXISTS=$(curl -s -H "Authorization: JWT ${TOKEN}" https://hub.docker.com/v2/repositories/$1/tags/?page_size=10000 | jq -r "[.results | .[] | .name == \"$2\"] | any")
+    test $EXISTS = true
+}
+
+function docker_tag_name() {
+  if [ -n "${TRAVIS_TAG}" ]; then
+    DOCKER_TAG=$TRAVIS_TAG
+  elif [ "${TRAVIS_BRANCH}" = "master" ]; then
+    DOCKER_TAG="latest"
+  else
+    echo "Not a deployable git ref"
+    exit 0
+  fi
+
+  echo "${DOCKER_TAG}"
+}
+
+## Main
+DOCKER_TAG=$(docker_tag_name)
+DOCKER_FINAL_NAME="${DOCKER_IMAGE}:${DOCKER_TAG}"
+
+# Check to see if tag has been deployed previously to Docker Hub
+if [ "${DOCKER_TAG}" != "latest" ]; then
+   if docker_tag_exists $DOCKER_IMAGE $DOCKER_TAG; then
+      echo "$DOCKER_FINAL_NAME has already been deployed to hub.docker.com"
+      exit 1
+   fi
+fi
+
+# Login to Docker Hub
+docker login -u $DOCKER_USER -p $DOCKER_PASSWORD > /dev/null 2>&1
+
+# Build the image
+docker build -t ${DOCKER_IMAGE} .
+
+# Tag the image
+docker tag $DOCKER_IMAGE $DOCKER_FINAL_NAME
+
+# Push upstream to Dockerhub
+docker push $DOCKER_FINAL_NAME

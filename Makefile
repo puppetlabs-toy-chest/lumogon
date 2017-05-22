@@ -3,6 +3,7 @@ $(error GOPATH is not set)
 endif
 
 PACKAGE_NAME = github.com/puppetlabs/lumogon
+CONTAINER_NAME = puppet/lumogon
 
 LDFLAGS += -X "$(PACKAGE_NAME)/version.BuildTime=$(shell date -u '+%Y-%m-%d %I:%M:%S %Z')"
 LDFLAGS += -X "$(PACKAGE_NAME)/version.BuildVersion=development"
@@ -18,6 +19,7 @@ TESTLDFLAGS += -s
 
 GOARCH ?= amd64
 GOOS ?= linux
+
 
 clean:
 	rm -rf bin/*;
@@ -37,7 +39,10 @@ build: bootstrap
 	GOOS=$(GOOS) GOARCH=$(GOARCH) CGO_ENABLED=0 go build -a -ldflags '$(LDFLAGS)' -o bin/lumogon lumogon.go
 
 image: bootstrap
-	docker build -t puppet/lumogon -f ./Dockerfile.build .
+	docker build -t $(CONTAINER_NAME) -f ./Dockerfile.build .
+
+deploy: image
+	script/deploy
 
 todo:
 	grep -rnw "TODO" .
