@@ -76,4 +76,4 @@ $(GOPATH)/bin/goconvey:
 
 bootstrap: $(GOPATH)/bin/glide $(GOPATH)/src/github.com/golang/lint/golint $(GOPATH)/bin/licenses $(GOPATH)/bin/goconvey
 
-.PHONY: build image buildimage test todo clean dependencies bootstrap licenses watch
+.PHONY: build image buildimage test todo clean dependencies bootstrap licenses watch deploy
