@@ -6,7 +6,7 @@ PACKAGE_NAME = github.com/puppetlabs/lumogon
 CONTAINER_NAME = puppet/lumogon
 
 LDFLAGS += -X "$(PACKAGE_NAME)/version.BuildTime=$(shell date -u '+%Y-%m-%d %I:%M:%S %Z')"
-LDFLAGS += -X "$(PACKAGE_NAME)/version.BuildVersion=development"
+LDFLAGS += -X "$(PACKAGE_NAME)/version.BuildVersion=$(shell git describe --abbrev=0 --tags)"
 LDFLAGS += -X "$(PACKAGE_NAME)/version.BuildSHA=$(shell git rev-parse HEAD)"
 # Strip debug information
 LDFLAGS += -s
@@ -40,7 +40,7 @@ bin/lumogon:
 
 build: bin/lumogon bootstrap
 
-image: bootstrap
+image: build
 	docker build -t $(CONTAINER_NAME) -f ./Dockerfile.build .
 
 deploy: image
