@@ -20,13 +20,14 @@ import (
 // channel, when a result is received it will attempt to remove that associated
 // attached container which performed the harvest before sending the result to the
 // collector via the main results channel, resultsCh.
-func RunAttachedHarvester(ctx context.Context, wg *sync.WaitGroup, targets []*types.TargetContainer, capabilites []types.AttachedCapability, resultsCh chan types.ContainerReport, opts types.ClientOptions, client dockeradapter.Client) error {
+func RunAttachedHarvester(ctx context.Context, wg *sync.WaitGroup, targets []*types.TargetContainer, capabilities []types.AttachedCapability, resultsCh chan types.ContainerReport, opts types.ClientOptions, client dockeradapter.Client) error {
 	defer logging.Stderr("[Attached Harvester] Exiting")
 	defer wg.Done()
+	logging.Stderr("[Attached Harvester] Running")
 
 	validTargets := []*types.TargetContainer{}
 	for _, target := range targets {
-		for _, capability := range capabilites {
+		for _, capability := range capabilities {
 			if _, ok := capability.SupportedOS["all"]; ok {
 				validTargets = append(validTargets, target)
 				break
@@ -39,11 +40,11 @@ func RunAttachedHarvester(ctx context.Context, wg *sync.WaitGroup, targets []*ty
 	}
 
 	if len(validTargets) == 0 {
-		errorMsg := fmt.Errorf("[Scheduler] No targets found with supported capabilities")
+		errorMsg := fmt.Errorf("[Attached Harvester] No targets found with supported capabilities")
 		return errorMsg
 	}
 	logging.Stderr("[Attached Harvester] Running")
-	if len(capabilites) == 0 {
+	if len(capabilities) == 0 {
 		logging.Stderr("[Attached Harvester] No Attached Capabilities found")
 		return nil
 	}
@@ -58,14 +59,27 @@ func RunAttachedHarvester(ctx context.Context, wg *sync.WaitGroup, targets []*ty
 		go createAndRunHarvester(ctx, client, *target, opts, rpcReceiverResultsCh)
 	}
 
-	for _ = range validTargets {
-		result := <-rpcReceiverResultsCh
-		logging.Stderr("[Attached Harvester] RPC result received from name: %s, ID: %s", result.ContainerName, result.ContainerID)
-		removeContainer(ctx, client, result.HarvesterContainerID, opts)
-		logging.Stderr("[Attached Harvester] Sending to collector via resultsCh")
-		resultsCh <- result
+	doneChannel := make(chan int)
+	go func() {
+		for i := 1; i <= len(validTargets); i++ {
+			result := <-rpcReceiverResultsCh
+			logging.Stderr("[Attached Harvester] RPC result received from name: %s, ID: %s", result.ContainerName, result.ContainerID)
+			logging.Stderr("[Attached Harvester] Sending to collector via resultsCh")
+			resultsCh <- result
+		}
+		doneChannel <- 0
+	}()
+
+	var err error
+	select {
+	case <-doneChannel:
+		logging.Stderr("[Attached Harvester] All expected results received")
+	case <-ctx.Done():
+		logging.Stderr("[Attached Harvester] Context timed out waiting for results, continuing...")
+		err = ctx.Err()
 	}
-	return nil
+
+	return err
 }
 
 // createAndRunHarvester creates and runs a container attached to the namespace of the target

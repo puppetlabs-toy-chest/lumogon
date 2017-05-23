@@ -2,15 +2,17 @@ package scheduler
 
 import (
 	"context"
+	"fmt"
 	"os"
-
 	"sync"
+	"time"
 
 	"github.com/puppetlabs/lumogon/capabilities/registry"
 	"github.com/puppetlabs/lumogon/collector"
 	"github.com/puppetlabs/lumogon/dockeradapter"
 	"github.com/puppetlabs/lumogon/harvester"
 	"github.com/puppetlabs/lumogon/logging"
+	"github.com/puppetlabs/lumogon/storage"
 	"github.com/puppetlabs/lumogon/types"
 	"github.com/puppetlabs/lumogon/utils"
 )
@@ -60,32 +62,36 @@ func (s *Scheduler) Run(r registry.IRegistry) {
 		return
 	}
 
-	ctx := context.Background()
+	timeout := s.opts.Timeout
+	logging.Stderr("[Scheduler] Creating context with timeout [%d]", timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
+	defer cancel()
 	resultsChannel := make(chan types.ContainerReport)
+
 	targets, err := dockeradapter.NormaliseTargets(ctx, s.args, s.client)
 	if err != nil {
-		logging.Stderr("[Scheduler] Unable to normalise targets: %s. Exiting...", err)
+		fmt.Fprintf(os.Stderr, "Unable to normalise target containers: %s.\nExiting...", err)
+		os.Exit(1)
+	}
+	if len(targets) == 0 {
+		fmt.Fprintln(os.Stderr, "No valid or running target containers found. Exiting...")
 		os.Exit(1)
 	}
 	s.targets = targets
 
 	expectedResultCount := getExpectedResultCount(s.targets, r)
 
+	storageBackend := storage.Storage{ConsumerURL: s.opts.ConsumerURL}
 	wg.Add(1)
-	go collector.RunCollector(ctx, &wg, expectedResultCount, resultsChannel, s.opts.ConsumerURL)
+	go collector.RunCollector(ctx, &wg, expectedResultCount, resultsChannel, storageBackend)
 
 	wg.Add(1)
-	err = harvester.RunAttachedHarvester(ctx, &wg, s.targets, r.AttachedCapabilities(), resultsChannel, *s.opts, s.client)
-	if err != nil {
-		logging.Stderr("[Scheduler] Error running Attached harvesters: %s", err)
-	}
+	go harvester.RunAttachedHarvester(ctx, &wg, s.targets, r.AttachedCapabilities(), resultsChannel, *s.opts, s.client)
 
 	wg.Add(1)
-	err = harvester.RunDockerAPIHarvester(ctx, &wg, s.targets, r.DockerAPICapabilities(), resultsChannel, s.client)
-	if err != nil {
-		logging.Stderr("[Scheduler] Error running Docker API harvesters")
-	}
+	go harvester.RunDockerAPIHarvester(ctx, &wg, s.targets, r.DockerAPICapabilities(), resultsChannel, s.client)
 
+	logging.Stderr("[Scheduler] Waiting")
 	wg.Wait()
 }
 

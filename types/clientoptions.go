@@ -4,4 +4,5 @@ package types
 type ClientOptions struct {
 	KeepHarvesters bool
 	ConsumerURL    string
+	Timeout        int
 }

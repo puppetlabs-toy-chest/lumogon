@@ -112,7 +112,7 @@ func (a *AttachedContainer) createContainer() {
 	// Add an aliass for the scheduler to each harvester
 	links := []string{fmt.Sprintf("%s:%s", a.schedulerID, schedulerAliasHostname)}
 
-	container, err := a.client.ContainerCreate(a.ctx, command, envvars, a.imageName, binds, links, kernelCapabilities, pidMode, a.name)
+	container, err := a.client.ContainerCreate(a.ctx, command, envvars, a.imageName, binds, links, kernelCapabilities, pidMode, a.name, !a.keepHarvester)
 	if err != nil {
 		logging.Stderr("[AttachedContainer] Error creating container: %s", err)
 		a.err = err
@@ -120,18 +120,4 @@ func (a *AttachedContainer) createContainer() {
 	}
 	a.containerBody = &container
 	a.id = container.ID
-}
-
-// createContainer removes the requested container forcefully
-func removeContainer(ctx context.Context, client dockeradapter.Remover, containerID string, opts types.ClientOptions) {
-	if opts.KeepHarvesters {
-		return
-	}
-	forceRemoval := true
-	err := client.ContainerRemove(ctx, containerID, forceRemoval)
-	if err != nil {
-		logging.Stderr("[AttachedContainer] Unable to remove container [%s]: %s", containerID, err)
-		logging.Stderr("[AttachedContainer] Please perform a manual tidyup: `docker rm %s`", containerID)
-	}
-	logging.Stderr("[AttachedContainer] Removed harvester container: %s", containerID)
 }

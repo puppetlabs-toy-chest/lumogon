@@ -46,6 +46,9 @@ func init() {
 	RootCmd.AddCommand(reportCmd)
 	RootCmd.PersistentFlags().BoolVarP(&opts.KeepHarvesters, "keep-harvesters", "k", false, "Keeps harvester containers instead of automatically deleting")
 	reportFlags := reportCmd.Flags()
+	scanFlags := scanCmd.Flags()
 
 	reportFlags.StringVar(&opts.ConsumerURL, "endpoint", "", "Use a custom HTTP endpoint for sending the results of the scan")
+	reportFlags.IntVar(&opts.Timeout, "timeout", 60, "Time in seconds to wait for results, defaults to 60 seconds")
+	scanFlags.IntVar(&opts.Timeout, "timeout", 60, "Time in seconds to wait for results, defaults to 60 seconds")
 }

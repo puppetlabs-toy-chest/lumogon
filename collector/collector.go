@@ -2,45 +2,54 @@ package collector
 
 import (
 	"context"
-
 	"sync"
-
-	"encoding/json"
 
 	"github.com/puppetlabs/lumogon/logging"
 	"github.com/puppetlabs/lumogon/storage"
 	"github.com/puppetlabs/lumogon/types"
-	"github.com/puppetlabs/lumogon/utils"
-	"github.com/puppetlabs/lumogon/version"
 )
 
 var mu sync.Mutex
 var results map[string]types.ContainerReport
 
 // RunCollector starts the collector which will block on reading all
-// expected ContainerReports from the results channel, before creating
-// and storing a report.
-func RunCollector(ctx context.Context, wg *sync.WaitGroup, expectedResults int, resultsCh chan types.ContainerReport, consumerURL string) {
-	logging.Stderr("[Collector] Running, expecting %d results", expectedResults)
+// expected ContainerReports from the results channel, before sending
+// them to the ReportStorage backend.
+func RunCollector(ctx context.Context, wg *sync.WaitGroup, expectedResults int, resultsCh chan types.ContainerReport, backend storage.ReportStorage) error {
 	defer logging.Stderr("[Collector] Exiting")
 	defer wg.Done()
 
+	doneChannel := make(chan int)
+
 	results = make(map[string]types.ContainerReport)
 
-	logging.Stderr("[Collector] Waiting for %d results", expectedResults)
-	for i := 1; i <= expectedResults; i++ {
-		result := <-resultsCh
-		logging.Stderr("[Collector] Received result [%d]", i)
-		cacheResult(result)
-		logging.Stderr("[Collector] Result received from name: %s, ID: %s", result.ContainerName, result.ContainerID)
-	}
-	logging.Stderr("[Collector] Creating report")
+	go func() {
+		logging.Stderr("[Collector] Waiting for %d results", expectedResults)
+		for i := 1; i <= expectedResults; i++ {
+			result := <-resultsCh
+			logging.Stderr("[Collector] Received result [%d]", i)
+			cacheResult(result)
+			logging.Stderr("[Collector] Result received from name: %s, ID: %s", result.ContainerName, result.ContainerID)
+		}
+		doneChannel <- 0
+	}()
 
-	report, err := createReport(results)
-	if err != nil {
-		return
+	var resultsWg sync.WaitGroup
+	resultsWg.Add(1)
+	var err error
+	select {
+	case <-doneChannel:
+		logging.Stderr("[Collector] All expected results received")
+		resultsWg.Done()
+	case <-ctx.Done():
+		logging.Stderr("[Collector] Context timed out waiting for results, continuing...")
+		resultsWg.Done()
 	}
-	storeReport(report, consumerURL)
+	resultsWg.Wait()
+
+	logging.Stderr("[Collector] Generating report")
+	err = backend.Store(results)
+	return err
 }
 
 // cacheResult caches the supplied types.ContainerReport.
@@ -58,34 +67,4 @@ func cacheResult(result types.ContainerReport) {
 		return
 	}
 	results[result.ContainerID] = result
-}
-
-// createReport returns a pointer to a types.Report built from the supplied
-// map of container IDs to types.ContainerReport.
-func createReport(results map[string]types.ContainerReport) (types.Report, error) {
-	logging.Stderr("[Collector] Creating report")
-	marshalledResult, _ := json.Marshal(results)
-	logging.Stderr("[Collector] %s", string(marshalledResult))
-	report := NewReport(utils.GenerateUUID4(), version.Version)
-	report.Containers = results
-	logging.Stderr("[Collector] Report created")
-	return *report, nil //TODO do we really want a pointer here?
-}
-
-// storeReport marshalls the supplied types.Report and sends it to the
-// storage package for persistance to the specified consumerURL.
-func storeReport(report types.Report, consumerURL string) error {
-	logging.Stderr("[Collector] Storing report")
-	marshalledReport, err := json.Marshal(report)
-	if err != nil {
-		logging.Stderr("[Collector] Error marshalling report: %s ", err)
-		return err
-	}
-	err = storage.StoreResult(string(marshalledReport), consumerURL)
-	if err != nil {
-		logging.Stderr("[Collector] Error storing report: %s ", err)
-		return err
-	}
-	logging.Stderr("[Collector] Report stored")
-	return nil
 }

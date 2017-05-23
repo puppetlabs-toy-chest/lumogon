@@ -23,6 +23,8 @@ func Test_stringToTargetContainer(t *testing.T) {
 			containerJSON.ContainerJSONBase = &dockertypes.ContainerJSONBase{}
 			containerJSON.ContainerJSONBase.ID = fmt.Sprintf("testID_%s", containerID)
 			containerJSON.ContainerJSONBase.Name = fmt.Sprintf("testName_%s", containerID)
+			containerJSON.State = &dockertypes.ContainerState{}
+			containerJSON.State.Running = true
 			return containerJSON, nil
 		},
 	}
@@ -43,6 +45,28 @@ func Test_stringToTargetContainer(t *testing.T) {
 		t.Errorf("TargetContainer.Name [%s] does not match expected value [%s]", actualTargetContainer.Name, expectedTargetContainer.Name)
 	}
 }
+func Test_stringToTargetContainer_targetNotRunning(t *testing.T) {
+	var mockClient = mocks.MockDockerClient{
+		ContainerInspectFn: func(ctx context.Context, containerID string) (dockertypes.ContainerJSON, error) {
+			containerJSON := dockertypes.ContainerJSON{}
+			containerJSON.ContainerJSONBase = &dockertypes.ContainerJSONBase{}
+			containerJSON.ContainerJSONBase.ID = fmt.Sprintf("testID_%s", containerID)
+			containerJSON.ContainerJSONBase.Name = fmt.Sprintf("testName_%s", containerID)
+			containerJSON.State = &dockertypes.ContainerState{}
+			containerJSON.State.Running = false
+			return containerJSON, nil
+		},
+	}
+	ctx := context.TODO()
+
+	actualTargetContainer, err := stringToTargetContainer(ctx, "1", mockClient)
+	if err != nil {
+		t.Errorf("Unexpected error thrown by stringToTargetContainer: %s", err)
+	}
+	if actualTargetContainer != nil {
+		t.Errorf("Expected nil container")
+	}
+}
 
 func Test_stringsToTargetContainers(t *testing.T) {
 	var mockClient = mocks.MockDockerClient{
@@ -51,6 +75,8 @@ func Test_stringsToTargetContainers(t *testing.T) {
 			containerJSON.ContainerJSONBase = &dockertypes.ContainerJSONBase{}
 			containerJSON.ContainerJSONBase.ID = fmt.Sprintf("testID_%s", containerID)
 			containerJSON.ContainerJSONBase.Name = fmt.Sprintf("testName_%s", containerID)
+			containerJSON.State = &dockertypes.ContainerState{}
+			containerJSON.State.Running = true
 			return containerJSON, nil
 		},
 	}

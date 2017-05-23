@@ -222,3 +222,83 @@ func Test_FilterDockerStream(t *testing.T) {
 		})
 	}
 }
+
+// Each frame results in two reads, one for the header and one
+// for the payload, with a final read to pick up the io.EOF
+// The test buffer below requires 5 successful reads to complete.
+var multiFrameStdOutBuf = [][]byte{
+	helper.AddDockerStreamHeader([]byte("abc\n"), 1),
+	helper.AddDockerStreamHeader([]byte("def\n"), 1),
+}
+
+var buffReadErrTests = []struct {
+	title            string
+	input            [][]byte
+	filterStreamType int
+	validReads       int
+	expectedError    error
+}{
+	{
+		title:            "Error reading first frame header",
+		input:            multiFrameStdOutBuf,
+		filterStreamType: 1,
+		validReads:       0,
+		expectedError:    helper.ErrTimeout,
+	},
+	{
+		title:            "Error reading first frame payload",
+		input:            multiFrameStdOutBuf,
+		filterStreamType: 1,
+		validReads:       1,
+		expectedError:    helper.ErrTimeout,
+	},
+	{
+		title:            "Error reading second frame header",
+		input:            multiFrameStdOutBuf,
+		filterStreamType: 1,
+		validReads:       2,
+		expectedError:    helper.ErrTimeout,
+	},
+	{
+		title:            "Error reading second frame payload",
+		input:            multiFrameStdOutBuf,
+		filterStreamType: 1,
+		validReads:       3,
+		expectedError:    helper.ErrTimeout,
+	},
+	{
+		title:            "Error reading buffer EOF",
+		input:            multiFrameStdOutBuf,
+		filterStreamType: 1,
+		validReads:       4,
+		expectedError:    helper.ErrTimeout,
+	},
+	{
+		title:            "Successfully read buffer and EOF",
+		input:            multiFrameStdOutBuf,
+		filterStreamType: 1,
+		validReads:       5,
+		expectedError:    nil,
+	},
+}
+
+func Test_BuffReadErrTests(t *testing.T) {
+	for _, test := range buffReadErrTests {
+		t.Run(test.title, func(t *testing.T) {
+			var buf []byte
+			for _, entry := range test.input {
+				buf = append(buf, entry...)
+			}
+			r := bytes.NewReader(buf)
+			tr := helper.TimeoutReader(r, test.validReads)
+			_, err := FilterDockerStream(tr, test.filterStreamType)
+			t.Logf("Error returned: %s", err)
+			if err == nil && test.expectedError == nil {
+				return
+			}
+			if err.Error() != helper.ErrTimeout.Error() {
+				t.Errorf("Expected error not thrown: %s", err)
+			}
+		})
+	}
+}

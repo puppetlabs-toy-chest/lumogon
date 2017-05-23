@@ -2,6 +2,7 @@
 
 [![Build
 Status](https://travis-ci.org/puppetlabs/lumogon.svg?branch=master)](https://travis-ci.org/puppetlabs/lumogon)
+[![Go Report Card](https://goreportcard.com/badge/github.com/puppetlabs/lumogon)](https://goreportcard.com/report/github.com/puppetlabs/lumogon)
 
 Lumogon provides a way to inspect, analyze and report on your running
 [Docker](https://www.docker.com/) containers.
@@ -25,12 +26,8 @@ containers you have running and what we can learn about them. The output from a
 Lumogon scan will be a [JSON](https://en.wikipedia.org/wiki/JSON) listing of all the
 containers found and what Lumogon could learn about them.
 
-Since JSON can be hard to read as one big unstructured message, you might want
-to use a "pretty-printer" like [jq](https://stedolan.github.io/jq/) to print the
-data in a more readable format.
-
-``` shell
-docker run --rm  -v /var/run/docker.sock:/var/run/docker.sock puppet/lumogon scan | jq
+```
+docker run --rm  -v /var/run/docker.sock:/var/run/docker.sock puppet/lumogon scan
 ```
 
 After a few seconds you should see your JSON data:
@@ -126,8 +123,21 @@ After a few seconds you should see your JSON data:
 }
 ```
 
-Since Lumogon's output is valid JSON, you can slice and dice it with `jq`, or pass it
-along to any other tool you use that can accept JSON input.
+Since Lumogon's output is valid JSON, you can slice and dice it with [jq](https://stedolan.github.io/jq/), or pass it
+along to any other tool you use that can accept JSON input:
+
+``` shell
+docker run --rm  -v /var/run/docker.sock:/var/run/docker.sock puppet/lumogon scan | jq -r  '.containers[] | .container_name + "      " + .capabilities.host.payload.platform + "     " + .capabilities.host.payload.platformversion'
+
+/fixtures_debian-jessie_1      debian     8.7
+/fixtures_alpine_1      alpine     3.4.0
+/fixtures_centos7_1      centos     7.3.1611
+/fixtures_fedora_1      fedora     25
+/fixtures_centos6_1      centos     6.8
+/fixtures_ubuntu-trusty_1      ubuntu     14.04
+/fixtures_debian-wheezy_1      debian     7.11
+/fixtures_ubuntu-xenial_1      ubuntu     16.04
+```
 
 ### Sending reports to the Lumogon service
 
@@ -147,9 +157,14 @@ https://reporter.app.lumogon.com/UuokYc0VMgA4oAZYaJRaN6O7xMqakDLsqgHGs0dBmJY=
 
 ### More ways to use Lumogon
 
+The [examples](examples/README.md) directory provides more thorough examples of
+how to use the data provided by Lumogon to test and build your images and containers.
+
+### Lumogon command options
+
 Let's get the usage for the Lumogon client:
 
-``` shell
+```
 docker run --rm  -v /var/run/docker.sock:/var/run/docker.sock puppet/lumogon --help
 Lumogon is a tool for inspecting, reporting on, and analyzing your container applications.
 
@@ -174,7 +189,6 @@ Feel free to explore those command-line options. Of note:
  - You can specify `scan` to collect data on all your running containers, or you can target a specific container by passing `scan <containerid>`.
  - `--debug` will generate verbose debugging output so you can see how Lumogon explores your containers.
 
-
 ## Building the client from source
 
 If you're making changes to Lumogon, or just interested in seeing how it works under the hood, you might want to try building from source. For this you'll need a few more things:
@@ -197,7 +211,6 @@ make all
 ```
 
 Note that this build process isn't widely tested away from macOS yet but will eventually work everywhere.
-
 
 ## Giving us feedback
 
