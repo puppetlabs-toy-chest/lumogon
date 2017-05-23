@@ -17,21 +17,19 @@ function docker_tag_exists() {
     test $EXISTS = true
 }
 
-function docker_tag_name() {
-  if [ -n "${TRAVIS_TAG}" ]; then
-    DOCKER_TAG=$TRAVIS_TAG
-  elif [ "${TRAVIS_BRANCH}" = "master" ]; then
-    DOCKER_TAG="latest"
-  else
-    echo "Not a deployable git ref"
-    exit 0
-  fi
-
-  echo "${DOCKER_TAG}"
-}
 
 ## Main
-DOCKER_TAG=$(docker_tag_name)
+
+# Determine the correct Docker Tag
+if [ -n "${TRAVIS_TAG}" ]; then
+  DOCKER_TAG=$TRAVIS_TAG
+elif [ "${TRAVIS_BRANCH}" = "master" ]; then
+  DOCKER_TAG="latest"
+else
+  echo "Not a deployable git ref"
+  exit 0
+fi
+
 DOCKER_FINAL_NAME="${DOCKER_IMAGE}:${DOCKER_TAG}"
 
 # Only execute on a merge to master
