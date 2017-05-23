@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -e
+set -x
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -48,13 +49,17 @@ if [ "${DOCKER_TAG}" != "latest" ]; then
 fi
 
 # Login to Docker Hub
+echo "Logging into Docker Hub as user $DOCKER_USER..."
 docker login -u $DOCKER_USER -p $DOCKER_PASSWORD > /dev/null 2>&1
 
 # Build the image
+echo "Building $DOCKER_IMAGE..."
 docker build -t ${DOCKER_IMAGE} -f Dockerfile.build $DIR/..
 
 # Tag the image
+echo "Tagging $DOCKER_FINAL_NAME"
 docker tag $DOCKER_IMAGE $DOCKER_FINAL_NAME
 
 # Push upstream to Dockerhub
+echo "Pushing $DOCKER_FINAL_NAME to Docker Hub..."
 docker push $DOCKER_FINAL_NAME
