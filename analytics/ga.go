@@ -60,7 +60,7 @@ func NewUserSession() *UserSession {
 
 // ScreenView is the public function to post a ScreenView analytics message to GA
 func ScreenView(screen string) {
-	logging.Stderr("[Analytics] Initializing Google Analytics for screen: %s", screen)
+	logging.Stderr("[Analytics] Initializing Google Analytics: %s", screen)
 	u := *NewUserSession()
 	u.Type = "screenview"
 	u.ScreenName = screen
