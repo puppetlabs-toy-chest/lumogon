@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+
+set -e
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+## Validations
+[ -z "${DOCKER_USER}" ] && { echo "Need to set DOCKER_USER"; exit 1; }
+[ -z "${DOCKER_PASSWORD}" ] && { echo "Need to set DOCKER_PASSWORD"; exit 1; }
+[ -z "${DOCKER_IMAGE}" ] && { echo "Need to set DOCKER_IMAGE"; exit 1; }
+
+## Functions
+function docker_tag_exists() {
+    TOKEN=$(curl -s -H "Content-Type: application/json" -X POST -d '{"username": "'${DOCKER_USER}'", "password": "'${DOCKER_PASSWORD}'"}' https://hub.docker.com/v2/users/login/ | jq -r .token)
+    EXISTS=$(curl -s -H "Authorization: JWT ${TOKEN}" https://hub.docker.com/v2/repositories/$1/tags/?page_size=10000 | jq -r "[.results | .[] | .name == \"$2\"] | any")
+    test $EXISTS = true
+}
+
+
+## Main
+
+# Determine the correct Docker Tag
+if [ -n "${TRAVIS_TAG}" ]; then
+  DOCKER_TAG=$TRAVIS_TAG
+elif [ "${TRAVIS_BRANCH}" = "master" ]; then
+  DOCKER_TAG="latest"
+else
+  echo "Not a deployable git ref"
+  exit 0
+fi
+
+DOCKER_FINAL_NAME="${DOCKER_IMAGE}:${DOCKER_TAG}"
+
+# Only execute on a merge to master
+if [ "${TRAVIS_PULL_REQUEST}" != "false" ]; then
+   echo "Skipping deploy, in a pull request..."
+   exit 0
+fi
+
+# Check to see if tag has been deployed previously to Docker Hub
+if [ "${DOCKER_TAG}" != "latest" ]; then
+   if docker_tag_exists $DOCKER_IMAGE $DOCKER_TAG; then
+      echo "$DOCKER_FINAL_NAME has already been deployed to hub.docker.com"
+      exit 1
+   fi
+fi
+
+# Login to Docker Hub
+echo "Logging into Docker Hub as user $DOCKER_USER..."
+docker login -u $DOCKER_USER -p $DOCKER_PASSWORD > /dev/null 2>&1
+
+# Build the image
+echo "Building $DOCKER_IMAGE..."
+docker build -t ${DOCKER_IMAGE} -f Dockerfile.build $DIR/..
+
+# Tag the image
+echo "Tagging $DOCKER_FINAL_NAME"
+docker tag $DOCKER_IMAGE $DOCKER_FINAL_NAME
+
+# Push upstream to Dockerhub
+echo "Pushing $DOCKER_FINAL_NAME to Docker Hub..."
+docker push $DOCKER_FINAL_NAME

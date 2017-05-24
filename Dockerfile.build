@@ -2,6 +2,6 @@ FROM scratch
 
 ENV LUMOGON_ENDPOINT=https://consumer.app.lumogon.com/api/v1/
 
-COPY bin/lumogon /
-COPY certs/ca-certificates.crt /etc/ssl/certs/
+COPY ./bin/lumogon /
+COPY ./certs/ca-certificates.crt /etc/ssl/certs/
 ENTRYPOINT ["/lumogon"]

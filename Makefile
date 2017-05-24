@@ -3,9 +3,10 @@ $(error GOPATH is not set)
 endif
 
 PACKAGE_NAME = github.com/puppetlabs/lumogon
+CONTAINER_NAME = puppet/lumogon
 
 LDFLAGS += -X "$(PACKAGE_NAME)/version.BuildTime=$(shell date -u '+%Y-%m-%d %I:%M:%S %Z')"
-LDFLAGS += -X "$(PACKAGE_NAME)/version.BuildVersion=development"
+LDFLAGS += -X "$(PACKAGE_NAME)/version.BuildVersion=$(shell git describe --abbrev=0 --tags)"
 LDFLAGS += -X "$(PACKAGE_NAME)/version.BuildSHA=$(shell git rev-parse HEAD)"
 # Strip debug information
 LDFLAGS += -s
@@ -18,6 +19,7 @@ TESTLDFLAGS += -s
 
 GOARCH ?= amd64
 GOOS ?= linux
+
 
 clean:
 	rm -rf bin/*;
@@ -32,12 +34,17 @@ test: lint vet
 watch: bootstrap
 	goconvey
 
-build: bootstrap
+bin/lumogon:
 	mkdir -p bin
 	GOOS=$(GOOS) GOARCH=$(GOARCH) CGO_ENABLED=0 go build -a -ldflags '$(LDFLAGS)' -o bin/lumogon lumogon.go
 
-image: bootstrap
-	docker build -t puppet/lumogon -f ./Dockerfile.build .
+build: bin/lumogon bootstrap
+
+image: build
+	docker build -t $(CONTAINER_NAME) -f ./Dockerfile.build .
+
+deploy: image
+	script/deploy
 
 todo:
 	grep -rnw "TODO" .
@@ -69,4 +76,4 @@ $(GOPATH)/bin/goconvey:
 
 bootstrap: $(GOPATH)/bin/glide $(GOPATH)/src/github.com/golang/lint/golint $(GOPATH)/bin/licenses $(GOPATH)/bin/goconvey
 
-.PHONY: build image buildimage test todo clean dependencies bootstrap licenses watch
+.PHONY: build image buildimage test todo clean dependencies bootstrap licenses watch deploy
