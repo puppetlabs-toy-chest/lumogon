@@ -5,9 +5,9 @@ set -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 ## Validations
-[ -z "${DOCKER_USER}" ] && { echo "Need to set DOCKER_USER"; exit 0; }
-[ -z "${DOCKER_PASSWORD}" ] && { echo "Need to set DOCKER_PASSWORD"; exit 0; }
-[ -z "${DOCKER_IMAGE}" ] && { echo "Need to set DOCKER_IMAGE"; exit 0; }
+[ -z "${DOCKER_USER}" ] && { echo "Need to set DOCKER_USER"; exit 1; }
+[ -z "${DOCKER_PASSWORD}" ] && { echo "Need to set DOCKER_PASSWORD"; exit 1; }
+[ -z "${DOCKER_IMAGE}" ] && { echo "Need to set DOCKER_IMAGE"; exit 1; }
 
 ## Functions
 function docker_tag_exists() {
