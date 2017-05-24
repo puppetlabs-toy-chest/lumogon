@@ -27,5 +27,5 @@ func Execute() {
 func init() {
 	RootCmd.PersistentFlags().BoolVarP(&logging.Debug, "debug", "d", false, "Print debug logging")
 	RootCmd.PersistentFlags().Bool("disable-analytics", false, "Disable sending anonymous data for product improvement")
-	viper.BindPFlag("port", RootCmd.PersistentFlags().Lookup("disable-analytics"))
+	viper.BindPFlag("disable-analytics", RootCmd.PersistentFlags().Lookup("disable-analytics"))
 }
