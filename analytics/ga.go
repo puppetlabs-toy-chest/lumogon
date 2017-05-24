@@ -60,6 +60,7 @@ func NewUserSession() *UserSession {
 
 // ScreenView is the public function to post a ScreenView analytics message to GA
 func ScreenView(screen string) {
+	logging.Stderr("[Analytics] Gathering analytics for screen-view, %s", screen)
 	u := *NewUserSession()
 	u.Type = "screenview"
 	u.ScreenName = screen
@@ -68,7 +69,7 @@ func ScreenView(screen string) {
 
 // Event is the public function to post a ScreenView event analytics message to GA
 func Event(action string, category string) {
-	logging.Stderr("[Analytics] Creating analytics event, %s", category)
+	logging.Stderr("[Analytics] Gathering analytics for event, %s", category)
 	u := *NewUserSession()
 	u.Type = "event"
 	u.Action = action
