@@ -7,6 +7,7 @@ import (
 
 	dockertypes "github.com/docker/docker/api/types"
 	dockercontainer "github.com/docker/docker/api/types/container"
+	"github.com/puppetlabs/lumogon/types"
 	"github.com/puppetlabs/lumogon/utils"
 )
 
@@ -30,6 +31,7 @@ type MockDockerClient struct {
 	ContainerExecInspectFn func(ctx context.Context, execID string) (dockertypes.ContainerExecInspect, error)
 	ImageInspectFn         func(ctx context.Context, imageName string) (dockertypes.ImageInspect, error)
 	CopyFromContainerFn    func(ctx context.Context, container, srcPath string, followSymlink bool) (io.ReadCloser, dockertypes.ContainerPathStat, error)
+	ContainerFilesystemFn  func(ctx context.Context, containerID string) (types.Filesystem, error)
 }
 
 // ImagePull is a mock implementation of dockeradapter.ImagePull
@@ -193,6 +195,15 @@ func (c MockDockerClient) CopyFromContainer(ctx context.Context, container, srcP
 	if c.CopyFromContainerFn != nil {
 		fmt.Println("[MockDockerClient] In ", utils.CurrentFunctionName())
 		return c.CopyFromContainerFn(ctx, container, srcPath, followSymlink)
+	}
+	panic(fmt.Sprintf("No function defined for: %s", utils.CurrentFunctionName()))
+}
+
+// ContainerFilesystem is a mock implementation of dockeradapter.ContainerFilesystem
+func (c MockDockerClient) ContainerFilesystem(ctx context.Context, containerID string) (types.Filesystem, error) {
+	if c.ContainerFilesystemFn != nil {
+		fmt.Println("[MockDockerClient] In ", utils.CurrentFunctionName())
+		return c.ContainerFilesystemFn(ctx, containerID)
 	}
 	panic(fmt.Sprintf("No function defined for: %s", utils.CurrentFunctionName()))
 }
