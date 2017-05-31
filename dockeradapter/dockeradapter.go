@@ -4,10 +4,13 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"strconv"
+	"strings"
 
 	dockertypes "github.com/docker/docker/api/types"
 	dockercontainer "github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
+	version "github.com/hashicorp/go-version"
 	"github.com/puppetlabs/lumogon/logging"
 	"github.com/puppetlabs/lumogon/utils"
 )
@@ -25,6 +28,7 @@ type Client interface {
 	Lister
 	HostInspector
 	CopyFrom
+	ClientAPIVersion() string
 }
 
 // Harvester interface exposes methods used by Capabilties Harvest functions
@@ -59,6 +63,7 @@ type Executor interface {
 // HostInspector interface exposes methods required to inspect a docker host
 type HostInspector interface {
 	HostID(ctx context.Context) string
+	ServerAPIVersion(ctx context.Context) string
 }
 
 // ImageInspectorPuller interface exposes methods required to both pull and
@@ -123,10 +128,21 @@ func ImageExists(ctx context.Context, client ImageInspector, imageName string) b
 func New() (Client, error) {
 	concreteClient := new(concreteDockerClient)
 	logging.Stderr("[Docker Adapter] Creating container runtime client: Docker")
+	ctx := context.Background()
 	dockerAPIClient, err := client.NewEnvClient()
 	if err != nil {
 		return nil, fmt.Errorf("[Docker Adapter] Unable to initialise container runtime type: Docker, error: %s", err)
 	}
+
+	clientAPIVersion, _ := version.NewVersion(concreteClient.ClientAPIVersion())
+	serverAPIVersion, _ := version.NewVersion(concreteClient.ServerAPIVersion(ctx))
+
+	if clientAPIVersion.Compare(serverAPIVersion) == 1 {
+		return nil, fmt.Errorf(
+			"[Docker Adapter] Unable to initialize container runtime type: Docker, error: client is newer than server (client API version: %s, server API version: %s)",
+			clientAPIVersion.String(), serverAPIVersion.String())
+	}
+
 	concreteClient.Client = dockerAPIClient
 	return concreteClient, nil
 }
@@ -152,6 +168,17 @@ func (c *concreteDockerClient) ContainerInspect(ctx context.Context, containerID
 func (c *concreteDockerClient) HostID(ctx context.Context) string {
 	resp, _ := c.Client.Info(ctx)
 	return resp.ID
+}
+
+// ClientVersion returns the API Version as reported by the server
+func (c *concreteDockerClient) ClientAPIVersion() string {
+	return c.Client.ClientVersion()
+}
+
+// ServerVersion returns the API Version as reported by the server
+func (c *concreteDockerClient) ServerAPIVersion(ctx context.Context) string {
+	resp, _ := c.Client.ServerVersion(ctx)
+	return resp.APIVersion
 }
 
 func (c *concreteDockerClient) ContainerExecCreate(ctx context.Context, containerID string, cmd []string, attachStdout bool, attachStderr bool) (dockertypes.IDResponse, error) {
@@ -276,4 +303,22 @@ func stripDockerLogsHeader(rawlogs string) string {
 		return ""
 	}
 	return rawlogs[headerLength:]
+}
+
+// parseVersion converts a SemVer version to an int64 for comparison
+func parseVersion(s string, width int) int64 {
+	strList := strings.Split(s, ".")
+	format := fmt.Sprintf("%%s%%0%ds", width)
+	v := ""
+	for _, value := range strList {
+		v = fmt.Sprintf(format, v, value)
+	}
+	var result int64
+	var err error
+	if result, err = strconv.ParseInt(v, 10, 64); err != nil {
+		fmt.Printf("ugh: parseVersion(%s): error=%s", s, err)
+		return 0
+	}
+	fmt.Printf("parseVersion: [%s] => [%s] => [%d]\n", s, v, result)
+	return result
 }

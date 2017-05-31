@@ -6,6 +6,7 @@ import:
   - api/types
   - client
 - package: github.com/google/go-querystring
+- package: github.com/hashicorp/go-version
 - package: github.com/spf13/cobra
 - package: github.com/spf13/viper
 - package: github.com/shirou/gopsutil

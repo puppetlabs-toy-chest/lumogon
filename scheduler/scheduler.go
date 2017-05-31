@@ -93,6 +93,7 @@ func (s *Scheduler) Run(r registry.IRegistry) {
 	go harvester.RunDockerAPIHarvester(ctx, &wg, s.targets, r.DockerAPICapabilities(), resultsChannel, s.client)
 
 	logging.Stderr("[Scheduler] Waiting")
+
 	wg.Wait()
 }
 
