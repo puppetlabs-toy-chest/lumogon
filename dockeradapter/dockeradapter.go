@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"strconv"
-	"strings"
 
 	dockertypes "github.com/docker/docker/api/types"
 	dockercontainer "github.com/docker/docker/api/types/container"
@@ -303,22 +301,4 @@ func stripDockerLogsHeader(rawlogs string) string {
 		return ""
 	}
 	return rawlogs[headerLength:]
-}
-
-// parseVersion converts a SemVer version to an int64 for comparison
-func parseVersion(s string, width int) int64 {
-	strList := strings.Split(s, ".")
-	format := fmt.Sprintf("%%s%%0%ds", width)
-	v := ""
-	for _, value := range strList {
-		v = fmt.Sprintf(format, v, value)
-	}
-	var result int64
-	var err error
-	if result, err = strconv.ParseInt(v, 10, 64); err != nil {
-		fmt.Printf("ugh: parseVersion(%s): error=%s", s, err)
-		return 0
-	}
-	fmt.Printf("parseVersion: [%s] => [%s] => [%d]\n", s, v, result)
-	return result
 }
