@@ -60,7 +60,6 @@ type Executor interface {
 // HostInspector interface exposes methods required to inspect a docker host
 type HostInspector interface {
 	HostID(ctx context.Context) string
-	ServerAPIVersion(ctx context.Context) string
 }
 
 // ImageInspectorPuller interface exposes methods required to both pull and
