@@ -138,7 +138,7 @@ func New() (Client, error) {
 
 	if clientAPIVersion.Compare(serverAPIVersion) == 1 {
 		return nil, fmt.Errorf(
-			"Unable to initialize container runtime type: Docker, error: client is newer than server (client API version: %s, server API version: %s)",
+			"[Docker Adapter] Unable to initialize container runtime type: Docker, error: client is newer than server (client API version: %s, server API version: %s)",
 			clientAPIVersion.String(), serverAPIVersion.String())
 	}
 
@@ -167,12 +167,6 @@ func (c *concreteDockerClient) ContainerInspect(ctx context.Context, containerID
 func (c *concreteDockerClient) HostID(ctx context.Context) string {
 	resp, _ := c.Client.Info(ctx)
 	return resp.ID
-}
-
-// ServerVersion returns the API Version as reported by the server
-func (c *concreteDockerClient) ServerAPIVersion(ctx context.Context) string {
-	resp, _ := c.Client.ServerVersion(ctx)
-	return resp.APIVersion
 }
 
 func (c *concreteDockerClient) ContainerExecCreate(ctx context.Context, containerID string, cmd []string, attachStdout bool, attachStderr bool) (dockertypes.IDResponse, error) {
