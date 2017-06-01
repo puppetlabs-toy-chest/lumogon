@@ -13,7 +13,7 @@ import (
 // This means we must rely on whether our hit is put together properly.
 // Validate at https://ga-dev-tools.appspot.com/hit-builder/
 func MockUserSession() *UserSession {
-	u := *NewUserSession()
+	u := *NewUserSession("test-uid")
 	gock.New("https://www.google-analytics.com").
 		Post("/collect").
 		Reply(200).

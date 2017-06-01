@@ -26,7 +26,6 @@ type Client interface {
 	Lister
 	HostInspector
 	CopyFrom
-	ClientAPIVersion() string
 }
 
 // Harvester interface exposes methods used by Capabilties Harvest functions
@@ -132,12 +131,14 @@ func New() (Client, error) {
 		return nil, fmt.Errorf("[Docker Adapter] Unable to initialise container runtime type: Docker, error: %s", err)
 	}
 
-	clientAPIVersion, _ := version.NewVersion(concreteClient.ClientAPIVersion())
-	serverAPIVersion, _ := version.NewVersion(concreteClient.ServerAPIVersion(ctx))
+	serverVersion, _ := dockerAPIClient.ServerVersion(ctx)
+	clientVersion := dockerAPIClient.ClientVersion()
+	clientAPIVersion, _ := version.NewVersion(clientVersion)
+	serverAPIVersion, _ := version.NewVersion(serverVersion.APIVersion)
 
 	if clientAPIVersion.Compare(serverAPIVersion) == 1 {
 		return nil, fmt.Errorf(
-			"[Docker Adapter] Unable to initialize container runtime type: Docker, error: client is newer than server (client API version: %s, server API version: %s)",
+			"Unable to initialize container runtime type: Docker, error: client is newer than server (client API version: %s, server API version: %s)",
 			clientAPIVersion.String(), serverAPIVersion.String())
 	}
 
@@ -166,11 +167,6 @@ func (c *concreteDockerClient) ContainerInspect(ctx context.Context, containerID
 func (c *concreteDockerClient) HostID(ctx context.Context) string {
 	resp, _ := c.Client.Info(ctx)
 	return resp.ID
-}
-
-// ClientVersion returns the API Version as reported by the server
-func (c *concreteDockerClient) ClientAPIVersion() string {
-	return c.Client.ClientVersion()
 }
 
 // ServerVersion returns the API Version as reported by the server
