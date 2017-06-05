@@ -128,7 +128,7 @@ func New() (Client, error) {
 	ctx := context.Background()
 	dockerAPIClient, err := client.NewEnvClient()
 	if err != nil {
-		return nil, fmt.Errorf("[Docker Adapter] Unable to initialise container runtime type: Docker, error: %s", err)
+		return nil, fmt.Errorf("[Docker Adapter] Unable to initialize container runtime type: Docker, error: %s", err)
 	}
 
 	serverVersion, _ := dockerAPIClient.ServerVersion(ctx)
