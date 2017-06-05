@@ -1,21 +1,20 @@
 require 'json'
-require 'pry'
 
 Puppet::Type.type(:lumogon).provide(:lumogon) do
   desc "Provider for Lumogon"
-
   commands :docker => '/usr/bin/docker'
+
+  mk_resource_methods
 
   def self.instances
     scan_report = docker(:run, '--rm', '-v', '/var/run/docker.sock:/var/run/docker.sock', 'puppet/lumogon', :scan)
     containers = JSON.parse(scan_report)['containers']
 
-    containers.each do |c|
+    containers.collect do |c|
       container = c[1]
 
       new({
-        :container_name  => container['container_name'],
-        :ensure          => :present,
+        :name            => container['container_name'],
 
         # Host Capability
         :id              => container['container_id'],
@@ -35,10 +34,4 @@ Puppet::Type.type(:lumogon).provide(:lumogon) do
       })
     end
   end
-
-  def name
-    @resource[:name]
-  end
-
-
 end
