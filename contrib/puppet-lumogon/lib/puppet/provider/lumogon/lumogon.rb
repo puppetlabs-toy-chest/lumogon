@@ -6,7 +6,7 @@ Puppet::Type.type(:lumogon).provide(:lumogon) do
 
   mk_resource_methods
 
-  def self.instances
+  def self.instances #rubocop:disable Metrics/AbcSize
     scan_report = docker(:run, '--rm', '-v', '/var/run/docker.sock:/var/run/docker.sock', 'puppet/lumogon', :scan)
     containers = JSON.parse(scan_report)['containers']
 
@@ -25,12 +25,12 @@ Puppet::Type.type(:lumogon).provide(:lumogon) do
         :platformversion => container['capabilities']['host']['payload']['platformversion'],
 
         # Package Capability
-        :apk             => container['capabilities'].has_key?('apk') ? container['capabilities']['apk']['payload'] : :absent,
-        :dpkg            => container['capabilities'].has_key?('dpkg') ? container['capabilities']['dpkg']['payload'] : :absent,
-        :yum             => container['capabilities'].has_key?('yum') ? container['capabilities']['yum']['payload'] : :absent,
+        :apk             => container['capabilities'].key?('apk') ? container['capabilities']['apk']['payload'] : :absent,
+        :dpkg            => container['capabilities'].key?('dpkg') ? container['capabilities']['dpkg']['payload'] : :absent,
+        :yum             => container['capabilities'].key?('yum') ? container['capabilities']['yum']['payload'] : :absent,
 
         # Label Capability
-        :labels          => container['capabilities']['label'].has_key?('payload') ? container['capabilities']['label']['payload'] : :absent
+        :labels          => container['capabilities']['label'].key?('payload') ? container['capabilities']['label']['payload'] : :absent
       })
     end
   end

@@ -477,3 +477,6 @@ Style/IfWithSemicolon:
 
 Style/Encoding:
   Enabled: false
+
+Style/SymbolArray:
+  Enabled: false

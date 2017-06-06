@@ -1,4 +1,4 @@
-Puppet::Type.newtype(:lumogon) do
+Puppet::Type.newtype(:lumogon) do #rubocop:disable Metrics/BlockLength
   @doc = %q{Inspect running container with Lumogon}
 
   newparam(:name) do
