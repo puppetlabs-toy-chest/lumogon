@@ -1,0 +1,15 @@
+
+HOSTS:
+  ubuntu-1604-x64:
+    platform: ubuntu-16.04-amd64
+    hypervisor : docker
+    image: ubuntu:16.04
+    docker_preserve_image: true
+    docker_cmd: '["/sbin/init"]'
+    docker_image_commands:
+      - 'rm /usr/sbin/policy-rc.d'
+      - 'rm /sbin/initctl; dpkg-divert --rename --remove /sbin/initctl'
+      - 'apt-get install -y net-tools wget'
+CONFIG:
+  log_level: debug
+  trace_limit: 200
