@@ -7,6 +7,7 @@ lumogon_command = [
   '-v',
   '/var/run/docker.sock:/var/run/docker.sock',
   'puppet/lumogon',
+  'scan',
   '--disable-analytics'
 ].join(' ')
 

@@ -9,7 +9,15 @@ HOSTS:
     docker_image_commands:
       - 'rm /usr/sbin/policy-rc.d'
       - 'rm /sbin/initctl; dpkg-divert --rename --remove /sbin/initctl'
-      - 'apt-get install -y net-tools wget'
+      - 'DEBIAN_FRONTEND=noninteractive apt-get install -y net-tools wget apt-transport-https curl ca-certificates'
+      - 'curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add'
+      - 'echo "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list'
+      - 'apt-get update'
+      - 'DEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce'
+    mount_folders:
+      docker_socket:
+        host_path: /var/run/docker.sock
+        container_path: /var/run/docker.sock
 CONFIG:
   log_level: debug
   trace_limit: 200
