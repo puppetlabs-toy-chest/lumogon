@@ -101,8 +101,11 @@ func storeResult(report types.Report, consumerURL string) error {
 	// TODO Move HTTP Post Helper method elsewhere
 	logging.Stderr("[Storage] Posting result to: %s", consumerURL)
 	resp, err := http.Post(consumerURL, "application/json", bytes.NewBuffer(jsonStr))
+
 	if err != nil {
 		logging.Stderr("[Storage] Error posting result, [%s], exiting.", err)
+		os.Stderr.WriteString(fmt.Sprintf("Unable to connect to the HTTP endpoint at %s\nSending scan report to fallback: STDOUT\n", consumerURL))
+		outputResult(report)
 		os.Exit(1)
 	}
 
