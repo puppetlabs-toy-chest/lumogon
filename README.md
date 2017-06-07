@@ -194,8 +194,7 @@ Feel free to explore those command-line options. Of note:
 If you're making changes to Lumogon, or just interested in seeing how it works under the hood, you might want to try building from source. For this you'll need a few more things:
 
  - Install [Go](https://golang.org/dl/), version 1.8 or later
- - Install `make`
- - Set your `$GOPATH` variable to the path where you want to keep your Go sources -- for example, `${HOME}/go`.
+ - Docker [Docker](https://www.docker.com/get-docker), version 17.05 or later
  - Download the Lumogon source code
  - Build the Docker image
 
@@ -203,14 +202,12 @@ The terminal commands to do this are:
 
 ```shell
 export GOPATH="${HOME}/go"
-mkdir -p ${GOPATH}/src/github.com/puppetlabs
-cd ${GOPATH}/src/github.com/puppetlabs
-git clone https://github.com/puppetlabs/lumogon
+go get -d -u github.com/puppetlabs/lumogon
 cd $GOPATH/src/github.com/puppetlabs/lumogon
-make all
+make image
 ```
 
-Note that this build process isn't widely tested away from macOS yet but will eventually work everywhere.
+This will build the client and package it in the `puppet/lumogon` image.
 
 ## Giving us feedback
 
