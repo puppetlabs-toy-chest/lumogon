@@ -40,8 +40,8 @@ bin/lumogon:
 
 build: bin/lumogon bootstrap
 
-image: build
-	docker build -t $(CONTAINER_NAME) -f ./Dockerfile.build .
+image:
+	docker build -t $(CONTAINER_NAME) .
 
 deploy: image
 	script/deploy
@@ -60,8 +60,6 @@ licenses: $(GOPATH)/bin/licenses
 
 all: clean dependencies test build image
 
-buildimage: clean build image
-
 $(GOPATH)/bin/glide:
 	go get -u github.com/Masterminds/glide
 
@@ -76,4 +74,4 @@ $(GOPATH)/bin/goconvey:
 
 bootstrap: $(GOPATH)/bin/glide $(GOPATH)/src/github.com/golang/lint/golint $(GOPATH)/bin/licenses $(GOPATH)/bin/goconvey
 
-.PHONY: build image buildimage test todo clean dependencies bootstrap licenses watch deploy
+.PHONY: build image test todo clean dependencies bootstrap licenses watch deploy
