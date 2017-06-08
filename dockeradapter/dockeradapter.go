@@ -8,7 +8,6 @@ import (
 	dockertypes "github.com/docker/docker/api/types"
 	dockercontainer "github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
-	version "github.com/hashicorp/go-version"
 	"github.com/puppetlabs/lumogon/logging"
 	"github.com/puppetlabs/lumogon/utils"
 )
@@ -124,21 +123,9 @@ func ImageExists(ctx context.Context, client ImageInspector, imageName string) b
 func New() (Client, error) {
 	concreteClient := new(concreteDockerClient)
 	logging.Stderr("[Docker Adapter] Creating container runtime client: Docker")
-	ctx := context.Background()
 	dockerAPIClient, err := client.NewEnvClient()
 	if err != nil {
 		return nil, fmt.Errorf("[Docker Adapter] Unable to initialize container runtime type: Docker, error: %s", err)
-	}
-
-	serverVersion, _ := dockerAPIClient.ServerVersion(ctx)
-	clientVersion := dockerAPIClient.ClientVersion()
-	clientAPIVersion, _ := version.NewVersion(clientVersion)
-	serverAPIVersion, _ := version.NewVersion(serverVersion.APIVersion)
-
-	if clientAPIVersion.Compare(serverAPIVersion) == 1 {
-		return nil, fmt.Errorf(
-			"[Docker Adapter] Unable to initialize container runtime type: Docker, error: client is newer than server (client API version: %s, server API version: %s)",
-			clientAPIVersion.String(), serverAPIVersion.String())
 	}
 
 	concreteClient.Client = dockerAPIClient

@@ -1,5 +1,5 @@
-hash: de3eeb5c20df5d2537e20e7ba70fb74709a115d16bf4ca6f2236fe3b7b54b118
-updated: 2017-05-31T15:21:09.544519041-05:00
+hash: 2d469e87a521fe1cbc39c49b000eac3390a10261822bbd27c54f07295443e6a9
+updated: 2017-06-08T17:15:26.38424315-05:00
 imports:
 - name: github.com/davecgh/go-spew
   version: 346938d642f2ec3594ed81d874461961cd0faa76
@@ -55,8 +55,6 @@ imports:
   version: 53e6ce116135b80d037921a7fdd5138cf32d7a8a
   subpackages:
   - query
-- name: github.com/hashicorp/go-version
-  version: 03c5bf6be031b6dd45afec16b1cf94fc8938bc77
 - name: github.com/hashicorp/hcl
   version: 630949a3c5fa3c613328e1b8256052cbc2327c9b
   subpackages:
