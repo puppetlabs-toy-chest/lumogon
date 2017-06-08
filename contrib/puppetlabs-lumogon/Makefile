@@ -14,4 +14,7 @@ dependencies:
 test: dependencies
 	bundle exec rake test
 
-.PHONY: dependencies bootstrap test
+deploy:
+	true
+
+.PHONY: dependencies bootstrap test deploy
