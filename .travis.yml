@@ -29,7 +29,7 @@ matrix:
     install:
       - cd contrib/puppetlabs-lumogon && bundle install
     script:
-      - cd contrib/puppetlabs-lumogon && bundle exec rake test
+      - bundle exec rake test
 deploy:
 - provider: script
   script: make deploy
