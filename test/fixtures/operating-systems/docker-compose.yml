@@ -1,0 +1,196 @@
+version: "3"
+services:
+  lumogon_test_ubuntu_artful:
+    image: ubuntu:artful
+    tty: true
+    command: "sh"
+    networks:
+      - webnet
+    labels:
+      org.label-schema.description: "Lumogon OS test fixture - Ubuntu 17.10 (artful)"
+  lumogon_test_ubuntu_zesty:
+    image: ubuntu:zesty
+    tty: true
+    command: "sh"
+    networks:
+      - webnet
+    labels:
+      org.label-schema.description: "Lumogon OS test fixture - Ubuntu 17.04 (zesty)"
+  lumogon_test_ubuntu_yakkety:
+    image: ubuntu:yakkety
+    tty: true
+    command: "sh"
+    networks:
+      - webnet
+    labels:
+      org.label-schema.description: "Lumogon OS test fixture - Ubuntu 16.10 (yakkety)"
+  lumogon_test_ubuntu_xenial:
+    image: ubuntu:xenial
+    tty: true
+    command: "sh"
+    networks:
+      - webnet
+    labels:
+      org.label-schema.description: "Lumogon OS test fixture - Ubuntu 16.04 (xenial)"
+  lumogon_test_ubuntu_trusty:
+    image: ubuntu:trusty
+    tty: true
+    command: "sh"
+    networks:
+      - webnet
+    labels:
+      org.label-schema.description: "Lumogon OS test fixture - Ubuntu 14.04 (trusty)"
+  lumogon_test_alpine_edge:
+    image: alpine:edge
+    tty: true
+    command: "sh"
+    networks:
+      - webnet
+    labels:
+      org.label-schema.description: "Lumogon OS test fixture - Alpine Edge"
+  lumogon_test_alpine_36:
+    image: alpine:3.6
+    tty: true
+    command: "sh"
+    networks:
+      - webnet
+    labels:
+      org.label-schema.description: "Lumogon OS test fixture - Alpine 3.6"
+  lumogon_test_alpine_35:
+    image: alpine:3.5
+    tty: true
+    command: "sh"
+    networks:
+      - webnet
+    labels:
+      org.label-schema.description: "Lumogon OS test fixture - Alpine 3.5"
+  lumogon_test_alpine_34:
+    image: alpine:3.4
+    tty: true
+    command: "sh"
+    networks:
+      - webnet
+    labels:
+      org.label-schema.description: "Lumogon OS test fixture - Alpine 3.4"
+  lumogon_test_alpine_33:
+    image: alpine:3.3
+    tty: true
+    command: "sh"
+    networks:
+      - webnet
+    labels:
+      org.label-schema.description: "Lumogon OS test fixture - Alpine 3.3"
+  lumogon_test_alpine_32:
+    image: alpine:3.3
+    tty: true
+    command: "sh"
+    networks:
+      - webnet
+    labels:
+      org.label-schema.description: "Lumogon OS test fixture - Alpine 3.2"
+  lumogon_test_alpine_31:
+    image: alpine:3.3
+    tty: true
+    command: "sh"
+    networks:
+      - webnet
+    labels:
+      org.label-schema.description: "Lumogon OS test fixture - Alpine 3.1"
+  lumogon_test_fedora_25:
+    image: fedora:25
+    tty: true
+    command: "sh"
+    networks:
+      - webnet
+    labels:
+      org.label-schema.description: "Lumogon OS test fixture - Fedora 25"
+  lumogon_test_fedora_24:
+    image: fedora:24
+    tty: true
+    command: "sh"
+    networks:
+      - webnet
+    labels:
+      org.label-schema.description: "Lumogon OS test fixture - Fedora 24"
+  lumogon_test_fedora_rawhide:
+    image: fedora:rawhide
+    tty: true
+    command: "sh"
+    networks:
+      - webnet
+    labels:
+      org.label-schema.description: "Lumogon OS test fixture - Fedora Rawhide"
+  lumogon_test_fedora_rawhide:
+    image: fedora:rawhide
+    tty: true
+    command: "sh"
+    networks:
+      - webnet
+    labels:
+      org.label-schema.description: "Lumogon OS test fixture - Fedora Rawhide"
+  lumogon_test_centos_7:
+    image: centos:7
+    tty: true
+    command: "sh"
+    networks:
+      - webnet
+    labels:
+      org.label-schema.description: "Lumogon OS test fixture - Centos 7"
+  lumogon_test_centos_6:
+    image: centos:6
+    tty: true
+    command: "sh"
+    networks:
+      - webnet
+    labels:
+      org.label-schema.description: "Lumogon OS test fixture - Centos 6"
+  lumogon_test_debian_experimental:
+    image: debian:experimental
+    tty: true
+    command: "sh"
+    networks:
+      - webnet
+    labels:
+      org.label-schema.description: "Lumogon OS test fixture - Debian Experimental"
+  lumogon_test_debian_stretch:
+    image: debian:stretch
+    tty: true
+    command: "sh"
+    networks:
+      - webnet
+    labels:
+      org.label-schema.description: "Lumogon OS test fixture - Debian Stretch"
+  lumogon_test_debian_jessie:
+    image: debian:jessie
+    tty: true
+    command: "sh"
+    networks:
+      - webnet
+    labels:
+      org.label-schema.description: "Lumogon OS test fixture - Debian Jessie"
+  lumogon_test_debian_wheezy:
+    image: debian:wheezy
+    tty: true
+    command: "sh"
+    networks:
+      - webnet
+    labels:
+      org.label-schema.description: "Lumogon OS test fixture - Debian Wheezy"
+  lumogon_test_busybox_126_ulibc:
+    image: busybox:1.26
+    tty: true
+    command: "sh"
+    networks:
+      - webnet
+    labels:
+      org.label-schema.description: "Lumogon OS test fixture - Busybox 1.26 (ulibc)"
+  lumogon_test_busybox_126_ulibc:
+    image: busybox:1.26
+    tty: true
+    command: "sh"
+    networks:
+      - webnet
+    labels:
+      org.label-schema.description: "Lumogon OS test fixture - Busybox 1.26 (ulibc)"
+networks:
+  webnet:
