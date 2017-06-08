@@ -7,6 +7,8 @@ def test_os(lumogon):
     assert "debian" == family
 
 def test_systemd_present(lumogon):
-    print lumogon
     packages = lumogon['capabilities']['dpkg']['payload']
     assert "systemd" in packages
+
+def test_no_rpms(lumogon):
+    assert "rpm" not in lumogon['capabilities']
