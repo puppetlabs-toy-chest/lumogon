@@ -1,4 +1,5 @@
 require 'puppetlabs_spec_helper/module_spec_helper'
+require 'rspec_command'
 require 'simplecov'
 require 'simplecov-console'
 
@@ -12,4 +13,5 @@ end
 
 RSpec.configure do |config|
   config.mock_with :rspec
+  config.include RSpecCommand
 end

@@ -1,64 +1,17 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    CFPropertyList (2.3.5)
     addressable (2.4.0)
     ansi (1.5.0)
     ast (2.3.0)
-    aws-sdk-v1 (1.67.0)
-      json (~> 1.4)
-      nokogiri (~> 1)
     backports (3.8.0)
-    beaker (3.17.0)
-      aws-sdk-v1 (~> 1.57)
-      beaker-hiera (~> 0.0)
-      beaker-hostgenerator
-      docker-api
-      fission (~> 0.4)
-      fog (~> 1.38)
-      google-api-client (~> 0.9)
-      hocon (~> 1.0)
-      in-parallel (~> 0.1)
-      inifile (~> 3.0)
-      minitar (~> 0.5.4)
-      minitest (~> 5.4)
-      net-scp (~> 1.2)
-      net-ssh (~> 4.0)
-      open_uri_redirections (~> 0.2.1)
-      rbvmomi (~> 1.9)
-      rsync (~> 1.0.9)
-      stringify-hash (~> 0.0)
-      thor (~> 0.19)
-      unf (~> 0.1)
-    beaker-hiera (0.1.1)
-      stringify-hash (~> 0.0.0)
-    beaker-hostgenerator (0.8.4)
-      deep_merge (~> 1.0)
-      stringify-hash (~> 0.0.0)
-    beaker-puppet_install_helper (0.7.1)
-      beaker (>= 2.0)
-    beaker-rspec (6.1.0)
-      beaker (~> 3.0)
-      rspec (~> 3.0)
-      serverspec (~> 2)
-      specinfra (~> 2)
-    beaker_spec_helper (0.1.1)
-      beaker (>= 2)
-    builder (3.2.3)
     coderay (1.1.1)
-    declarative (0.0.9)
-    declarative-option (0.1.0)
-    deep_merge (1.1.1)
     diff-lcs (1.3)
     docile (1.1.5)
-    docker-api (1.33.4)
-      excon (>= 0.38.0)
-      json
     domain_name (0.5.20170404)
       unf (>= 0.0.5, < 1.0.0)
     ethon (0.10.1)
       ffi (>= 1.3.0)
-    excon (0.56.0)
     facter (2.4.6)
     faraday (0.12.1)
       multipart-post (>= 1.2, < 3)
@@ -66,144 +19,6 @@ GEM
       faraday (>= 0.7.4, < 1.0)
     fast_gettext (1.1.0)
     ffi (1.9.18)
-    fission (0.5.0)
-      CFPropertyList (~> 2.2)
-    fog (1.40.0)
-      fog-aliyun (>= 0.1.0)
-      fog-atmos
-      fog-aws (>= 0.6.0)
-      fog-brightbox (~> 0.4)
-      fog-cloudatcost (~> 0.1.0)
-      fog-core (~> 1.43)
-      fog-digitalocean (>= 0.3.0)
-      fog-dnsimple (~> 1.0)
-      fog-dynect (~> 0.0.2)
-      fog-ecloud (~> 0.1)
-      fog-google (<= 0.1.0)
-      fog-json
-      fog-local
-      fog-openstack
-      fog-powerdns (>= 0.1.1)
-      fog-profitbricks
-      fog-rackspace
-      fog-radosgw (>= 0.0.2)
-      fog-riakcs
-      fog-sakuracloud (>= 0.0.4)
-      fog-serverlove
-      fog-softlayer
-      fog-storm_on_demand
-      fog-terremark
-      fog-vmfusion
-      fog-voxel
-      fog-vsphere (>= 0.4.0)
-      fog-xenserver
-      fog-xml (~> 0.1.1)
-      ipaddress (~> 0.5)
-      json (>= 1.8, < 2.0)
-    fog-aliyun (0.1.0)
-      fog-core (~> 1.27)
-      fog-json (~> 1.0)
-      ipaddress (~> 0.8)
-      xml-simple (~> 1.1)
-    fog-atmos (0.1.0)
-      fog-core
-      fog-xml
-    fog-aws (1.3.0)
-      fog-core (~> 1.38)
-      fog-json (~> 1.0)
-      fog-xml (~> 0.1)
-      ipaddress (~> 0.8)
-    fog-brightbox (0.11.0)
-      fog-core (~> 1.22)
-      fog-json
-      inflecto (~> 0.0.2)
-    fog-cloudatcost (0.1.2)
-      fog-core (~> 1.36)
-      fog-json (~> 1.0)
-      fog-xml (~> 0.1)
-      ipaddress (~> 0.8)
-    fog-core (1.44.3)
-      builder
-      excon (~> 0.49)
-      formatador (~> 0.2)
-    fog-digitalocean (0.3.0)
-      fog-core (~> 1.42)
-      fog-json (>= 1.0)
-      fog-xml (>= 0.1)
-      ipaddress (>= 0.5)
-    fog-dnsimple (1.0.0)
-      fog-core (~> 1.38)
-      fog-json (~> 1.0)
-    fog-dynect (0.0.3)
-      fog-core
-      fog-json
-      fog-xml
-    fog-ecloud (0.3.0)
-      fog-core
-      fog-xml
-    fog-google (0.1.0)
-      fog-core
-      fog-json
-      fog-xml
-    fog-json (1.0.2)
-      fog-core (~> 1.0)
-      multi_json (~> 1.10)
-    fog-local (0.3.1)
-      fog-core (~> 1.27)
-    fog-openstack (0.1.21)
-      fog-core (>= 1.40)
-      fog-json (>= 1.0)
-      ipaddress (>= 0.8)
-    fog-powerdns (0.1.1)
-      fog-core (~> 1.27)
-      fog-json (~> 1.0)
-      fog-xml (~> 0.1)
-    fog-profitbricks (3.0.0)
-      fog-core (~> 1.42)
-      fog-json (~> 1.0)
-    fog-rackspace (0.1.5)
-      fog-core (>= 1.35)
-      fog-json (>= 1.0)
-      fog-xml (>= 0.1)
-      ipaddress (>= 0.8)
-    fog-radosgw (0.0.5)
-      fog-core (>= 1.21.0)
-      fog-json
-      fog-xml (>= 0.0.1)
-    fog-riakcs (0.1.0)
-      fog-core
-      fog-json
-      fog-xml
-    fog-sakuracloud (1.7.5)
-      fog-core
-      fog-json
-    fog-serverlove (0.1.2)
-      fog-core
-      fog-json
-    fog-softlayer (1.1.4)
-      fog-core
-      fog-json
-    fog-storm_on_demand (0.1.1)
-      fog-core
-      fog-json
-    fog-terremark (0.1.0)
-      fog-core
-      fog-xml
-    fog-vmfusion (0.1.0)
-      fission
-      fog-core
-    fog-voxel (0.1.0)
-      fog-core
-      fog-xml
-    fog-vsphere (1.10.0)
-      fog-core
-      rbvmomi (~> 1.9)
-    fog-xenserver (0.3.0)
-      fog-core
-      fog-xml
-    fog-xml (0.1.3)
-      fog-core
-      nokogiri (>= 1.5.11, < 2.0.0)
     formatador (0.2.5)
     gettext (3.2.2)
       locale (>= 2.0.5)
@@ -219,23 +34,6 @@ GEM
       multi_json (~> 1.0)
       net-http-persistent (~> 2.9)
       net-http-pipeline
-    google-api-client (0.10.3)
-      addressable (~> 2.3)
-      googleauth (~> 0.5)
-      httpclient (~> 2.7)
-      hurley (~> 0.1)
-      memoist (~> 0.11)
-      mime-types (>= 1.6)
-      representable (~> 3.0)
-      retriable (>= 2.0, < 4.0)
-    googleauth (0.5.1)
-      faraday (~> 0.9)
-      jwt (~> 1.4)
-      logging (~> 2.0)
-      memoist (~> 0.12)
-      multi_json (~> 1.11)
-      os (~> 0.9)
-      signet (~> 0.7)
     guard (2.14.1)
       formatador (>= 0.2.4)
       listen (>= 2.7, < 4.0)
@@ -251,31 +49,18 @@ GEM
     hiera (3.3.1)
     highline (1.7.8)
     hirb (0.7.3)
-    hocon (1.2.5)
     http-cookie (1.0.3)
       domain_name (~> 0.5)
-    httpclient (2.8.3)
-    hurley (0.2)
-    in-parallel (0.1.17)
-    inflecto (0.0.2)
-    inifile (3.0.0)
-    ipaddress (0.8.3)
     json (1.8.6)
     json_pure (1.8.6)
-    jwt (1.5.6)
     launchy (2.4.3)
       addressable (~> 2.3)
     listen (3.1.5)
       rb-fsevent (~> 0.9, >= 0.9.4)
       rb-inotify (~> 0.9, >= 0.9.7)
       ruby_dep (~> 1.2)
-    little-plugger (1.1.4)
     locale (2.1.2)
-    logging (2.2.2)
-      little-plugger (~> 1.1)
-      multi_json (~> 1.10)
     lumberjack (1.0.12)
-    memoist (0.15.0)
     metaclass (0.0.4)
     metadata-json-lint (1.2.2)
       json
@@ -283,9 +68,7 @@ GEM
       spdx-licenses (~> 1.0)
     method_source (0.8.2)
     mime-types (2.99.3)
-    mini_portile2 (2.2.0)
-    minitar (0.5.4)
-    minitest (5.10.2)
+    mixlib-shellout (2.2.7)
     mocha (1.2.1)
       metaclass (~> 0.0.1)
     multi_json (1.12.1)
@@ -293,18 +76,10 @@ GEM
     nenv (0.3.0)
     net-http-persistent (2.9.4)
     net-http-pipeline (1.0.1)
-    net-scp (1.2.1)
-      net-ssh (>= 2.6.5)
-    net-ssh (4.1.0)
-    net-telnet (0.1.1)
     netrc (0.11.0)
-    nokogiri (1.8.0)
-      mini_portile2 (~> 2.2.0)
     notiffany (0.1.1)
       nenv (~> 0.1)
       shellany (~> 0.0)
-    open_uri_redirections (0.2.1)
-    os (0.9.6)
     parallel (1.11.2)
     parser (2.4.0.0)
       ast (~> 2.2)
@@ -339,24 +114,18 @@ GEM
     rb-fsevent (0.9.8)
     rb-inotify (0.9.8)
       ffi (>= 0.5.0)
-    rbvmomi (1.11.2)
-      builder (~> 3.0)
-      json (>= 1.8)
-      nokogiri (~> 1.5)
-      trollop (~> 2.1)
-    representable (3.0.4)
-      declarative (< 0.1.0)
-      declarative-option (< 0.2.0)
-      uber (< 0.2.0)
     rest-client (1.8.0)
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 3.0)
       netrc (~> 0.7)
-    retriable (3.0.2)
     rspec (3.6.0)
       rspec-core (~> 3.6.0)
       rspec-expectations (~> 3.6.0)
       rspec-mocks (~> 3.6.0)
+    rspec-command (1.0.3)
+      mixlib-shellout (~> 2.0)
+      rspec (~> 3.2)
+      rspec-its (~> 1.2)
     rspec-core (3.6.0)
       rspec-support (~> 3.6.0)
     rspec-expectations (3.6.0)
@@ -371,7 +140,6 @@ GEM
     rspec-puppet (2.5.0)
       rspec
     rspec-support (3.6.0)
-    rsync (1.0.9)
     rubocop (0.49.1)
       parallel (~> 1.10)
       parser (>= 2.3.3.1, < 3.0)
@@ -383,18 +151,7 @@ GEM
     ruby_dep (1.5.0)
     semantic_puppet (1.0.0)
       gettext-setup (>= 0.3)
-    serverspec (2.39.1)
-      multi_json
-      rspec (~> 3.0)
-      rspec-its
-      specinfra (~> 2.68)
-    sfl (2.3)
     shellany (0.0.1)
-    signet (0.7.3)
-      addressable (~> 2.3)
-      faraday (~> 0.9)
-      jwt (~> 1.5)
-      multi_json (~> 1.10)
     simplecov (0.14.1)
       docile (~> 1.1.0)
       json (>= 1.8, < 3)
@@ -406,12 +163,6 @@ GEM
     simplecov-html (0.10.1)
     slop (3.6.0)
     spdx-licenses (1.1.0)
-    specinfra (2.68.0)
-      net-scp
-      net-ssh (>= 2.7, < 5.0)
-      net-telnet
-      sfl
-    stringify-hash (0.0.2)
     text (1.3.1)
     thor (0.19.4)
     travis (1.8.8)
@@ -425,26 +176,19 @@ GEM
       typhoeus (~> 0.6, >= 0.6.8)
     travis-lint (2.0.0)
       json
-    trollop (2.1.2)
     typhoeus (0.8.0)
       ethon (>= 0.8.0)
-    uber (0.1.0)
     unf (0.1.4)
       unf_ext
     unf_ext (0.0.7.4)
     unicode-display_width (1.2.1)
     websocket (1.2.4)
-    xml-simple (1.1.5)
     yard (0.9.9)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  beaker
-  beaker-puppet_install_helper
-  beaker-rspec
-  beaker_spec_helper
   guard-rake
   metadata-json-lint
   pry
@@ -453,6 +197,7 @@ DEPENDENCIES
   puppetlabs_spec_helper
   rake
   rspec
+  rspec-command
   rubocop
   simplecov
   simplecov-console

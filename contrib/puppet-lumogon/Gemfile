@@ -6,6 +6,7 @@ group :test do
   gem 'puppetlabs_spec_helper'
   gem 'rake'
   gem 'rspec'
+  gem 'rspec-command'
   gem 'rubocop'
   gem 'simplecov'
   gem 'simplecov-console'
@@ -18,11 +19,4 @@ group :development do
   gem 'travis'
   gem 'travis-lint'
   gem 'yard'
-end
-
-group :acceptance do
-  gem 'beaker'
-  gem 'beaker-puppet_install_helper'
-  gem 'beaker-rspec'
-  gem 'beaker_spec_helper'
 end
