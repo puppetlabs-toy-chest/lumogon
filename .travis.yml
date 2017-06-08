@@ -19,7 +19,7 @@ matrix:
     script:
     - make dependencies test
   - language: ruby
-    rvm: 2.1.6
+    rvm: 2.3.4
     cache: bundler
     services:
       - docker
