@@ -24,5 +24,4 @@ lumogon { '/nginx':
   platformfamily  => 'debian',
   platformversion => '8.7',
 }
-
 ```

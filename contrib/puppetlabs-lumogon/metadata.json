@@ -1,6 +1,6 @@
 {
   "name": "puppetlabs-lumogon",
-  "version": "0.1.0",
+  "version": "0.4.0",
   "author": "James Fryman",
   "summary": "Provides a Puppet Type/Provider for Lumogon :: inspecting running containers",
   "license": "Apache-2.0",
