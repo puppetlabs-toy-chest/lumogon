@@ -13,12 +13,10 @@ describe "puppetlabs-lumogon integration" do
   describe 'puppet resource lumogon' do
     command 'bundle exec puppet resource lumogon'
     environment RUBYLIB: $LOAD_PATH.join(':')
+    its(:exitstatus) { is_expected.to eq 0 }
     its(:stdout) { is_expected.to include "lumogon { '/dind-test':" }
     its(:stdout) { is_expected.to include 'apk' }
-    its(:stdout) { is_expected.to include 'hostname' }
     its(:stdout) { is_expected.to include 'os' }
-    its(:stdout) { is_expected.to include 'platform' }
     its(:stderr) { is_expected.to eq '' }
-    its(:exitstatus) { is_expected.to eq 0 }
   end
 end
