@@ -7,6 +7,9 @@ bootstrap:
 
 dependencies:
 	bundle install
+	docker pull docker:dind
+	docker pull docker:latest
+	docker pull puppet/lumogon:latest
 
 test: dependencies
 	bundle exec rake test
