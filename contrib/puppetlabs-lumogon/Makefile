@@ -9,7 +9,7 @@ dependencies:
 	bundle install
 	docker pull docker:dind
 	docker pull docker:latest
-	docker pull puppet/lumogon:latest
+	cd ../.. && make all
 
 test: dependencies
 	bundle exec rake test
