@@ -2,7 +2,7 @@ require 'json'
 
 Puppet::Type.type(:lumogon).provide(:lumogon) do
   desc "Provider for Lumogon"
-  commands :docker => '/usr/bin/docker'
+  commands :docker => 'docker'
 
   mk_resource_methods
 
