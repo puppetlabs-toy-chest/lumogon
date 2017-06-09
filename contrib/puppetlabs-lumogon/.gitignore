@@ -1,0 +1,6 @@
+.bundle/
+log/
+junit/
+coverage/
+pkg/
+Gemfile.lock
