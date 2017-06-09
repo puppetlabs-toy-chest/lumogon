@@ -59,7 +59,8 @@ func (s *Scheduler) Run(r registry.IRegistry) {
 	logging.Stderr("[Scheduler] Running")
 	// Exit immediately if a harvester error has already been thrown
 	if s.err != nil {
-		return
+		fmt.Fprintf(os.Stderr, "[Scheduler] Unable to run harvester: %s\nExiting...", s.err)
+		os.Exit(1)
 	}
 
 	timeout := s.opts.Timeout
@@ -92,6 +93,7 @@ func (s *Scheduler) Run(r registry.IRegistry) {
 	go harvester.RunDockerAPIHarvester(ctx, &wg, s.targets, r.DockerAPICapabilities(), resultsChannel, s.client)
 
 	logging.Stderr("[Scheduler] Waiting")
+
 	wg.Wait()
 }
 

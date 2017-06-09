@@ -42,17 +42,15 @@ type UserSession struct {
 }
 
 // NewUserSession provides a setup UserSession struct with sane defaults
-func NewUserSession() *UserSession {
+func NewUserSession(uniqueID string) *UserSession {
 	v := version.Version
-	ctx := context.Background()
-	c, _ := dockeradapter.New()
 
 	return &UserSession{
 		ProtocolVersion:    1,
 		TrackingID:         "UA-54263865-7",
 		ApplicationName:    "lumogon",
 		ApplicationVersion: v.VersionString(),
-		UniqueID:           c.HostID(ctx),
+		UniqueID:           uniqueID,
 		DisableTransmit:    viper.GetBool("disable-analytics"),
 		HTTPClient:         http.DefaultClient,
 	}
@@ -61,7 +59,8 @@ func NewUserSession() *UserSession {
 // ScreenView is the public function to post a ScreenView analytics message to GA
 func ScreenView(screen string) {
 	logging.Stderr("[Analytics] Initializing Google Analytics: %s", screen)
-	u := *NewUserSession()
+	id := GetDockerUniqueID()
+	u := *NewUserSession(id)
 	u.Type = "screenview"
 	u.ScreenName = screen
 	go u.PostMeasurement()
@@ -70,7 +69,8 @@ func ScreenView(screen string) {
 // Event is the public function to post a ScreenView event analytics message to GA
 func Event(action string, category string) {
 	logging.Stderr("[Analytics] Gathering additional Google Analytics for event: %s", category)
-	u := *NewUserSession()
+	id := GetDockerUniqueID()
+	u := *NewUserSession(id)
 	u.Type = "event"
 	u.Action = action
 	u.Category = category
@@ -99,4 +99,11 @@ func (u UserSession) PostMeasurement() (*http.Response, error) {
 
 	logging.Stderr("[Analytics] Submitting event to Google Analytics")
 	return u.HTTPClient.Do(req)
+}
+
+// GetDockerUniqueID returns the local generated host ID presented via Docker
+func GetDockerUniqueID() string {
+	ctx := context.Background()
+	c, _ := dockeradapter.New()
+	return c.HostID(ctx)
 }

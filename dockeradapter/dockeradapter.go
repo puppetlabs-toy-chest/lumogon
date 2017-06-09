@@ -125,8 +125,9 @@ func New() (Client, error) {
 	logging.Stderr("[Docker Adapter] Creating container runtime client: Docker")
 	dockerAPIClient, err := client.NewEnvClient()
 	if err != nil {
-		return nil, fmt.Errorf("[Docker Adapter] Unable to initialise container runtime type: Docker, error: %s", err)
+		return nil, fmt.Errorf("[Docker Adapter] Unable to initialize container runtime type: Docker, error: %s", err)
 	}
+
 	concreteClient.Client = dockerAPIClient
 	return concreteClient, nil
 }
