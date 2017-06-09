@@ -9,6 +9,12 @@ Lumogon provides a way to inspect, analyze and report on your running
 
 ## Trying out Lumogon
 
+### Requirements
+
+| Software      | Version           |
+| ------------- |:-----------------:|
+| Docker        | 1.13.0 or greater |
+
 ### Downloading Lumogon
 
 You'll need [Docker](https://www.docker.com/) installed and running locally.
