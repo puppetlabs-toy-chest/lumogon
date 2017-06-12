@@ -33,9 +33,9 @@ var labelCapability = dockeradapter.DockerAPICapability{
 		SupportedOS: map[string]int{"all": 1},
 	},
 	Harvest: func(capability *dockeradapter.DockerAPICapability, client dockeradapter.Harvester, id string, target types.TargetContainer) {
-		logging.Stderr("[Label] Harvesting label from %s [%s]", target.Name, target.ID)
+		logging.Debug("[Label] Harvesting label from %s [%s]", target.Name, target.ID)
 		capability.HarvestID = id
-		logging.Stderr("[Label]Harvesting label capability, harvestid: %s", capability.HarvestID)
+		logging.Debug("[Label]Harvesting label capability, harvestid: %s", capability.HarvestID)
 
 		ctx := context.Background()
 		output := make(map[string]interface{})
@@ -43,7 +43,7 @@ var labelCapability = dockeradapter.DockerAPICapability{
 		containerJSON, err := client.ContainerInspect(ctx, target.ID)
 		if err != nil {
 			errorMsg := fmt.Sprintf("[Label] Error inspecting targetContainer: %s, error: %s", target.Name, err)
-			logging.Stderr(errorMsg)
+			logging.Debug(errorMsg)
 			capability.PayloadError(errorMsg)
 			return
 		}
@@ -58,6 +58,6 @@ var labelCapability = dockeradapter.DockerAPICapability{
 }
 
 func init() {
-	logging.Stderr("[Label] Initialising capability: %s", labelCapability.Title)
+	logging.Debug("[Label] Initialising capability: %s", labelCapability.Title)
 	registry.Registry.Add(labelCapability)
 }

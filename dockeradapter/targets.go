@@ -24,23 +24,23 @@ func NormaliseTargets(ctx context.Context, args *[]string, client Client) ([]*ty
 	} else {
 		targetContainerIDs, err := client.ContainerList(ctx)
 		if err != nil {
-			logging.Stderr("[Targets] Unable to list containers, error: %s", err)
+			logging.Debug("[Targets] Unable to list containers, error: %s", err)
 			return nil, err
 		}
 
 		localContainerID, err := utils.GetLocalContainerID("/proc/self/cgroup")
 		if err == nil {
-			logging.Stderr("[Targets] Excluding scheduler container from harvested containers, ID: %s", localContainerID)
+			logging.Debug("[Targets] Excluding scheduler container from harvested containers, ID: %s", localContainerID)
 			targetContainerIDs = utils.RemoveStringFromSlice(targetContainerIDs, localContainerID)
 		} else {
-			logging.Stderr("[Targets] Unable to get local containerID: %s", err)
+			logging.Debug("[Targets] Unable to get local containerID: %s", err)
 		}
 		targets = stringsToTargetContainers(ctx, targetContainerIDs, client)
 	}
 	for _, target := range targets {
 		targetOS, err := getContainerOS(ctx, target.ID, client)
 		if err != nil {
-			logging.Stderr("[Targets] Error getting OS for target, ID: %s, removing from list of targets", target.ID)
+			logging.Debug("[Targets] Error getting OS for target, ID: %s, removing from list of targets", target.ID)
 			target.OSID = "unknown"
 			continue
 		}
@@ -57,17 +57,17 @@ func NormaliseTargets(ctx context.Context, args *[]string, client Client) ([]*ty
 // If an error is thrown when attempting to read the /etc/os-release file
 // the container is identified as unknown.
 func getContainerOS(ctx context.Context, containerID string, client CopyFrom) (string, error) {
-	logging.Stderr("[Targets] getting container OS for container %s", containerID)
+	logging.Debug("[Targets] getting container OS for container %s", containerID)
 	osReleaseFile := "/etc/os-release"
 	fileNotFound := regexp.MustCompile(`no such file or directory`)
 
 	reader, _, err := client.CopyFromContainer(ctx, containerID, osReleaseFile, true)
 	if err != nil {
 		if fileNotFound.MatchString(err.Error()) {
-			logging.Stderr("[Targets] File not found - assuming scratch")
+			logging.Debug("[Targets] File not found - assuming scratch")
 			return "scratch", nil
 		}
-		logging.Stderr("[Targets] Error reading file: %s, setting type to unknown", err)
+		logging.Debug("[Targets] Error reading file: %s, setting type to unknown", err)
 		return "unknown", err
 	}
 	defer reader.Close()
@@ -83,20 +83,20 @@ func getContainerOS(ctx context.Context, containerID string, client CopyFrom) (s
 			return "unknown", err
 		}
 
-		logging.Stderr("[Targets] Reading from file: %s", hdr.Name)
+		logging.Debug("[Targets] Reading from file: %s", hdr.Name)
 		scanner := bufio.NewScanner(tr)
 		for scanner.Scan() {
 			line := scanner.Text()
-			logging.Stderr("[Targets] Line: %q", line)
+			logging.Debug("[Targets] Line: %q", line)
 			splitString := strings.SplitN(line, "=", 2)
 			if len(splitString) != 2 {
-				logging.Stderr("[Targets] Unable to extract key and value from line: %q", line)
+				logging.Debug("[Targets] Unable to extract key and value from line: %q", line)
 				continue
 			}
 			key := strings.Trim(splitString[0], "\" '")
 			value := strings.Trim(splitString[1], "\" '")
 			if key == "" {
-				logging.Stderr("[Targets] Ignoring empty key from line: %s", line)
+				logging.Debug("[Targets] Ignoring empty key from line: %s", line)
 				continue
 			}
 			osRelease[key] = value
@@ -108,12 +108,12 @@ func getContainerOS(ctx context.Context, containerID string, client CopyFrom) (s
 
 	if val, ok := osRelease["ID"]; ok {
 		if val != "" {
-			logging.Stderr("[Targets] detected OS Release ID: %q", val)
+			logging.Debug("[Targets] detected OS Release ID: %q", val)
 			return val, nil
 		}
 	}
 
-	logging.Stderr("[Targets] unable to determine OS Release ID from file, setting to unknown")
+	logging.Debug("[Targets] unable to determine OS Release ID from file, setting to unknown")
 	return "unknown", nil
 }
 
@@ -122,12 +122,12 @@ func stringToTargetContainer(ctx context.Context, containerIDOrName string, clie
 	containerJSON, err := client.ContainerInspect(ctx, containerIDOrName)
 	if err != nil {
 		error := fmt.Sprintf("Unable to find target container: %q, error: %s", containerIDOrName, err)
-		logging.Stderr("[Targets] ", error)
+		logging.Debug("[Targets] ", error)
 		return nil, err
 	}
 	if !containerJSON.State.Running {
 		error := fmt.Sprintf("[Targets] Target container: %s is not running", containerIDOrName)
-		logging.Stderr(error)
+		logging.Debug(error)
 		// Print skipped container details to Stderr so as not to interfere with piping scan output to
 		// other commands.
 		// TODO - push the container State into types.TargetContainer, would allow giving feedback on stopped
@@ -154,6 +154,6 @@ func stringsToTargetContainers(ctx context.Context, containerIDsOrNames []string
 			targetContainers = append(targetContainers, targetContainer)
 		}
 	}
-	logging.Stderr("[Targets] Found %d valid target containers: %v", len(targetContainers), targetContainers)
+	logging.Debug("[Targets] Found %d valid target containers: %v", len(targetContainers), targetContainers)
 	return targetContainers
 }

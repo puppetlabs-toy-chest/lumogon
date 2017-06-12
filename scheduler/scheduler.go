@@ -37,7 +37,7 @@ var wg sync.WaitGroup
 
 // New returns a pointer to a Scheduler
 func New(args []string, opts types.ClientOptions) *Scheduler {
-	logging.Stderr("[Scheduler] Creating scheduler")
+	logging.Debug("[Scheduler] Creating scheduler")
 	scheduler := Scheduler{
 		start: utils.GetTimestamp(),
 		args:  &args,
@@ -55,15 +55,15 @@ func New(args []string, opts types.ClientOptions) *Scheduler {
 
 // Run starts the scheduler
 func (s *Scheduler) Run(r registry.IRegistry) {
-	defer logging.Stderr("[Scheduler] Exiting")
-	logging.Stderr("[Scheduler] Running")
+	defer logging.Debug("[Scheduler] Exiting")
+	logging.Debug("[Scheduler] Running")
 	// Exit immediately if a harvester error has already been thrown
 	if s.err != nil {
 		return
 	}
 
 	timeout := s.opts.Timeout
-	logging.Stderr("[Scheduler] Creating context with timeout [%d]", timeout)
+	logging.Debug("[Scheduler] Creating context with timeout [%d]", timeout)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
 	defer cancel()
 	resultsChannel := make(chan types.ContainerReport)
@@ -91,7 +91,7 @@ func (s *Scheduler) Run(r registry.IRegistry) {
 	wg.Add(1)
 	go harvester.RunDockerAPIHarvester(ctx, &wg, s.targets, r.DockerAPICapabilities(), resultsChannel, s.client)
 
-	logging.Stderr("[Scheduler] Waiting")
+	logging.Debug("[Scheduler] Waiting")
 	wg.Wait()
 }
 

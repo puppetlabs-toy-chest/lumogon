@@ -46,18 +46,18 @@ type frameHeader struct {
 // the prefix header bytes followed by the number of bytes specified in the prefix
 // size bytes.
 func FilterDockerStream(reader io.Reader, streamType int) ([]string, error) {
-	logging.Stderr("[FilterDockerstream] filtering reader for stream type: %d", streamType)
-	defer logging.Stderr("[FilterDockerstream] leaving")
+	logging.Debug("[FilterDockerstream] filtering reader for stream type: %d", streamType)
+	defer logging.Debug("[FilterDockerstream] leaving")
 	result := []string{}
 	h, err := readFrameHeader(reader)
 	if err != nil && err != io.EOF {
-		logging.Stderr("[FilterDockerstream] stream contains no initial header: %s", err)
+		logging.Debug("[FilterDockerstream] stream contains no initial header: %s", err)
 		return nil, err
 	}
 	for err == nil {
 		payload, err := readFramePayload(reader, h)
 		if err != nil {
-			logging.Stderr("[FilterDockerstream] error reading payload: %s", err)
+			logging.Debug("[FilterDockerstream] error reading payload: %s", err)
 			return result, err
 		}
 		// Discard payload if streamType doesn't match requested
@@ -65,7 +65,7 @@ func FilterDockerStream(reader io.Reader, streamType int) ([]string, error) {
 			lines := bytes.Split(payload, []byte("\n"))
 			for _, line := range lines {
 				if len(line) != 0 {
-					logging.Stderr("[FilterDockerstream] extracted line: %s", string(line))
+					logging.Debug("[FilterDockerstream] extracted line: %s", string(line))
 					result = append(result, string(line))
 				}
 			}
@@ -86,12 +86,12 @@ func FilterDockerStream(reader io.Reader, streamType int) ([]string, error) {
 // It returns io.EOF if the buffer is empty, any other errors returned should be
 // handled by the caller
 func readFrameHeader(reader io.Reader) (*frameHeader, error) {
-	logging.Stderr("[readFrameHeader] reading header")
+	logging.Debug("[readFrameHeader] reading header")
 	prefix := make([]byte, stdWriterPrefixLen)
 
 	_, err := reader.Read(prefix)
 	if err != nil {
-		logging.Stderr("[readFrameHeader] error thrown reading frameHeader: %s", err)
+		logging.Debug("[readFrameHeader] error thrown reading frameHeader: %s", err)
 		return nil, err
 	}
 
@@ -99,7 +99,7 @@ func readFrameHeader(reader io.Reader) (*frameHeader, error) {
 		streamType:  int(prefix[0]),
 		payloadSize: int(binary.BigEndian.Uint32(prefix[stdWriterSizeIndex:])),
 	}
-	logging.Stderr("[readFrameHeader] extracted streamType: %d, payloadSize: %d", header.streamType, header.payloadSize)
+	logging.Debug("[readFrameHeader] extracted streamType: %d, payloadSize: %d", header.streamType, header.payloadSize)
 	return &header, nil
 }
 
@@ -108,14 +108,14 @@ func readFrameHeader(reader io.Reader) (*frameHeader, error) {
 // It does not return io.EOF at the end of the buffer as it uses ioutil.ReadAll,
 // any other errors returned should be handled by the caller
 func readFramePayload(r io.Reader, h *frameHeader) ([]byte, error) {
-	logging.Stderr("[readFramePayload] reading payloadSize: %d", h.payloadSize)
+	logging.Debug("[readFramePayload] reading payloadSize: %d", h.payloadSize)
 	lr := io.LimitReader(r, int64(h.payloadSize))
 	payload, err := ioutil.ReadAll(lr)
 	if err != nil {
-		logging.Stderr("[readFramePayload] Error reading payload: %s", err)
+		logging.Debug("[readFramePayload] Error reading payload: %s", err)
 		return nil, err
 	}
-	logging.Stderr("[readFramePayload] payload size: %d", len(payload))
-	logging.Stderr("[readFramePayload] extracted payload: %s", payload)
+	logging.Debug("[readFramePayload] payload size: %d", len(payload))
+	logging.Debug("[readFramePayload] extracted payload: %s", payload)
 	return payload, nil
 }

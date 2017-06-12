@@ -22,7 +22,7 @@ func SendResult(result types.ContainerReport, harvesterHostname string) (bool, e
 	var ack bool
 	err = client.Call("RemoteMethods.SubmitCapabilities", result, &ack)
 	if err != nil {
-		logging.Stderr("[RPC Client] Ack received: %t", ack)
+		logging.Debug("[RPC Client] Ack received: %t", ack)
 		log.Fatal(err)
 		return false, err
 	}

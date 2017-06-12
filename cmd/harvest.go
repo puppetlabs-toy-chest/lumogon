@@ -27,14 +27,14 @@ var harvestCmd = &cobra.Command{
 			ID:   args[0],
 			Name: args[1],
 		}
-		logging.Stderr("Harvesting from container: %s [%s]", target.Name, target.ID)
+		logging.Debug("Harvesting from container: %s [%s]", target.Name, target.ID)
 
 		containerReport := harvester.GenerateContainerReport(target, registry.Harvest(nil, target.ID))
 		harvesterHostname, _ := os.Hostname()
 		containerReport.HarvesterContainerID = harvesterHostname
 		_, err := rpcreceiver.SendResult(*containerReport, harvesterHostname)
 		if err != nil {
-			logging.Stderr("Error Submitting result to remote server: %s", err)
+			logging.Debug("Error Submitting result to remote server: %s", err)
 			os.Exit(1)
 		}
 	},

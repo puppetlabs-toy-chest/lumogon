@@ -25,7 +25,7 @@ var apkCapability = dockeradapter.DockerAPICapability{
 		SupportedOS: map[string]int{"alpine": 1},
 	},
 	Harvest: func(capability *dockeradapter.DockerAPICapability, client dockeradapter.Harvester, id string, target types.TargetContainer) {
-		logging.Stderr("[Apk] Harvesting packages from target %s [%s], harvester id: %s", target.Name, target.ID, id)
+		logging.Debug("[Apk] Harvesting packages from target %s [%s], harvester id: %s", target.Name, target.ID, id)
 		capability.HarvestID = id
 
 		output := make(map[string]interface{})
@@ -46,6 +46,6 @@ var apkCapability = dockeradapter.DockerAPICapability{
 }
 
 func init() {
-	logging.Stderr("[Apk] Initialising capability: %s", apkCapability.Title)
+	logging.Debug("[Apk] Initialising capability: %s", apkCapability.Title)
 	registry.Registry.Add(apkCapability)
 }
