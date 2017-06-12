@@ -37,12 +37,15 @@ Puppet::Type.type(:lumogon).provide(:lumogon) do #rubocop:disable Metrics/BlockL
     end
   end
 
+  # Custom function to parse output from Lumogon as Puppet muxes together both
+  # STDOUT and STDERR as part of Command Execution
+  # https://github.com/puppetlabs/puppet/blob/master/lib/puppet/provider.rb#L259
   def self.parse_lumogon_report(report)
     # Collapse output string from Puppet (STDERR and STDOUT) into a single string
     # removing all whitespace from Lumogon Pretty Print report
     collapsed_output = report.split("\n").map(&:strip).join("")
 
-    # Scan Output to ignore STDERR and only grab the STDOUT JSON Blob
+    # Scan Output grab the STDOUT JSON Blob
     json_report = collapsed_output.match(/{.+}/)[0]
 
     # Parse and return
