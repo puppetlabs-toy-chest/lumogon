@@ -1,5 +1,4 @@
 require 'json'
-require 'pry'
 
 Puppet::Type.type(:lumogon).provide(:lumogon) do #rubocop:disable Metrics/BlockLength
   desc "Provider for Lumogon"
