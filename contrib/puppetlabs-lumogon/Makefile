@@ -17,4 +17,6 @@ test: dependencies
 deploy:
 	true
 
-.PHONY: dependencies bootstrap test deploy
+all: dependencies test
+
+.PHONY: dependencies bootstrap test deploy all

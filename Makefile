@@ -58,7 +58,7 @@ vet: bootstrap
 licenses: $(GOPATH)/bin/licenses
 	@licenses  $(PACKAGE_NAME) | grep $(PACKAGE_NAME)/vendor
 
-all: clean dependencies test build image
+all: clean dependencies test build image puppet-module
 
 buildimage: clean build image
 
@@ -76,4 +76,7 @@ $(GOPATH)/bin/goconvey:
 
 bootstrap: $(GOPATH)/bin/glide $(GOPATH)/src/github.com/golang/lint/golint $(GOPATH)/bin/licenses $(GOPATH)/bin/goconvey
 
-.PHONY: build image buildimage test todo clean dependencies bootstrap licenses watch deploy
+puppet-module:
+	cd contrib/puppetlabs-lumogon; make all
+
+.PHONY: build image buildimage test todo clean dependencies bootstrap licenses watch deploy puppet-module
