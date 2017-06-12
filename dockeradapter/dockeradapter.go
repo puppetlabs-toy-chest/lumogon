@@ -122,7 +122,7 @@ func ImageExists(ctx context.Context, client ImageInspector, imageName string) b
 // New returns a client satisfying the Client interface
 func New() (Client, error) {
 	concreteClient := new(concreteDockerClient)
-	logging.Stderr("[Docker Adapter] Creating container runtime client: Docker")
+	logging.Debug("[Docker Adapter] Creating container runtime client: Docker")
 	dockerAPIClient, err := client.NewEnvClient()
 	if err != nil {
 		return nil, fmt.Errorf("[Docker Adapter] Unable to initialise container runtime type: Docker, error: %s", err)
@@ -245,7 +245,7 @@ func (c *concreteDockerClient) ContainerLogs(ctx context.Context, containerID st
 func (c *concreteDockerClient) CopyFromContainer(ctx context.Context, container, srcPath string, followSymlink bool) (io.ReadCloser, dockertypes.ContainerPathStat, error) {
 	readCloser, containerPathStat, err := c.Client.CopyFromContainer(ctx, container, srcPath)
 	if followSymlink && err == nil && containerPathStat.LinkTarget != "" {
-		logging.Stderr("[Docker Adapter] Resolving symlink for: %s, to: %s", srcPath, containerPathStat.LinkTarget)
+		logging.Debug("[Docker Adapter] Resolving symlink for: %s, to: %s", srcPath, containerPathStat.LinkTarget)
 		readCloser, containerPathStat, err = c.Client.CopyFromContainer(ctx, container, containerPathStat.LinkTarget)
 	}
 	return readCloser, containerPathStat, err
@@ -258,7 +258,7 @@ func (c *concreteDockerClient) ContainerList(ctx context.Context) ([]string, err
 
 	containers, err := c.Client.ContainerList(ctx, containerListOptions)
 	if err != nil {
-		logging.Stderr("[Docker Adapter] Error listing running containers: %s", err)
+		logging.Debug("[Docker Adapter] Error listing running containers: %s", err)
 		return nil, err
 	}
 

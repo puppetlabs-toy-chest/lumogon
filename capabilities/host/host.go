@@ -36,7 +36,7 @@ var hostCapability = types.AttachedCapability{
 		SupportedOS: map[string]int{"all": 1},
 	},
 	Harvest: func(capability *types.AttachedCapability, id string, args []string) {
-		logging.Stderr("[Host] Harvesting host capability, capability harvest id: %s", id)
+		logging.Debug("[Host] Harvesting host capability, capability harvest id: %s", id)
 
 		capability.HarvestID = id
 		h, _ := gopsutilhost.Info()
@@ -64,6 +64,6 @@ func InfostatToMap(h *gopsutilhost.InfoStat) map[string]interface{} {
 }
 
 func init() {
-	logging.Stderr("[Host] Initialising capability: %s", hostCapability.Title)
+	logging.Debug("[Host] Initialising capability: %s", hostCapability.Title)
 	registry.Registry.Add(hostCapability)
 }

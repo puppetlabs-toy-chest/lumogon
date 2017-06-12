@@ -60,7 +60,7 @@ func NewUserSession() *UserSession {
 
 // ScreenView is the public function to post a ScreenView analytics message to GA
 func ScreenView(screen string) {
-	logging.Stderr("[Analytics] Initializing Google Analytics: %s", screen)
+	logging.Debug("[Analytics] Initializing Google Analytics: %s", screen)
 	u := *NewUserSession()
 	u.Type = "screenview"
 	u.ScreenName = screen
@@ -69,7 +69,7 @@ func ScreenView(screen string) {
 
 // Event is the public function to post a ScreenView event analytics message to GA
 func Event(action string, category string) {
-	logging.Stderr("[Analytics] Gathering additional Google Analytics for event: %s", category)
+	logging.Debug("[Analytics] Gathering additional Google Analytics for event: %s", category)
 	u := *NewUserSession()
 	u.Type = "event"
 	u.Action = action
@@ -93,10 +93,10 @@ func (u UserSession) PostMeasurement() (*http.Response, error) {
 	}
 
 	if u.DisableTransmit == true {
-		logging.Stderr("[Analytics] Skipping submission of Google Analytics event")
+		logging.Debug("[Analytics] Skipping submission of Google Analytics event")
 		return nil, nil
 	}
 
-	logging.Stderr("[Analytics] Submitting event to Google Analytics")
+	logging.Debug("[Analytics] Submitting event to Google Analytics")
 	return u.HTTPClient.Do(req)
 }

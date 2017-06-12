@@ -34,7 +34,7 @@ func printVersion() {
 	// Dump the rendered version template to stdout
 	renderedVersionOutput, err := renderVersionTemplate()
 	if err != nil {
-		logging.Stderr("Unable to render version template [%s]", err)
+		logging.Debug("Unable to render version template [%s]", err)
 	}
 	fmt.Println(renderedVersionOutput)
 }

@@ -35,13 +35,13 @@ var Registry CapabilitiesRegistry
 func (c CapabilitiesRegistry) Add(capability interface{}) {
 	switch capability.(type) {
 	case types.AttachedCapability:
-		logging.Stderr("[Registry] Adding ATTACHED capability to registry: %s\n", capability.(types.AttachedCapability).Title)
+		logging.Debug("[Registry] Adding ATTACHED capability to registry: %s\n", capability.(types.AttachedCapability).Title)
 		Registry.attached = append(Registry.attached, capability.(types.AttachedCapability))
 	case dockeradapter.DockerAPICapability:
-		logging.Stderr("[Registry] Adding DOCKER API capability to registry: %s\n", capability.(dockeradapter.DockerAPICapability).Title)
+		logging.Debug("[Registry] Adding DOCKER API capability to registry: %s\n", capability.(dockeradapter.DockerAPICapability).Title)
 		Registry.dockerAPI = append(Registry.dockerAPI, capability.(dockeradapter.DockerAPICapability))
 	default:
-		logging.Stdout("[Registry] Invalid capability type detected. Exiting..")
+		logging.Info("[Registry] Invalid capability type detected. Exiting..")
 		os.Exit(1)
 	}
 }
@@ -95,9 +95,9 @@ func Harvest(client dockeradapter.Harvester, targetContainerID string) map[strin
 
 	if client == nil {
 		// Runs on the attached Harvester
-		logging.Stderr("[Registry] Harvesting %d attached capabilities", len(Registry.AttachedCapabilities()))
+		logging.Debug("[Registry] Harvesting %d attached capabilities", len(Registry.AttachedCapabilities()))
 		for _, attachedcapability := range Registry.AttachedCapabilities() {
-			logging.Stderr("- %s\n", attachedcapability.Name)
+			logging.Debug("- %s\n", attachedcapability.Name)
 			attachedcapability.Harvest(&attachedcapability, utils.GenerateUUID4(), []string{})
 			harvestedData[attachedcapability.Name] = attachedcapability.Capability
 		}
@@ -111,7 +111,7 @@ func stringToTargetContainer(ctx context.Context, containerIDOrName string, clie
 	containerJSON, err := client.ContainerInspect(ctx, containerIDOrName)
 	if err != nil {
 		error := fmt.Sprintf("[Registry] Unable to find target container: %s, error: %s", containerIDOrName, err)
-		logging.Stderr(error)
+		logging.Debug(error)
 	}
 	targetContainer := types.TargetContainer{
 		ID:   containerJSON.ContainerJSONBase.ID,

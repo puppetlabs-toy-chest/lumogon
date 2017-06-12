@@ -16,7 +16,7 @@ var results map[string]types.ContainerReport
 // expected ContainerReports from the results channel, before sending
 // them to the ReportStorage backend.
 func RunCollector(ctx context.Context, wg *sync.WaitGroup, expectedResults int, resultsCh chan types.ContainerReport, backend storage.ReportStorage) error {
-	defer logging.Stderr("[Collector] Exiting")
+	defer logging.Debug("[Collector] Exiting")
 	defer wg.Done()
 
 	doneChannel := make(chan int)
@@ -24,12 +24,12 @@ func RunCollector(ctx context.Context, wg *sync.WaitGroup, expectedResults int, 
 	results = make(map[string]types.ContainerReport)
 
 	go func() {
-		logging.Stderr("[Collector] Waiting for %d results", expectedResults)
+		logging.Debug("[Collector] Waiting for %d results", expectedResults)
 		for i := 1; i <= expectedResults; i++ {
 			result := <-resultsCh
-			logging.Stderr("[Collector] Received result [%d]", i)
+			logging.Debug("[Collector] Received result [%d]", i)
 			cacheResult(result)
-			logging.Stderr("[Collector] Result received from name: %s, ID: %s", result.ContainerName, result.ContainerID)
+			logging.Debug("[Collector] Result received from name: %s, ID: %s", result.ContainerName, result.ContainerID)
 		}
 		doneChannel <- 0
 	}()
@@ -39,15 +39,15 @@ func RunCollector(ctx context.Context, wg *sync.WaitGroup, expectedResults int, 
 	var err error
 	select {
 	case <-doneChannel:
-		logging.Stderr("[Collector] All expected results received")
+		logging.Debug("[Collector] All expected results received")
 		resultsWg.Done()
 	case <-ctx.Done():
-		logging.Stderr("[Collector] Context timed out waiting for results, continuing...")
+		logging.Debug("[Collector] Context timed out waiting for results, continuing...")
 		resultsWg.Done()
 	}
 	resultsWg.Wait()
 
-	logging.Stderr("[Collector] Generating report")
+	logging.Debug("[Collector] Generating report")
 	err = backend.Store(results)
 	return err
 }
@@ -56,8 +56,8 @@ func RunCollector(ctx context.Context, wg *sync.WaitGroup, expectedResults int, 
 // It consists of a map of container IDs to ContainerReports either adding
 // a new key or appending the capabilities to an existing ContainerReport.
 func cacheResult(result types.ContainerReport) {
-	logging.Stderr("[Collector] Caching result")
-	defer logging.Stderr("[Collector] Caching result complete")
+	logging.Debug("[Collector] Caching result")
+	defer logging.Debug("[Collector] Caching result complete")
 	mu.Lock()
 	defer mu.Unlock()
 	if _, ok := results[result.ContainerID]; ok {

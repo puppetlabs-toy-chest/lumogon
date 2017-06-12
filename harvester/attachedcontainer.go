@@ -69,7 +69,7 @@ func (a *AttachedContainer) Attach(target types.TargetContainer) {
 // present on the system
 func (a *AttachedContainer) GetImage(imageName string) {
 	if !dockeradapter.ImageExists(a.ctx, a.client, imageName) {
-		logging.Stderr("[AttachedContainer] Pulling image: %s", imageName)
+		logging.Debug("[AttachedContainer] Pulling image: %s", imageName)
 		err := a.client.ImagePull(a.ctx, imageName)
 		if err != nil {
 			a.err = err
@@ -85,7 +85,7 @@ func (a *AttachedContainer) Run() {
 		return
 	}
 
-	logging.Stderr("[AttachedContainer] Starting harvester ID: %s, attached to: %s [%s]", a.id, a.target.ID, a.target.Name)
+	logging.Debug("[AttachedContainer] Starting harvester ID: %s, attached to: %s [%s]", a.id, a.target.ID, a.target.Name)
 	err := a.client.ContainerStart(a.ctx, a.id)
 	if err != nil {
 		a.err = err
@@ -94,8 +94,8 @@ func (a *AttachedContainer) Run() {
 
 // createContainer creates the AttachedContainer attaching it to the target container
 func (a *AttachedContainer) createContainer() {
-	logging.Stderr("[AttachedContainer] Creating container: %s", a.name)
-	logging.Stderr("[AttachedContainer] Attaching container to ID: %s, Name: %s", a.target.ID, a.target.Name)
+	logging.Debug("[AttachedContainer] Creating container: %s", a.name)
+	logging.Debug("[AttachedContainer] Attaching container to ID: %s, Name: %s", a.target.ID, a.target.Name)
 
 	command := []string{"harvest", a.target.ID, a.target.Name, "-d"}
 	// Envvars used by gopsutil to query attached container
@@ -114,7 +114,7 @@ func (a *AttachedContainer) createContainer() {
 
 	container, err := a.client.ContainerCreate(a.ctx, command, envvars, a.imageName, binds, links, kernelCapabilities, pidMode, a.name, !a.keepHarvester)
 	if err != nil {
-		logging.Stderr("[AttachedContainer] Error creating container: %s", err)
+		logging.Debug("[AttachedContainer] Error creating container: %s", err)
 		a.err = err
 		return
 	}
