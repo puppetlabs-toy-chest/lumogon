@@ -5,10 +5,13 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/davecgh/go-spew/spew"
 	dockertypes "github.com/docker/docker/api/types"
 	dockercontainer "github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
 	"github.com/puppetlabs/lumogon/logging"
+	"github.com/puppetlabs/lumogon/types"
 	"github.com/puppetlabs/lumogon/utils"
 )
 
@@ -25,12 +28,14 @@ type Client interface {
 	Lister
 	HostInspector
 	CopyFrom
+	Filesystem
 }
 
 // Harvester interface exposes methods used by Capabilties Harvest functions
 type Harvester interface {
 	Inspector
 	Executor
+	Filesystem
 }
 
 // ImagePuller interface exposes methods required to pull an image
@@ -96,6 +101,11 @@ type Lister interface {
 // CopyFrom interface exposes methods required to copy file data from a container
 type CopyFrom interface {
 	CopyFromContainer(ctx context.Context, container, srcPath string, followSymlink bool) (io.ReadCloser, dockertypes.ContainerPathStat, error)
+}
+
+// Filesystem type contains information on the container filesystem
+type Filesystem interface {
+	ContainerFilesystem(ctx context.Context, containerID string) (types.Filesystem, error)
 }
 
 // containerLogOptions type contains values used to control logs returned
@@ -264,6 +274,36 @@ func (c *concreteDockerClient) ContainerList(ctx context.Context) ([]string, err
 
 	for _, container := range containers {
 		result = append(result, container.ID)
+	}
+
+	return result, nil
+}
+
+func (c *concreteDockerClient) ContainerFilesystem(ctx context.Context, containerID string) (types.Filesystem, error) {
+	result := types.Filesystem{}
+
+	filter := filters.NewArgs()
+	filter.Add("id", containerID)
+
+	options := dockertypes.ContainerListOptions{
+		All:     true,
+		Filters: filter,
+	}
+
+	containers, err := c.Client.ContainerList(ctx, options)
+	if err != nil {
+		return result, err
+	}
+
+	logging.Stderr("[Filesystem] %s", spew.Sprintf("%#+v", containers))
+
+	if len(containers) != 1 {
+		return result, fmt.Errorf("container lookup should return 1 container but returned %d", len(containers))
+	}
+
+	for _, container := range containers {
+		result.SizeRw = container.SizeRw
+		result.SizeRootFs = container.SizeRootFs
 	}
 
 	return result, nil
