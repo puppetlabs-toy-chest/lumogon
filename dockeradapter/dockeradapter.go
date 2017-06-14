@@ -284,7 +284,7 @@ func (c *concreteDockerClient) ContainerDiff(ctx context.Context, containerID st
 
 	diffs, err := c.Client.ContainerDiff(ctx, containerID)
 	if err != nil {
-		logging.Stderr("[Docker Adapter] Error getting ContainerDiff: %s", err)
+		logging.Debug("[Docker Adapter] Error getting ContainerDiff: %s", err)
 		return nil, err
 	}
 
