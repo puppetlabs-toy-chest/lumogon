@@ -35,6 +35,7 @@ type UserSession struct {
 	TrackingID         string       `url:"tid"`
 	ApplicationName    string       `url:"an"`
 	ApplicationVersion string       `url:"av"`
+	DockerAPIVersion   string       `url:"cd1"`
 	DisableTransmit    bool         `url:"-"`
 	HTTPClient         *http.Client `url:"-"`
 	ScreenViewMessage
@@ -53,6 +54,7 @@ func NewUserSession() *UserSession {
 		ApplicationName:    "lumogon",
 		ApplicationVersion: v.VersionString(),
 		UniqueID:           c.HostID(ctx),
+		DockerAPIVersion:   c.ServerAPIVersion(ctx),
 		DisableTransmit:    viper.GetBool("disable-analytics"),
 		HTTPClient:         http.DefaultClient,
 	}

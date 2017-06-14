@@ -10,7 +10,7 @@ import (
 
 // Test Payload Hit Validation: https://goo.gl/4E4ISD
 func TestScreenViewPostMeasurement(t *testing.T) {
-	validScreenViewHitURL, _ := url.Parse("https://www.google-analytics.com/collect?v=1&t=screenview&tid=UA-12345678-9&cid=testid&an=lumogon&av=testversion&cd=testscreen")
+	validScreenViewHitURL, _ := url.Parse("https://www.google-analytics.com/collect?v=1&t=screenview&tid=UA-12345678-9&cid=testid&an=lumogon&av=testversion&cd=testscreen&cd1=1.27")
 	u := *MockUserSession()
 	u.Type = "screenview"
 	u.ScreenName = "testscreen"
@@ -32,7 +32,7 @@ func TestScreenViewPostMeasurement(t *testing.T) {
 
 // Test Payload Hit Validation: https://goo.gl/7mC9TI
 func TestEventPostMeasurement(t *testing.T) {
-	validEventHitURL, _ := url.Parse("https://www.google-analytics.com/collect?v=1&t=event&tid=UA-12345678-9&cid=testid&an=lumogon&av=testversion&ec=testcategory&ea=testaction")
+	validEventHitURL, _ := url.Parse("https://www.google-analytics.com/collect?v=1&t=event&tid=UA-12345678-9&cid=testid&an=lumogon&av=testversion&ec=testcategory&ea=testaction&cd1=1.27")
 	u := *MockUserSession()
 	u.Type = "event"
 	u.Action = "testaction"
