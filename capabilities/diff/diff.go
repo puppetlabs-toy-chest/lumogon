@@ -31,33 +31,14 @@ var diffCapability = dockeradapter.DockerAPICapability{
 		logging.Debug("[Diff] Harvesting diff capability, harvestid: %s", capability.HarvestID)
 
 		ctx := context.Background()
-		output := make(map[string]interface{})
 
-		diffs, err := client.ContainerDiff(ctx, target.ID)
+		changedFiles, err := getChangedFiles(ctx, client, id, target)
 		if err != nil {
-			errorMsg := fmt.Sprintf("[Diff] Error getting diff from targetContainer: %s, error: %s", target.Name, err)
-			logging.Debug(errorMsg)
-			capability.PayloadError(errorMsg)
+			capability.PayloadError(err.Error())
 			return
 		}
 
-		for _, diff := range diffs {
-			logging.Debug("[Diff]   Path: %s, Kind %d", diff.Path, diff.Kind)
-			var kind string
-			switch diff.Kind {
-			case archive.ChangeModify:
-				kind = "Modified"
-			case archive.ChangeAdd:
-				kind = "Added"
-			case archive.ChangeDelete:
-				kind = "Deleted"
-			}
-			output[diff.Path] = kind
-		}
-		filtered, _ := payloadfilter.Filter(output)
-
-		logging.Debug("[Diff]   Output: %v", output)
-		logging.Debug("[Diff]   Filtered: %v", filtered)
+		filtered, _ := payloadfilter.Filter(changedFiles)
 		capability.Payload = filtered
 	},
 }
@@ -65,4 +46,30 @@ var diffCapability = dockeradapter.DockerAPICapability{
 func init() {
 	logging.Debug("[Diff] Initialising capability: %s", diffCapability.Title)
 	registry.Registry.Add(diffCapability)
+}
+
+func getChangedFiles(ctx context.Context, client dockeradapter.Harvester, id string, target types.TargetContainer) (map[string]interface{}, error) {
+	result := make(map[string]interface{})
+
+	diffs, err := client.ContainerDiff(ctx, target.ID)
+	if err != nil {
+		errorMsg := fmt.Sprintf("[Diff] Error getting diff from targetContainer: %s, error: %s", target.Name, err)
+		logging.Debug(errorMsg)
+		return nil, err
+	}
+
+	for _, diff := range diffs {
+		logging.Debug("[Diff]   Path: %s, Kind %d", diff.Path, diff.Kind)
+		var kind string
+		switch diff.Kind {
+		case archive.ChangeModify:
+			kind = "Modified"
+		case archive.ChangeAdd:
+			kind = "Added"
+		case archive.ChangeDelete:
+			kind = "Deleted"
+		}
+		result[diff.Path] = kind
+	}
+	return result, nil
 }
