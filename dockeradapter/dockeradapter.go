@@ -9,6 +9,7 @@ import (
 	dockercontainer "github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/puppetlabs/lumogon/logging"
+	"github.com/puppetlabs/lumogon/types"
 	"github.com/puppetlabs/lumogon/utils"
 )
 
@@ -25,12 +26,14 @@ type Client interface {
 	Lister
 	HostInspector
 	CopyFrom
+	Diff
 }
 
 // Harvester interface exposes methods used by Capabilties Harvest functions
 type Harvester interface {
 	Inspector
 	Executor
+	Diff
 }
 
 // ImagePuller interface exposes methods required to pull an image
@@ -96,6 +99,12 @@ type Lister interface {
 // CopyFrom interface exposes methods required to copy file data from a container
 type CopyFrom interface {
 	CopyFromContainer(ctx context.Context, container, srcPath string, followSymlink bool) (io.ReadCloser, dockertypes.ContainerPathStat, error)
+}
+
+// Diff interface exposes methods required to determine files in running container
+// that have been changed/added/removed relative to the containers image
+type Diff interface {
+	ContainerDiff(ctx context.Context, containerID string) ([]types.ChangedFile, error)
 }
 
 // containerLogOptions type contains values used to control logs returned
@@ -264,6 +273,26 @@ func (c *concreteDockerClient) ContainerList(ctx context.Context) ([]string, err
 
 	for _, container := range containers {
 		result = append(result, container.ID)
+	}
+
+	return result, nil
+}
+
+// ContainerDiff returns a slice of changed files
+func (c *concreteDockerClient) ContainerDiff(ctx context.Context, containerID string) ([]types.ChangedFile, error) {
+	result := []types.ChangedFile{}
+
+	diffs, err := c.Client.ContainerDiff(ctx, containerID)
+	if err != nil {
+		logging.Debug("[Docker Adapter] Error getting ContainerDiff: %s", err)
+		return nil, err
+	}
+
+	for _, diff := range diffs {
+		result = append(result, types.ChangedFile{
+			Kind: diff.Kind,
+			Path: diff.Path,
+		})
 	}
 
 	return result, nil

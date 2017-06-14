@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	// Debug flag
+	// DebugEnabled flag
 	DebugEnabled bool
 )
 
