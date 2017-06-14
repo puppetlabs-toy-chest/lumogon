@@ -7,6 +7,7 @@ import "github.com/puppetlabs/lumogon/version"
 type Report struct {
 	Schema        string                     `json:"$schema"`
 	Generated     string                     `json:"generated"`
+	Host          string                     `json:"host,omitempty"`
 	Owner         string                     `json:"owner"`
 	Group         []string                   `json:"group"`
 	ClientVersion version.ClientVersion      `json:"client_version"`

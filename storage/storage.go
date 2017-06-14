@@ -137,9 +137,11 @@ func createReport(results map[string]types.ContainerReport) (types.Report, error
 	}
 	logging.Debug("[Storage] Marshalling successful %s", string(marshalledResult))
 
+	hostname, _ := os.Hostname()
 	report := types.Report{
 		Schema:        "http://puppet.com/lumogon/core/draft-01/schema#1",
 		Generated:     time.Now().String(),
+		Host:          hostname,
 		Owner:         "default",
 		Group:         []string{"default"},
 		ClientVersion: version.Version,
