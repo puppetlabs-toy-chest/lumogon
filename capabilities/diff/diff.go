@@ -48,7 +48,7 @@ func init() {
 	registry.Registry.Add(diffCapability)
 }
 
-func getChangedFiles(ctx context.Context, client dockeradapter.Harvester, id string, target types.TargetContainer) (map[string]interface{}, error) {
+func getChangedFiles(ctx context.Context, client dockeradapter.Diff, id string, target types.TargetContainer) (map[string]interface{}, error) {
 	result := make(map[string]interface{})
 
 	diffs, err := client.ContainerDiff(ctx, target.ID)
