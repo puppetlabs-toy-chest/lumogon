@@ -55,10 +55,10 @@ import "github.com/davecgh/go-spew/spew"
 
 // LogDump outputs a delimited log section with the message string and a structured dump of the provided data object
 func LogDump(message string, data interface{}) {
-    logging.Stderr("\n\n====BEGIN======================================")
+    logging.Debug("\n\n====BEGIN======================================")
     _, file, line, _ := runtime.Caller(1)
-    logging.Stderr(fmt.Sprintf("Debug - %s @ %s:%d:\n", message, file, line), spew.Sdump(data))
-    logging.Stderr("====END=======================================\n\n")
+    logging.Debug(fmt.Sprintf("Debug - %s @ %s:%d:\n", message, file, line), spew.Sdump(data))
+    logging.Debug("====END=======================================\n\n")
 }
 ```
 
