@@ -85,9 +85,10 @@ def provision_centos(distro, package)
   if [ ! -f /etc/profile.d/golang.sh ];
   then
     echo "export PATH=/usr/local/go/bin:$PATH" | tee /etc/profile.d/golang.sh && chmod +x /etc/profile.d/golang.sh
+    source /etc/profile.d/golang.sh
   fi
 
-  if [ ! -d /usr/lib/rvm ];
+  if [ ! -d /usr/local/rvm ];
   then
     yum install gcc-c++ patch readline readline-devel zlib zlib-devel
     yum install libyaml-devel libffi-devel openssl-devel make
@@ -104,10 +105,16 @@ def provision_centos(distro, package)
   cd /home/vagrant/go/src/github.com/puppetlabs/lumogon && rm -rf vendor && make all
 
   docker version
-  sudo docker run --rm -v /var/run/docker.sock:/var/run/docker.sock puppet/lumogon --disable-analytics version
-  sudo docker run -d nginx
+  sudo docker run --rm \
+       -v /var/run/docker.sock:/var/run/docker.sock \
+       -e DOCKER_API_VERSION=1.19 \
+       puppet/lumogon --disable-analytics version
 
-  sudo docker run --rm -v /var/run/docker.sock:/var/run/docker.sock puppet/lumogon --disable-analytics scan
+  sudo docker run -d nginx
+  sudo docker run --rm \
+       -v /var/run/docker.sock:/var/run/docker.sock \
+       -e DOCKER_API_VERSION=1.19 \
+       puppet/lumogon --disable-analytics scan
 }
 end
 
@@ -125,9 +132,15 @@ def provision_ubuntu(package)
   cd /home/ubuntu/go/src/github.com/puppetlabs/lumogon && rm -rf vendor && make all
 
   docker version
-  sudo docker run --rm -v /var/run/docker.sock:/var/run/docker.sock puppet/lumogon --disable-analytics version
-  sudo docker run -d nginx
+  sudo docker run --rm \
+       -v /var/run/docker.sock:/var/run/docker.sock \
+       -e DOCKER_API_VERSION=1.24 \
+       puppet/lumogon --disable-analytics version
 
-  sudo docker run --rm -v /var/run/docker.sock:/var/run/docker.sock puppet/lumogon --disable-analytics scan
+  sudo docker run -d nginx
+  sudo docker run --rm \
+       -v /var/run/docker.sock:/var/run/docker.sock \
+       -e DOCKER_API_VERSION=1.24 \
+       puppet/lumogon --disable-analytics scan
 }
 end
