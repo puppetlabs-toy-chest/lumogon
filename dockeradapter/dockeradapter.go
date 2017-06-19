@@ -62,7 +62,7 @@ type Executor interface {
 // HostInspector interface exposes methods required to inspect a docker host
 type HostInspector interface {
 	HostID(ctx context.Context) string
-	ServerAPIVersion(ctx context.Context) string
+	ServerVersion(ctx context.Context) dockertypes.Version
 }
 
 // ImageInspectorPuller interface exposes methods required to both pull and
@@ -162,6 +162,12 @@ func (c *concreteDockerClient) ContainerInspect(ctx context.Context, containerID
 func (c *concreteDockerClient) HostID(ctx context.Context) string {
 	resp, _ := c.Client.Info(ctx)
 	return resp.ID
+}
+
+// ServerVersion returns the underlying Docker Version struct exposed via the Engine API
+func (c *concreteDockerClient) ServerVersion(ctx context.Context) dockertypes.Version {
+	resp, _ := c.Client.ServerVersion(ctx)
+	return resp
 }
 
 func (c *concreteDockerClient) ServerAPIVersion(ctx context.Context) string {

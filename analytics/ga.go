@@ -47,6 +47,7 @@ func NewUserSession() *UserSession {
 	v := version.Version
 	ctx := context.Background()
 	c, _ := dockeradapter.New()
+	dv := c.ServerVersion(ctx)
 
 	return &UserSession{
 		ProtocolVersion:    1,
@@ -54,7 +55,7 @@ func NewUserSession() *UserSession {
 		ApplicationName:    "lumogon",
 		ApplicationVersion: v.VersionString(),
 		UniqueID:           c.HostID(ctx),
-		DockerAPIVersion:   c.ServerAPIVersion(ctx),
+		DockerAPIVersion:   dv.APIVersion,
 		DisableTransmit:    viper.GetBool("disable-analytics"),
 		HTTPClient:         http.DefaultClient,
 	}
