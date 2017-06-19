@@ -171,11 +171,6 @@ func (c *concreteDockerClient) ServerVersion(ctx context.Context) dockertypes.Ve
 	return resp
 }
 
-func (c *concreteDockerClient) ServerAPIVersion(ctx context.Context) string {
-	resp, _ := c.Client.ServerVersion(ctx)
-	return resp.APIVersion
-}
-
 func (c *concreteDockerClient) ContainerExecCreate(ctx context.Context, containerID string, cmd []string, attachStdout bool, attachStderr bool) (dockertypes.IDResponse, error) {
 	execOpts := dockertypes.ExecConfig{
 		Cmd:          cmd,
