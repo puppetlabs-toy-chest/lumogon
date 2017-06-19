@@ -34,6 +34,7 @@ type Harvester interface {
 	Inspector
 	Executor
 	Diff
+	HostInspector
 }
 
 // ImagePuller interface exposes methods required to pull an image
