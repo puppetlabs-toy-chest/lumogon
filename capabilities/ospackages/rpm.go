@@ -25,7 +25,7 @@ var rpmCapability = dockeradapter.DockerAPICapability{
 		SupportedOS: map[string]int{"fedora": 1, "rhel": 1, "centos": 1, "opensuse": 1, "suse": 1, "ol": 1},
 	},
 	Harvest: func(capability *dockeradapter.DockerAPICapability, client dockeradapter.Harvester, id string, target types.TargetContainer) {
-		logging.Stderr("[Rpm] Harvesting packages from target %s [%s], harvester id: %s", target.Name, target.ID, id)
+		logging.Debug("[Rpm] Harvesting packages from target %s [%s], harvester id: %s", target.Name, target.ID, id)
 		capability.HarvestID = id
 
 		output := make(map[string]interface{})
@@ -45,6 +45,6 @@ var rpmCapability = dockeradapter.DockerAPICapability{
 }
 
 func init() {
-	logging.Stderr("[Rpm] Initialising capability: %s", rpmCapability.Title)
+	logging.Debug("[Rpm] Initialising capability: %s", rpmCapability.Title)
 	registry.Registry.Add(rpmCapability)
 }

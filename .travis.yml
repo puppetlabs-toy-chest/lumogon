@@ -21,6 +21,14 @@ matrix:
     install: make bootstrap
     script:
     - make dependencies test
+  - language: ruby
+    rvm: 2.3.4
+    cache: bundler
+    services: docker
+    bundler_args: --without development
+    env: PUPPET_GEM_VERSION="~> 4.0"
+    install: cd contrib/puppetlabs-lumogon && make bootstrap
+    script: make dependencies test
 deploy:
 - provider: script
   script: make deploy

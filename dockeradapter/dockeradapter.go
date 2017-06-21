@@ -9,6 +9,7 @@ import (
 	dockercontainer "github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/puppetlabs/lumogon/logging"
+	"github.com/puppetlabs/lumogon/types"
 	"github.com/puppetlabs/lumogon/utils"
 )
 
@@ -25,12 +26,14 @@ type Client interface {
 	Lister
 	HostInspector
 	CopyFrom
+	Diff
 }
 
 // Harvester interface exposes methods used by Capabilties Harvest functions
 type Harvester interface {
 	Inspector
 	Executor
+	Diff
 }
 
 // ImagePuller interface exposes methods required to pull an image
@@ -59,6 +62,7 @@ type Executor interface {
 // HostInspector interface exposes methods required to inspect a docker host
 type HostInspector interface {
 	HostID(ctx context.Context) string
+	ServerAPIVersion(ctx context.Context) string
 }
 
 // ImageInspectorPuller interface exposes methods required to both pull and
@@ -98,6 +102,12 @@ type CopyFrom interface {
 	CopyFromContainer(ctx context.Context, container, srcPath string, followSymlink bool) (io.ReadCloser, dockertypes.ContainerPathStat, error)
 }
 
+// Diff interface exposes methods required to determine files in running container
+// that have been changed/added/removed relative to the containers image
+type Diff interface {
+	ContainerDiff(ctx context.Context, containerID string) ([]types.ChangedFile, error)
+}
+
 // containerLogOptions type contains values used to control logs returned
 // from a container
 type containerLogOptions struct {
@@ -122,7 +132,7 @@ func ImageExists(ctx context.Context, client ImageInspector, imageName string) b
 // New returns a client satisfying the Client interface
 func New() (Client, error) {
 	concreteClient := new(concreteDockerClient)
-	logging.Stderr("[Docker Adapter] Creating container runtime client: Docker")
+	logging.Debug("[Docker Adapter] Creating container runtime client: Docker")
 	dockerAPIClient, err := client.NewEnvClient()
 	if err != nil {
 		return nil, fmt.Errorf("[Docker Adapter] Unable to initialise container runtime type: Docker, error: %s", err)
@@ -152,6 +162,11 @@ func (c *concreteDockerClient) ContainerInspect(ctx context.Context, containerID
 func (c *concreteDockerClient) HostID(ctx context.Context) string {
 	resp, _ := c.Client.Info(ctx)
 	return resp.ID
+}
+
+func (c *concreteDockerClient) ServerAPIVersion(ctx context.Context) string {
+	resp, _ := c.Client.ServerVersion(ctx)
+	return resp.APIVersion
 }
 
 func (c *concreteDockerClient) ContainerExecCreate(ctx context.Context, containerID string, cmd []string, attachStdout bool, attachStderr bool) (dockertypes.IDResponse, error) {
@@ -245,7 +260,7 @@ func (c *concreteDockerClient) ContainerLogs(ctx context.Context, containerID st
 func (c *concreteDockerClient) CopyFromContainer(ctx context.Context, container, srcPath string, followSymlink bool) (io.ReadCloser, dockertypes.ContainerPathStat, error) {
 	readCloser, containerPathStat, err := c.Client.CopyFromContainer(ctx, container, srcPath)
 	if followSymlink && err == nil && containerPathStat.LinkTarget != "" {
-		logging.Stderr("[Docker Adapter] Resolving symlink for: %s, to: %s", srcPath, containerPathStat.LinkTarget)
+		logging.Debug("[Docker Adapter] Resolving symlink for: %s, to: %s", srcPath, containerPathStat.LinkTarget)
 		readCloser, containerPathStat, err = c.Client.CopyFromContainer(ctx, container, containerPathStat.LinkTarget)
 	}
 	return readCloser, containerPathStat, err
@@ -258,12 +273,32 @@ func (c *concreteDockerClient) ContainerList(ctx context.Context) ([]string, err
 
 	containers, err := c.Client.ContainerList(ctx, containerListOptions)
 	if err != nil {
-		logging.Stderr("[Docker Adapter] Error listing running containers: %s", err)
+		logging.Debug("[Docker Adapter] Error listing running containers: %s", err)
 		return nil, err
 	}
 
 	for _, container := range containers {
 		result = append(result, container.ID)
+	}
+
+	return result, nil
+}
+
+// ContainerDiff returns a slice of changed files
+func (c *concreteDockerClient) ContainerDiff(ctx context.Context, containerID string) ([]types.ChangedFile, error) {
+	result := []types.ChangedFile{}
+
+	diffs, err := c.Client.ContainerDiff(ctx, containerID)
+	if err != nil {
+		logging.Debug("[Docker Adapter] Error getting ContainerDiff: %s", err)
+		return nil, err
+	}
+
+	for _, diff := range diffs {
+		result = append(result, types.ChangedFile{
+			Kind: diff.Kind,
+			Path: diff.Path,
+		})
 	}
 
 	return result, nil

@@ -1,0 +1,22 @@
+source 'https://rubygems.org'
+
+group :test do
+  gem 'metadata-json-lint'
+  gem 'puppet', ENV['PUPPET_GEM_VERSION'] || '~> 4.0'
+  gem 'puppetlabs_spec_helper'
+  gem 'rake'
+  gem 'rspec'
+  gem 'rspec-command'
+  gem 'rubocop'
+  gem 'simplecov'
+  gem 'simplecov-console'
+end
+
+group :development do
+  gem 'guard-rake'
+  gem 'pry'
+  gem 'puppet-blacksmith'
+  gem 'travis'
+  gem 'travis-lint'
+  gem 'yard'
+end

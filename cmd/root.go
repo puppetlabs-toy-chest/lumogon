@@ -19,13 +19,13 @@ var RootCmd = &cobra.Command{
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := RootCmd.Execute(); err != nil {
-		logging.Stderr("Error initialising command: %s", err)
+		logging.Debug("Error initialising command: %s", err)
 		os.Exit(-1)
 	}
 }
 
 func init() {
-	RootCmd.PersistentFlags().BoolVarP(&logging.Debug, "debug", "d", false, "Print debug logging")
+	RootCmd.PersistentFlags().BoolVarP(&logging.DebugEnabled, "debug", "d", false, "Print debug logging")
 	RootCmd.PersistentFlags().Bool("disable-analytics", false, "Disable sending anonymous data for product improvement")
 	viper.BindPFlag("disable-analytics", RootCmd.PersistentFlags().Lookup("disable-analytics"))
 }

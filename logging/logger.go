@@ -6,17 +6,19 @@ import (
 )
 
 var (
-	// Debug flag
-	Debug bool
+	// DebugEnabled flag
+	DebugEnabled bool
 )
 
 var (
 	stderr *log.Logger
-	stdout *log.Logger
 )
 
-// Stdout provides a convenient way to log to STDOUT
-func Stdout(format string, args ...interface{}) {
+// Info provides a convenient way to log to STDERR
+// Note that we use STDERR rather than STDOUT as the primary
+// purpose of this logging interface is "diagnostic messages"
+// as per POSIX
+func Info(format string, args ...interface{}) {
 	if args != nil {
 		stderr.Printf(format, args...)
 	} else {
@@ -24,9 +26,10 @@ func Stdout(format string, args ...interface{}) {
 	}
 }
 
-// Stderr provides a convenient way to log to STDERR
-func Stderr(format string, args ...interface{}) {
-	if !Debug {
+// Debug provides a convenient way to log to STDERR only when the
+// debug flag is passed
+func Debug(format string, args ...interface{}) {
+	if !DebugEnabled {
 		return
 	}
 	if args != nil {
@@ -38,6 +41,5 @@ func Stderr(format string, args ...interface{}) {
 
 func init() {
 	logProperties := log.Ldate | log.Ltime | log.Lmicroseconds
-	stderr = log.New(os.Stderr, "[lumogon] ", logProperties)
-	stdout = log.New(os.Stdout, "", logProperties)
+	stderr = log.New(os.Stderr, "[Lumogon] ", logProperties)
 }
