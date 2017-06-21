@@ -39,7 +39,7 @@ var dockerCapability = dockeradapter.DockerAPICapability{
 }
 
 // VersionToMap Extracts and returns a formatted map[string]interface{} containing
-// information exposted via the Docker API
+// version information exposted via the Docker API
 func VersionToMap(client dockeradapter.Harvester) (map[string]interface{}, error) {
 	ctx := context.Background()
 	v, err := client.ServerVersion(ctx)
@@ -49,6 +49,7 @@ func VersionToMap(client dockeradapter.Harvester) (map[string]interface{}, error
 	}
 
 	return map[string]interface{}{
+		"Version":       v.Version,
 		"APIVersion":    v.APIVersion,
 		"MinAPIVersion": v.MinAPIVersion,
 	}, nil
