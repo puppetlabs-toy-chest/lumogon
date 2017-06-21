@@ -40,8 +40,8 @@ bin/lumogon:
 
 build: bin/lumogon bootstrap
 
-image: build
-	docker build -t $(CONTAINER_NAME) -f ./Dockerfile.build .
+image:
+	docker build -t $(CONTAINER_NAME) .
 
 deploy: image
 	script/deploy
@@ -60,8 +60,6 @@ licenses: $(GOPATH)/bin/licenses
 
 all: clean dependencies test build image puppet-module
 
-buildimage: clean build image
-
 $(GOPATH)/bin/glide:
 	go get -u github.com/Masterminds/glide
 
@@ -79,4 +77,4 @@ bootstrap: $(GOPATH)/bin/glide $(GOPATH)/src/github.com/golang/lint/golint $(GOP
 puppet-module:
 	cd contrib/puppetlabs-lumogon; make all
 
-.PHONY: build image buildimage test todo clean dependencies bootstrap licenses watch deploy puppet-module
+.PHONY: build image test todo clean dependencies bootstrap licenses watch deploy puppet-module
