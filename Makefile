@@ -77,4 +77,8 @@ bootstrap: $(GOPATH)/bin/glide $(GOPATH)/src/github.com/golang/lint/golint $(GOP
 puppet-module:
 	cd contrib/puppetlabs-lumogon; make all
 
-.PHONY: build image test todo clean dependencies bootstrap licenses watch deploy puppet-module
+system-test: image
+	echo "WARNING - This is work in progress"
+	./test/system/systemtest.sh
+
+.PHONY: build image test todo clean dependencies bootstrap licenses watch deploy puppet-module system-test
