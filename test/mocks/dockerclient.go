@@ -33,7 +33,7 @@ type MockDockerClient struct {
 	CopyFromContainerFn    func(ctx context.Context, container, srcPath string, followSymlink bool) (io.ReadCloser, dockertypes.ContainerPathStat, error)
 	ContainerDiffFn        func(ctx context.Context, containerID string) ([]types.ChangedFile, error)
 	HostIDFn               func(ctx context.Context) string
-	ServerVersionFn        func(ctx context.Context) dockertypes.Version
+	ServerVersionFn        func(ctx context.Context) (dockertypes.Version, error)
 }
 
 // ImagePull is a mock implementation of dockeradapter.ImagePull
@@ -220,7 +220,7 @@ func (c MockDockerClient) HostID(ctx context.Context) string {
 }
 
 // ServerVersion is a mock implementation of dockeradapter.ServerVersion
-func (c MockDockerClient) ServerVersion(ctx context.Context) dockertypes.Version {
+func (c MockDockerClient) ServerVersion(ctx context.Context) (dockertypes.Version, error) {
 	if c.ServerVersionFn != nil {
 		fmt.Println("[MockDockerClient] In ", utils.CurrentFunctionName())
 		return c.ServerVersionFn(ctx)

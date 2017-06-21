@@ -47,7 +47,7 @@ func NewUserSession() *UserSession {
 	v := version.Version
 	ctx := context.Background()
 	c, _ := dockeradapter.New()
-	dv := c.ServerVersion(ctx)
+	dv, _ := c.ServerVersion(ctx)
 
 	return &UserSession{
 		ProtocolVersion:    1,

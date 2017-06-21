@@ -26,22 +26,32 @@ var dockerCapability = dockeradapter.DockerAPICapability{
 		logging.Debug("[Docker Server] Harvesting docker server information associated with %s [%s]", target.Name, target.ID)
 		capability.HarvestID = id
 
-		filtered, _ := payloadfilter.Filter(InfoToMap(client))
+		version, err := VersionToMap(client)
+		if err != nil {
+			capability.PayloadError(err.Error())
+			return
+		}
+
+		filtered, _ := payloadfilter.Filter(version)
 
 		capability.Payload = filtered
 	},
 }
 
-// InfoToMap takes the Docker Context and returns a formatted map[string]interface{} contaning
+// VersionToMap Extracts and returns a formatted map[string]interface{} containing
 // information exposted via the Docker API
-func InfoToMap(client dockeradapter.Harvester) map[string]interface{} {
+func VersionToMap(client dockeradapter.Harvester) (map[string]interface{}, error) {
 	ctx := context.Background()
-	v := client.ServerVersion(ctx)
+	v, err := client.ServerVersion(ctx)
+
+	if err != nil {
+		return nil, err
+	}
 
 	return map[string]interface{}{
 		"APIVersion":    v.APIVersion,
 		"MinAPIVersion": v.MinAPIVersion,
-	}
+	}, nil
 }
 
 func init() {
