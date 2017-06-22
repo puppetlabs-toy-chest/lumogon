@@ -32,6 +32,8 @@ type MockDockerClient struct {
 	ImageInspectFn         func(ctx context.Context, imageName string) (dockertypes.ImageInspect, error)
 	CopyFromContainerFn    func(ctx context.Context, container, srcPath string, followSymlink bool) (io.ReadCloser, dockertypes.ContainerPathStat, error)
 	ContainerDiffFn        func(ctx context.Context, containerID string) ([]types.ChangedFile, error)
+	HostIDFn               func(ctx context.Context) string
+	ServerVersionFn        func(ctx context.Context) (dockertypes.Version, error)
 }
 
 // ImagePull is a mock implementation of dockeradapter.ImagePull
@@ -204,6 +206,24 @@ func (c MockDockerClient) ContainerDiff(ctx context.Context, containerID string)
 	if c.ContainerDiffFn != nil {
 		fmt.Println("[MockDockerClient] In ", utils.CurrentFunctionName())
 		return c.ContainerDiffFn(ctx, containerID)
+	}
+	panic(fmt.Sprintf("No function defined for: %s", utils.CurrentFunctionName()))
+}
+
+// HostID is a mock implementation of dockeradapter.HostID
+func (c MockDockerClient) HostID(ctx context.Context) string {
+	if c.HostIDFn != nil {
+		fmt.Println("[MockDockerClient] In ", utils.CurrentFunctionName())
+		return c.HostIDFn(ctx)
+	}
+	panic(fmt.Sprintf("No function defined for: %s", utils.CurrentFunctionName()))
+}
+
+// ServerVersion is a mock implementation of dockeradapter.ServerVersion
+func (c MockDockerClient) ServerVersion(ctx context.Context) (dockertypes.Version, error) {
+	if c.ServerVersionFn != nil {
+		fmt.Println("[MockDockerClient] In ", utils.CurrentFunctionName())
+		return c.ServerVersionFn(ctx)
 	}
 	panic(fmt.Sprintf("No function defined for: %s", utils.CurrentFunctionName()))
 }

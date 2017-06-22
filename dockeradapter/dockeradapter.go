@@ -34,6 +34,7 @@ type Harvester interface {
 	Inspector
 	Executor
 	Diff
+	HostInspector
 }
 
 // ImagePuller interface exposes methods required to pull an image
@@ -62,7 +63,7 @@ type Executor interface {
 // HostInspector interface exposes methods required to inspect a docker host
 type HostInspector interface {
 	HostID(ctx context.Context) string
-	ServerAPIVersion(ctx context.Context) string
+	ServerVersion(ctx context.Context) (dockertypes.Version, error)
 }
 
 // ImageInspectorPuller interface exposes methods required to both pull and
@@ -164,9 +165,14 @@ func (c *concreteDockerClient) HostID(ctx context.Context) string {
 	return resp.ID
 }
 
-func (c *concreteDockerClient) ServerAPIVersion(ctx context.Context) string {
-	resp, _ := c.Client.ServerVersion(ctx)
-	return resp.APIVersion
+// ServerVersion returns the underlying Docker Version struct exposed via the Engine API
+func (c *concreteDockerClient) ServerVersion(ctx context.Context) (dockertypes.Version, error) {
+	resp, err := c.Client.ServerVersion(ctx)
+	if err != nil {
+		return dockertypes.Version{}, err
+	}
+
+	return resp, nil
 }
 
 func (c *concreteDockerClient) ContainerExecCreate(ctx context.Context, containerID string, cmd []string, attachStdout bool, attachStderr bool) (dockertypes.IDResponse, error) {
