@@ -1,16 +1,9 @@
 package plugin
 
 import (
-	"github.com/johnmccabe/lumogon/dockeradapter"
-	"github.com/johnmccabe/lumogon/types"
+	"github.com/puppetlabs/lumogon/dockeradapter"
+	"github.com/puppetlabs/lumogon/types"
 )
-
-// Customtype TODO
-type Customtype struct {
-	StrF  string
-	BoolF bool
-	IntF  int
-}
 
 // Types of Plugin
 const (
@@ -30,8 +23,8 @@ type Metadata struct {
 	SupportedOS map[string]int
 }
 
-// LumogonPlugin TODO
-type LumogonPlugin interface {
+// Plugin TODO
+type Plugin interface {
 	Metadata() *Metadata
 	Harvest(dockeradapter.Harvester, string, types.TargetContainer) (map[string]interface{}, error)
 }
