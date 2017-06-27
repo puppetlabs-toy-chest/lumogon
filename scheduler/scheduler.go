@@ -113,6 +113,8 @@ func getExpectedResultCount(targets []*types.TargetContainer, registry registry.
 				break
 			}
 		}
+		// hack for plugins TODO - this is kinda messy and sucks
+		expectedResults++
 	}
 	return expectedResults
 }

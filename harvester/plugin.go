@@ -67,22 +67,24 @@ func RunPluginHarvesters(ctx context.Context, wg *sync.WaitGroup, targets []*typ
 func harvestPlugins(target types.TargetContainer, client dockeradapter.Harvester, plugins []string, resultsCh chan *types.ContainerReport) {
 	harvestedData := map[string]types.Capability{}
 
+	ID := utils.GenerateUUID4()
+
 	logging.Debug("[Plugin Harvester] Harvesting %d plugin capabilities", len(plugins))
 	for _, plugin := range plugins {
 		p, err := getPlugin(plugin)
 		if err != nil {
 			logging.Debug("[Plugin Harvester] Error getting plugin: %v", err)
-			resultsCh <- &types.ContainerReport{}
-			return
+			harvestedData[plugin] = types.Capability{}
+			continue
 		}
 
 		metadata := (*p).Metadata()
 
-		ID := utils.GenerateUUID4()
-
 		result, err := (*p).Harvest(client, ID, target)
 		if err != nil {
 			logging.Debug("[Plugin Harvester] error invoking Harvest on plugin: %v", err)
+			harvestedData[plugin] = types.Capability{}
+			continue
 		}
 
 		harvestedData[metadata.Name] = types.Capability{
@@ -116,7 +118,7 @@ func getPlugin(path string) (*lumogonplugin.Plugin, error) {
 	fn, ok := p.(*lumogonplugin.Plugin)
 	if ok != true {
 		err = fmt.Errorf("[Plugin Harvester] Unable to get LumogonPlugin")
-		logging.Debug("%s, %v, %v", err, fn, p)
+		logging.Debug("error: %s, fn: %v, lib: %v", err, fn, p)
 		return nil, err
 	}
 
