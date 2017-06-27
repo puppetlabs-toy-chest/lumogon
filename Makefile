@@ -9,13 +9,14 @@ LDFLAGS += -X "$(PACKAGE_NAME)/version.BuildTime=$(shell date -u '+%Y-%m-%d %I:%
 LDFLAGS += -X "$(PACKAGE_NAME)/version.BuildVersion=$(shell date +%Y%m%d%H%M%S)-$(shell git describe --tags)"
 LDFLAGS += -X "$(PACKAGE_NAME)/version.BuildSHA=$(shell git rev-parse HEAD)"
 # Strip debug information
-LDFLAGS += -s
+# LDFLAGS += -s
 
 TESTLDFLAGS += -X "$(PACKAGE_NAME)/version.BuildTime=testdatestring"
 TESTLDFLAGS += -X "$(PACKAGE_NAME)/version.BuildVersion=testversionstring"
 TESTLDFLAGS += -X "$(PACKAGE_NAME)/version.BuildSHA=testbuildsha"
 # Strip debug information - see https://github.com/golang/go/issues/19734
-TESTLDFLAGS += -s
+# TODO fixed in GOLANG 1.8.1
+# TESTLDFLAGS += -s
 
 GOARCH ?= amd64
 GOOS ?= linux
@@ -36,7 +37,7 @@ watch: bootstrap
 
 bin/lumogon:
 	mkdir -p bin
-	GOOS=$(GOOS) GOARCH=$(GOARCH) CGO_ENABLED=0 go build -a -ldflags '$(LDFLAGS)' -o bin/lumogon lumogon.go
+	GOOS=$(GOOS) GOARCH=$(GOARCH) CGO_ENABLED=1 go build -a -ldflags '$(LDFLAGS)' -o bin/lumogon lumogon.go
 
 build: bin/lumogon bootstrap
 
