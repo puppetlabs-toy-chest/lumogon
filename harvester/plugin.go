@@ -2,12 +2,10 @@ package harvester
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"plugin"
-
 	"sync"
-
-	"fmt"
 
 	"github.com/puppetlabs/lumogon/dockeradapter"
 	"github.com/puppetlabs/lumogon/logging"
@@ -27,7 +25,7 @@ func getPlugins(path string) ([]string, error) {
 	plugins := []string{}
 	for _, f := range files {
 		plugins = append(plugins, path+f.Name())
-		logging.Debug(" - ", f.Name())
+		logging.Debug(" - %s", f.Name())
 	}
 	return plugins, nil
 }
@@ -46,7 +44,7 @@ func RunPluginHarvesters(ctx context.Context, wg *sync.WaitGroup, targets []*typ
 	}
 
 	if len(plugins) == 0 {
-		logging.Debug("[Plugin Harvester] No Docker API Capabilities found")
+		logging.Debug("[Plugin Harvester] No Plugins found")
 		return nil
 	}
 
@@ -66,14 +64,15 @@ func RunPluginHarvesters(ctx context.Context, wg *sync.WaitGroup, targets []*typ
 	return nil
 }
 
-func harvestPlugins(target types.TargetContainer, client dockeradapter.Harvester, plugins []string, dockerAPIResultsCh chan *types.ContainerReport) {
+func harvestPlugins(target types.TargetContainer, client dockeradapter.Harvester, plugins []string, resultsCh chan *types.ContainerReport) {
 	harvestedData := map[string]types.Capability{}
 
-	logging.Debug("[Plugin Harvester] Harvesting %d dockerAPI capabilities", len(plugins))
+	logging.Debug("[Plugin Harvester] Harvesting %d plugin capabilities", len(plugins))
 	for _, plugin := range plugins {
 		p, err := getPlugin(plugin)
 		if err != nil {
 			logging.Debug("[Plugin Harvester] Error getting plugin: %v", err)
+			resultsCh <- &types.ContainerReport{}
 			return
 		}
 
@@ -98,7 +97,7 @@ func harvestPlugins(target types.TargetContainer, client dockeradapter.Harvester
 		}
 	}
 
-	dockerAPIResultsCh <- GenerateContainerReport(target, harvestedData)
+	resultsCh <- GenerateContainerReport(target, harvestedData)
 }
 
 func getPlugin(path string) (*lumogonplugin.Plugin, error) {
@@ -108,7 +107,7 @@ func getPlugin(path string) (*lumogonplugin.Plugin, error) {
 		return nil, err
 	}
 
-	p, err := lib.Lookup("Impl")
+	p, err := lib.Lookup("LumogonPluginImpl")
 	if err != nil {
 		logging.Debug("[Plugin Harvester] Error loading plugin")
 		return nil, err
@@ -117,7 +116,7 @@ func getPlugin(path string) (*lumogonplugin.Plugin, error) {
 	fn, ok := p.(*lumogonplugin.Plugin)
 	if ok != true {
 		err = fmt.Errorf("[Plugin Harvester] Unable to get LumogonPlugin")
-		logging.Debug("%s", err)
+		logging.Debug("%s, %v, %v", err, fn, p)
 		return nil, err
 	}
 
