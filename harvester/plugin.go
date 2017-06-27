@@ -78,36 +78,51 @@ func harvestPlugins(target types.TargetContainer, client dockeradapter.Harvester
 			continue
 		}
 
-		metadata := (*p).Metadata()
+		(*p).Print(client, ID, target)
 
-		result, err := (*p).Harvest(client, ID, target)
+		fmt.Println("==============================")
+		fmt.Println("Getting metadata:")
+		m := (*p).Metadata()
+		fmt.Printf("  - Schema: %s\n", m.Schema)
+		fmt.Printf("  - ID: %s\n", m.ID)
+		fmt.Printf("  - Name: %s\n", m.Name)
+		fmt.Printf("  - Type: %d\n", m.Type)
+		fmt.Printf("  - SupportedOS: %v\n", m.SupportedOS)
+		fmt.Println("==============================")
+
+		h, err := (*p).Harvest(client, ID, target)
 		if err != nil {
 			logging.Debug("[Plugin Harvester] error invoking Harvest on plugin: %v", err)
 			harvestedData[plugin] = types.Capability{}
 			continue
 		}
 
-		harvestedData[metadata.Name] = types.Capability{
-			Schema:      metadata.Schema,
-			Title:       metadata.ID,
-			Name:        metadata.Name,
-			Description: metadata.Description,
+		harvestedData[m.ID] = types.Capability{
+			Schema:      m.Schema,
+			Title:       m.Name,
+			Name:        m.Name,
+			Description: m.Description,
 			Type:        "TODOplugin",
 			HarvestID:   ID,
-			Payload:     result,
-			SupportedOS: metadata.SupportedOS,
+			Payload:     h,
+			SupportedOS: m.SupportedOS,
 		}
 	}
 
 	resultsCh <- GenerateContainerReport(target, harvestedData)
 }
 
-func getPlugin(path string) (*lumogonplugin.Plugin, error) {
+func getPlugin(path string) (*lumogonplugin.Minimal, error) {
+	logging.Debug("[Plugin Harvester] Opening plugin: %s", path)
 	lib, err := plugin.Open(path)
 	if err != nil {
 		logging.Debug("[Plugin Harvester] Error opening plugin: %s", path)
 		return nil, err
 	}
+
+	logging.Debug("[Plugin Harvester] =====================")
+	logging.Debug("[Plugin Harvester] Plugin: %v", lib)
+	logging.Debug("[Plugin Harvester] =====================")
 
 	p, err := lib.Lookup("LumogonPluginImpl")
 	if err != nil {
@@ -115,7 +130,11 @@ func getPlugin(path string) (*lumogonplugin.Plugin, error) {
 		return nil, err
 	}
 
-	fn, ok := p.(*lumogonplugin.Plugin)
+	logging.Debug("[Plugin Harvester] =====================")
+	logging.Debug("[Plugin Harvester] Symbol: %v", p)
+	logging.Debug("[Plugin Harvester] =====================")
+
+	fn, ok := p.(*lumogonplugin.Minimal)
 	if ok != true {
 		err = fmt.Errorf("[Plugin Harvester] Unable to get LumogonPlugin")
 		logging.Debug("error: %s, fn: %v, lib: %v", err, fn, p)

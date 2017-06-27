@@ -23,8 +23,15 @@ type Metadata struct {
 	SupportedOS map[string]int
 }
 
-// Plugin TODO
-type Plugin interface {
+// // Plugin TODO
+// type Plugin interface {
+// 	Metadata() *Metadata
+// 	Harvest(dockeradapter.Harvester, string, types.TargetContainer) (map[string]interface{}, error)
+// }
+
+// Minimal TODO
+type Minimal interface {
+	Print(dockeradapter.Harvester, string, types.TargetContainer)
 	Metadata() *Metadata
 	Harvest(dockeradapter.Harvester, string, types.TargetContainer) (map[string]interface{}, error)
 }
