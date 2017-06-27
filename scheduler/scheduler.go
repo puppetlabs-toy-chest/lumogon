@@ -92,7 +92,7 @@ func (s *Scheduler) Run(r registry.IRegistry) {
 	go harvester.RunDockerAPIHarvester(ctx, &wg, s.targets, r.DockerAPICapabilities(), resultsChannel, s.client)
 
 	wg.Add(1)
-	go harvester.RunPluginHarvesters(ctx, &wg, s.targets, "plugins/", resultsChannel, s.client)
+	go harvester.RunPluginHarvesters(ctx, &wg, s.targets, "/plugins/", resultsChannel, s.client)
 
 	logging.Debug("[Scheduler] Waiting")
 	wg.Wait()
