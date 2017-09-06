@@ -20,10 +20,7 @@ TESTLDFLAGS += -s
 GOARCH ?= amd64
 GOOS ?= linux
 
-
-clean:
-	rm -rf bin/*;
-	go clean -i ./...
+build: bin/lumogon
 
 dependencies: bootstrap
 	glide install
@@ -34,11 +31,14 @@ test: lint vet
 watch: bootstrap
 	goconvey
 
-bin/lumogon:
+bin/lumogon: dependencies
 	mkdir -p bin
 	GOOS=$(GOOS) GOARCH=$(GOARCH) CGO_ENABLED=0 go build -a -ldflags '$(LDFLAGS)' -o bin/lumogon lumogon.go
 
-build: bin/lumogon bootstrap
+
+clean:
+	rm -rf bin/*;
+	go clean -i ./...
 
 image:
 	docker build -t $(CONTAINER_NAME) .
