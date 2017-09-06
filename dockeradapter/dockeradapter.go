@@ -73,9 +73,9 @@ type ImageInspectorPuller interface {
 	ImagePuller
 }
 
-// Creator interface exposes methods required to create a container
+// Creator interface exposes methods required to create an attached container
 type Creator interface {
-	ContainerCreate(ctx context.Context, command []string, envvars []string, image string, binds []string, links []string, kernelCapabilities []string, pidMode string, containerName string, autoRemove bool) (dockercontainer.ContainerCreateCreatedBody, error)
+	ContainerCreate(ctx context.Context, command []string, envvars []string, image string, binds []string, links []string, kernelCapabilities []string, pidMode string, containerName string, autoRemove bool, labels map[string]string) (dockercontainer.ContainerCreateCreatedBody, error)
 }
 
 // Remover interface exposes methods required to remove a container
@@ -204,11 +204,12 @@ func (c *concreteDockerClient) ContainerExecInspect(ctx context.Context, execID 
 
 // ContainerCreate creates a container with the supplied subset of the Docker
 // API configuration
-func (c *concreteDockerClient) ContainerCreate(ctx context.Context, command []string, envvars []string, image string, binds []string, links []string, kernelCapabilities []string, pidMode string, containerName string, autoRemove bool) (dockercontainer.ContainerCreateCreatedBody, error) {
+func (c *concreteDockerClient) ContainerCreate(ctx context.Context, command []string, envvars []string, image string, binds []string, links []string, kernelCapabilities []string, pidMode string, containerName string, autoRemove bool, labels map[string]string) (dockercontainer.ContainerCreateCreatedBody, error) {
 	config := dockercontainer.Config{
-		Image: image,
-		Cmd:   command,
-		Env:   envvars,
+		Image:  image,
+		Cmd:    command,
+		Env:    envvars,
+		Labels: labels,
 	}
 
 	attachPid := dockercontainer.PidMode(pidMode)

@@ -111,8 +111,13 @@ func (a *AttachedContainer) createContainer() {
 	schedulerAliasHostname := "scheduler"
 	// Add an aliass for the scheduler to each harvester
 	links := []string{fmt.Sprintf("%s:%s", a.schedulerID, schedulerAliasHostname)}
+	labels := map[string]string{"lumogon_attached_container": "true",
+		"lumogon_attached_timestamp":   a.start,
+		"lumogon_attached_target_name": a.target.Name,
+		"lumogon_attached_target_id":   a.target.ID,
+		"lumogon_attached_target_osx":  a.target.OSID}
 
-	container, err := a.client.ContainerCreate(a.ctx, command, envvars, a.imageName, binds, links, kernelCapabilities, pidMode, a.name, !a.keepHarvester)
+	container, err := a.client.ContainerCreate(a.ctx, command, envvars, a.imageName, binds, links, kernelCapabilities, pidMode, a.name, !a.keepHarvester, labels)
 	if err != nil {
 		logging.Debug("[AttachedContainer] Error creating container: %s", err)
 		a.err = err
