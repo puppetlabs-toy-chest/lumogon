@@ -7,6 +7,7 @@ import (
 
 	dockertypes "github.com/docker/docker/api/types"
 	dockercontainer "github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
 	"github.com/puppetlabs/lumogon/logging"
 	"github.com/puppetlabs/lumogon/types"
@@ -81,6 +82,7 @@ type Creator interface {
 // Remover interface exposes methods required to remove a container
 type Remover interface {
 	ContainerRemove(ctx context.Context, containerID string, force bool) error
+	CleanupHarvesters(ctx context.Context, key string) error
 }
 
 // Starter interface exposes methods required to start a container
@@ -318,4 +320,42 @@ func stripDockerLogsHeader(rawlogs string) string {
 		return ""
 	}
 	return rawlogs[headerLength:]
+}
+
+func (c *concreteDockerClient) CleanupHarvesters(ctx context.Context, key string) error {
+	logging.Debug("[CleanupHarvesters] Forcefully removing attached harvester containers with the key %s", key)
+	filters := filters.NewArgs()
+	filters.Add("label", key)
+
+	listOptions := dockertypes.ContainerListOptions{
+		All:     true,
+		Filters: filters,
+	}
+
+	containers, err := c.Client.ContainerList(ctx, listOptions)
+	if err != nil {
+		return err
+	}
+
+	if len(containers) == 0 {
+		logging.Debug("[CleanupHarvesters] No attached harvester containers found.")
+		return nil
+	}
+
+	logging.Debug("[CleanupHarvesters] Found %d attached harvester containers:", len(containers))
+	for _, container := range containers {
+		logging.Debug("[CleanupHarvesters] - ID: %s, State: %s", container.ID, container.State)
+	}
+
+	removeOptions := dockertypes.ContainerRemoveOptions{
+		Force: true,
+	}
+	for _, container := range containers {
+		logging.Debug("[CleanupHarvesters] Removing container ID: %s.", container.ID)
+		err := c.Client.ContainerRemove(ctx, container.ID, removeOptions)
+		if err != nil {
+			logging.Debug("Error removing attached harvester container %s: %s\n", container.ID, err.Error())
+		}
+	}
+	return nil
 }
