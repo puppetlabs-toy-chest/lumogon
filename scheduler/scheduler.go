@@ -10,6 +10,7 @@ import (
 	"github.com/puppetlabs/lumogon/capabilities/registry"
 	"github.com/puppetlabs/lumogon/collector"
 	"github.com/puppetlabs/lumogon/dockeradapter"
+	"github.com/puppetlabs/lumogon/dockeradapter/versions"
 	"github.com/puppetlabs/lumogon/harvester"
 	"github.com/puppetlabs/lumogon/logging"
 	"github.com/puppetlabs/lumogon/storage"
@@ -93,6 +94,17 @@ func (s *Scheduler) Run(r registry.IRegistry) {
 
 	logging.Debug("[Scheduler] Waiting")
 	wg.Wait()
+
+	if !s.opts.KeepHarvesters {
+		autoRemoveSupportedAPIVersion := "1.25"
+		if versions.LessThan(s.client.ServerAPIVersion(), autoRemoveSupportedAPIVersion) {
+			logging.Debug("[Scheduler] Cleaning up harvester containers explicitly as Server API version %s < %s", s.client.ServerAPIVersion(), autoRemoveSupportedAPIVersion)
+			ctx := context.Background()
+			if err := s.client.CleanupHarvesters(ctx, "lumogon_attached_container"); err != nil {
+				fmt.Fprintf(os.Stderr, "Error returned when deleting containers: %s", err.Error())
+			}
+		}
+	}
 }
 
 func getExpectedResultCount(targets []*types.TargetContainer, registry registry.IRegistry) int {

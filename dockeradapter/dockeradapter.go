@@ -16,7 +16,9 @@ import (
 )
 
 // MinSupportedAPIVersion is the lowest Docker API version that Lumogon supports
-// Docker API Version 1.21 - Docker Engine 1.9.x
+// Docker API Version 1.21 - Docker Engine 1.10.x
+// - for support < 1.21 need to be able to identify the scheduler container so it can be excluded from results
+// - for support < 1.20 need to use an alternative to copy when detecting the target containers OS
 const MinSupportedAPIVersion = "1.21"
 
 // Client is a Docker (currently local) ContainerRuntime
@@ -33,6 +35,7 @@ type Client interface {
 	HostInspector
 	CopyFrom
 	Diff
+	ServerAPIVersion() string
 }
 
 // Harvester interface exposes methods used by Capabilties Harvest functions
@@ -216,6 +219,11 @@ func ServerInfo(host string) (string, string, error) {
 	}
 
 	return version.APIVersion, resp.ID, nil
+}
+
+// ImageInspect inspects that requested image
+func (c *concreteDockerClient) ServerAPIVersion() string {
+	return c.APIVersion
 }
 
 // ImageInspect inspects that requested image
