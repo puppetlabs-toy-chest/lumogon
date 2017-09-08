@@ -2,8 +2,9 @@ package dockeradapter
 
 import (
 	"context"
-	"fmt"
 	"io"
+	"os"
+	"strconv"
 
 	dockertypes "github.com/docker/docker/api/types"
 	dockercontainer "github.com/docker/docker/api/types/container"
@@ -13,6 +14,10 @@ import (
 	"github.com/puppetlabs/lumogon/types"
 	"github.com/puppetlabs/lumogon/utils"
 )
+
+// MinSupportedAPIVersion is the lowest Docker API version that Lumogon supports
+// Docker API Version 1.21 - Docker Engine 1.9.x
+const MinSupportedAPIVersion = "1.21"
 
 // Client is a Docker (currently local) ContainerRuntime
 type Client interface {
@@ -120,7 +125,8 @@ type containerLogOptions struct {
 
 // concreteDockerClient wraps the upstream Docker API Client
 type concreteDockerClient struct {
-	Client *client.Client
+	Client     *client.Client
+	APIVersion string
 }
 
 // ImageExists returns true if the imageName exists
@@ -132,16 +138,84 @@ func ImageExists(ctx context.Context, client ImageInspector, imageName string) b
 	return true
 }
 
-// New returns a client satisfying the Client interface
+// New returns a client connected with the highest API version supported by both the Lumogon client
+// and the Docker runtime
 func New() (Client, error) {
-	concreteClient := new(concreteDockerClient)
-	logging.Debug("[Docker Adapter] Creating container runtime client: Docker")
-	dockerAPIClient, err := client.NewEnvClient()
+
+	host, _, _ := DockerEnvvars()
+
+	serverAPIVersion, _, err := ServerInfo(host)
 	if err != nil {
-		return nil, fmt.Errorf("[Docker Adapter] Unable to initialise container runtime type: Docker, error: %s", err)
+		logging.Debug("[Docker Adapter] Unable to determine Docker Server API version: %s", err.Error())
+		return nil, err
 	}
-	concreteClient.Client = dockerAPIClient
+
+	// Connect using the API version that the server supports
+	client, err := client.NewClient(host, serverAPIVersion, nil, nil)
+	if err != nil {
+		logging.Debug("[Docker Adapter] Unable to connect to Docker server")
+		return nil, err
+	}
+
+	logging.Debug("[Docker Adapter] Creating container runtime client: Docker")
+	concreteClient := new(concreteDockerClient)
+	concreteClient.APIVersion = serverAPIVersion
+	concreteClient.Client = client
+
 	return concreteClient, nil
+}
+
+// DockerEnvvars returns values for the following environment variables, setting a default
+// if no variable is set: DOCKER_HOST, DOCKER_CERT_PATH, DOCKER_TLS_VERIFY
+func DockerEnvvars() (string, string, bool) {
+	logging.Debug("[Docker Adapter] Negotiating client connection with Docker server")
+	host, ok := os.LookupEnv("DOCKER_HOST")
+	if !ok {
+		host = "unix:///var/run/docker.sock"
+	}
+	logging.Debug("[Docker Adapter] Setting Docker host to: %s", host)
+
+	certPath, ok := os.LookupEnv("DOCKER_CERT_PATH")
+	if !ok {
+		certPath = ""
+	}
+	logging.Debug("[Docker Adapter] Setting cert path to: %s", certPath)
+
+	var tlsVerify bool
+	s, ok := os.LookupEnv("DOCKER_TLS_VERIFY")
+	if !ok {
+		tlsVerify = false
+	} else {
+		var parseBoolErr error
+		tlsVerify, parseBoolErr = strconv.ParseBool(s)
+		if parseBoolErr != nil {
+			logging.Debug("Error parsing DOCKER_TLS_VERIFY envvar, setting to false: %s", parseBoolErr.Error())
+		}
+	}
+	logging.Debug("[Docker Adapter] Setting tlsVerify to: %t", tlsVerify)
+
+	return host, certPath, tlsVerify
+}
+
+// ServerInfo returns the Server APIVersion and the servers ID
+func ServerInfo(host string) (string, string, error) {
+	client, err := client.NewClient(host, "", nil, nil)
+	if err != nil {
+		return "", "", err
+	}
+
+	ctx := context.Background()
+	version, err := client.ServerVersion(ctx)
+	if err != nil {
+		return "", "", err
+	}
+	resp, _ := client.Info(ctx)
+
+	if err = client.Close(); err != nil {
+		return "", "", err
+	}
+
+	return version.APIVersion, resp.ID, nil
 }
 
 // ImageInspect inspects that requested image
