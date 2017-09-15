@@ -2,6 +2,7 @@ package dockeradapter
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"os"
 	"strconv"
@@ -145,19 +146,17 @@ func ImageExists(ctx context.Context, client ImageInspector, imageName string) b
 // and the Docker runtime
 func New() (Client, error) {
 
-	host, _, _ := DockerEnvvars()
+	host, _, _ := DockerConfig()
 
 	serverAPIVersion, _, err := ServerInfo(host)
 	if err != nil {
-		logging.Debug("[Docker Adapter] Unable to determine Docker Server API version: %s", err.Error())
-		return nil, err
+		return nil, fmt.Errorf("[Docker Adapter] Unable to determine Docker Server API version: %v", err)
 	}
 
 	// Connect using the API version that the server supports
 	client, err := client.NewClient(host, serverAPIVersion, nil, nil)
 	if err != nil {
-		logging.Debug("[Docker Adapter] Unable to connect to Docker server")
-		return nil, err
+		return nil, fmt.Errorf("[Docker Adapter] Unable to connect to Docker server: %v", err)
 	}
 
 	logging.Debug("[Docker Adapter] Creating container runtime client: Docker")
@@ -168,9 +167,10 @@ func New() (Client, error) {
 	return concreteClient, nil
 }
 
-// DockerEnvvars returns values for the following environment variables, setting a default
+// DockerConfig returns values for the following environment variables, setting a default
 // if no variable is set: DOCKER_HOST, DOCKER_CERT_PATH, DOCKER_TLS_VERIFY
-func DockerEnvvars() (string, string, bool) {
+// **NOTE** DOCKER_CERT_PATH, DOCKER_TLS_VERIFY are not currently used.
+func DockerConfig() (string, string, bool) {
 	logging.Debug("[Docker Adapter] Negotiating client connection with Docker server")
 	host, ok := os.LookupEnv("DOCKER_HOST")
 	if !ok {
