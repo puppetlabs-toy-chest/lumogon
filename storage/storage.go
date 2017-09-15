@@ -20,14 +20,16 @@ type Storage struct {
 	ConsumerURL string
 }
 
-// ReportStorage handles persistence of generated container reports
+// ReportStorage handles persistence of generated container reports, taking
+// a map with a report for each container and the unique reportID for the overall
+// scan or report.
 type ReportStorage interface {
-	Store(map[string]types.ContainerReport) error
+	Store(map[string]types.ContainerReport, string) error
 }
 
 // Store marshalls the supplied types.Report before storing it
-func (s Storage) Store(results map[string]types.ContainerReport) error {
-	report, err := createReport(results)
+func (s Storage) Store(results map[string]types.ContainerReport, reportID string) error {
+	report, err := createReport(results, reportID)
 	if err != nil {
 		return err
 	}
@@ -38,7 +40,7 @@ func (s Storage) Store(results map[string]types.ContainerReport) error {
 
 	err = storeResult(report, s.ConsumerURL)
 	if err != nil {
-		logging.Debug("[Storage] Error storing report: %s ", err)
+		logging.Debug("[Storage] Error storing report id=%s: %s ", reportID, err.Error())
 		return err
 	}
 
@@ -129,7 +131,7 @@ func storeResult(report types.Report, consumerURL string) error {
 
 // createReport returns a pointer to a types.Report built from the supplied
 // map of container IDs to types.ContainerReport.
-func createReport(results map[string]types.ContainerReport) (types.Report, error) {
+func createReport(results map[string]types.ContainerReport, reportID string) (types.Report, error) {
 	logging.Debug("[Storage] Marshalling JSON")
 	marshalledResult, err := json.Marshal(results)
 	if err != nil {
@@ -143,7 +145,7 @@ func createReport(results map[string]types.ContainerReport) (types.Report, error
 		Owner:         "default",
 		Group:         []string{"default"},
 		ClientVersion: version.Version,
-		ReportID:      utils.GenerateUUID4(),
+		ReportID:      reportID,
 		Containers:    results,
 	}
 	logging.Debug("[Storage] Report created")

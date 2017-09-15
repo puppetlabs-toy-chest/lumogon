@@ -22,6 +22,7 @@ import (
 // capabilities, building report data and submitting to the consumer
 // endpoint.
 type Scheduler struct {
+	reportID     string
 	harvesters   []harvester.AttachedContainer
 	capabilities registry.CapabilitiesRegistry
 	targets      []*types.TargetContainer
@@ -40,9 +41,10 @@ var wg sync.WaitGroup
 func New(args []string, opts types.ClientOptions) *Scheduler {
 	logging.Debug("[Scheduler] Creating scheduler")
 	scheduler := Scheduler{
-		start: utils.GetTimestamp(),
-		args:  &args,
-		opts:  &opts,
+		start:    utils.GetTimestamp(),
+		args:     &args,
+		opts:     &opts,
+		reportID: utils.GenerateUUID4(),
 	}
 
 	client, err := dockeradapter.New()
@@ -84,10 +86,10 @@ func (s *Scheduler) Run(r registry.IRegistry) {
 
 	storageBackend := storage.Storage{ConsumerURL: s.opts.ConsumerURL}
 	wg.Add(1)
-	go collector.RunCollector(ctx, &wg, expectedResultCount, resultsChannel, storageBackend)
+	go collector.RunCollector(ctx, &wg, expectedResultCount, resultsChannel, storageBackend, s.reportID)
 
 	wg.Add(1)
-	go harvester.RunAttachedHarvester(ctx, &wg, s.targets, r.AttachedCapabilities(), resultsChannel, *s.opts, s.client)
+	go harvester.RunAttachedHarvester(ctx, &wg, s.targets, r.AttachedCapabilities(), resultsChannel, *s.opts, s.client, s.reportID)
 
 	wg.Add(1)
 	go harvester.RunDockerAPIHarvester(ctx, &wg, s.targets, r.DockerAPICapabilities(), resultsChannel, s.client)
@@ -100,7 +102,8 @@ func (s *Scheduler) Run(r registry.IRegistry) {
 		if versions.LessThan(s.client.ServerAPIVersion(), autoRemoveSupportedAPIVersion) {
 			logging.Debug("[Scheduler] Cleaning up harvester containers explicitly as Server API version %s < %s", s.client.ServerAPIVersion(), autoRemoveSupportedAPIVersion)
 			ctx := context.Background()
-			if err := s.client.CleanupHarvesters(ctx, "lumogon_attached_container"); err != nil {
+			harvesterLabel := fmt.Sprintf("lumogon_report_id=%s", s.reportID)
+			if err := s.client.CleanupHarvesters(ctx, harvesterLabel); err != nil {
 				fmt.Fprintf(os.Stderr, "Error returned when deleting containers: %s", err.Error())
 			}
 		}
