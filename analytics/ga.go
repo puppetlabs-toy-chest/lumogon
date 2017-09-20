@@ -1,7 +1,6 @@
 package analytics
 
 import (
-	"context"
 	"net/http"
 	"net/url"
 
@@ -45,17 +44,16 @@ type UserSession struct {
 // NewUserSession provides a setup UserSession struct with sane defaults
 func NewUserSession() *UserSession {
 	v := version.Version
-	ctx := context.Background()
-	c, _ := dockeradapter.New()
-	dv, _ := c.ServerVersion(ctx)
+	host, _, _ := dockeradapter.DockerConfig()
+	serverAPIVersion, uniqueID, _ := dockeradapter.ServerInfo(host)
 
 	return &UserSession{
 		ProtocolVersion:    1,
 		TrackingID:         "UA-54263865-7",
 		ApplicationName:    "lumogon",
 		ApplicationVersion: v.VersionString(),
-		UniqueID:           c.HostID(ctx),
-		DockerAPIVersion:   dv.APIVersion,
+		UniqueID:           uniqueID,
+		DockerAPIVersion:   serverAPIVersion,
 		DisableTransmit:    viper.GetBool("disable-analytics"),
 		HTTPClient:         http.DefaultClient,
 	}

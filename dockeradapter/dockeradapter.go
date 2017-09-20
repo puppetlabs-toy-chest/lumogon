@@ -4,14 +4,23 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"os"
+	"strconv"
 
 	dockertypes "github.com/docker/docker/api/types"
 	dockercontainer "github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
 	"github.com/puppetlabs/lumogon/logging"
 	"github.com/puppetlabs/lumogon/types"
 	"github.com/puppetlabs/lumogon/utils"
 )
+
+// MinSupportedAPIVersion is the lowest Docker API version that Lumogon supports
+// Docker API Version 1.21 - Docker Engine 1.10.x
+// - for support < 1.21 need to be able to identify the scheduler container so it can be excluded from results
+// - for support < 1.20 need to use an alternative to copy when detecting the target containers OS
+const MinSupportedAPIVersion = "1.21"
 
 // Client is a Docker (currently local) ContainerRuntime
 type Client interface {
@@ -27,6 +36,7 @@ type Client interface {
 	HostInspector
 	CopyFrom
 	Diff
+	ServerAPIVersion() string
 }
 
 // Harvester interface exposes methods used by Capabilties Harvest functions
@@ -73,14 +83,15 @@ type ImageInspectorPuller interface {
 	ImagePuller
 }
 
-// Creator interface exposes methods required to create a container
+// Creator interface exposes methods required to create an attached container
 type Creator interface {
-	ContainerCreate(ctx context.Context, command []string, envvars []string, image string, binds []string, links []string, kernelCapabilities []string, pidMode string, containerName string, autoRemove bool) (dockercontainer.ContainerCreateCreatedBody, error)
+	ContainerCreate(ctx context.Context, command []string, envvars []string, image string, binds []string, links []string, kernelCapabilities []string, pidMode string, containerName string, autoRemove bool, labels map[string]string) (dockercontainer.ContainerCreateCreatedBody, error)
 }
 
 // Remover interface exposes methods required to remove a container
 type Remover interface {
 	ContainerRemove(ctx context.Context, containerID string, force bool) error
+	CleanupHarvesters(ctx context.Context, key string) error
 }
 
 // Starter interface exposes methods required to start a container
@@ -118,7 +129,8 @@ type containerLogOptions struct {
 
 // concreteDockerClient wraps the upstream Docker API Client
 type concreteDockerClient struct {
-	Client *client.Client
+	Client     *client.Client
+	APIVersion string
 }
 
 // ImageExists returns true if the imageName exists
@@ -130,16 +142,88 @@ func ImageExists(ctx context.Context, client ImageInspector, imageName string) b
 	return true
 }
 
-// New returns a client satisfying the Client interface
+// New returns a client connected with the highest API version supported by both the Lumogon client
+// and the Docker runtime
 func New() (Client, error) {
-	concreteClient := new(concreteDockerClient)
-	logging.Debug("[Docker Adapter] Creating container runtime client: Docker")
-	dockerAPIClient, err := client.NewEnvClient()
+
+	host, _, _ := DockerConfig()
+
+	serverAPIVersion, _, err := ServerInfo(host)
 	if err != nil {
-		return nil, fmt.Errorf("[Docker Adapter] Unable to initialise container runtime type: Docker, error: %s", err)
+		return nil, fmt.Errorf("[Docker Adapter] Unable to determine Docker Server API version: %v", err)
 	}
-	concreteClient.Client = dockerAPIClient
+
+	// Connect using the API version that the server supports
+	client, err := client.NewClient(host, serverAPIVersion, nil, nil)
+	if err != nil {
+		return nil, fmt.Errorf("[Docker Adapter] Unable to connect to Docker server: %v", err)
+	}
+
+	logging.Debug("[Docker Adapter] Creating container runtime client: Docker")
+	concreteClient := new(concreteDockerClient)
+	concreteClient.APIVersion = serverAPIVersion
+	concreteClient.Client = client
+
 	return concreteClient, nil
+}
+
+// DockerConfig returns values for the following environment variables, setting a default
+// if no variable is set: DOCKER_HOST, DOCKER_CERT_PATH, DOCKER_TLS_VERIFY
+// **NOTE** DOCKER_CERT_PATH, DOCKER_TLS_VERIFY are not currently used.
+func DockerConfig() (string, string, bool) {
+	logging.Debug("[Docker Adapter] Negotiating client connection with Docker server")
+	host, ok := os.LookupEnv("DOCKER_HOST")
+	if !ok {
+		host = "unix:///var/run/docker.sock"
+	}
+	logging.Debug("[Docker Adapter] Setting Docker host to: %s", host)
+
+	certPath, ok := os.LookupEnv("DOCKER_CERT_PATH")
+	if !ok {
+		certPath = ""
+	}
+	logging.Debug("[Docker Adapter] Setting cert path to: %s", certPath)
+
+	var tlsVerify bool
+	s, ok := os.LookupEnv("DOCKER_TLS_VERIFY")
+	if !ok {
+		tlsVerify = false
+	} else {
+		var parseBoolErr error
+		tlsVerify, parseBoolErr = strconv.ParseBool(s)
+		if parseBoolErr != nil {
+			logging.Debug("Error parsing DOCKER_TLS_VERIFY envvar, setting to false: %s", parseBoolErr.Error())
+		}
+	}
+	logging.Debug("[Docker Adapter] Setting tlsVerify to: %t", tlsVerify)
+
+	return host, certPath, tlsVerify
+}
+
+// ServerInfo returns the Server APIVersion and the servers ID
+func ServerInfo(host string) (string, string, error) {
+	client, err := client.NewClient(host, "", nil, nil)
+	if err != nil {
+		return "", "", err
+	}
+
+	ctx := context.Background()
+	version, err := client.ServerVersion(ctx)
+	if err != nil {
+		return "", "", err
+	}
+	resp, _ := client.Info(ctx)
+
+	if err = client.Close(); err != nil {
+		return "", "", err
+	}
+
+	return version.APIVersion, resp.ID, nil
+}
+
+// ImageInspect inspects that requested image
+func (c *concreteDockerClient) ServerAPIVersion() string {
+	return c.APIVersion
 }
 
 // ImageInspect inspects that requested image
@@ -204,11 +288,12 @@ func (c *concreteDockerClient) ContainerExecInspect(ctx context.Context, execID 
 
 // ContainerCreate creates a container with the supplied subset of the Docker
 // API configuration
-func (c *concreteDockerClient) ContainerCreate(ctx context.Context, command []string, envvars []string, image string, binds []string, links []string, kernelCapabilities []string, pidMode string, containerName string, autoRemove bool) (dockercontainer.ContainerCreateCreatedBody, error) {
+func (c *concreteDockerClient) ContainerCreate(ctx context.Context, command []string, envvars []string, image string, binds []string, links []string, kernelCapabilities []string, pidMode string, containerName string, autoRemove bool, labels map[string]string) (dockercontainer.ContainerCreateCreatedBody, error) {
 	config := dockercontainer.Config{
-		Image: image,
-		Cmd:   command,
-		Env:   envvars,
+		Image:  image,
+		Cmd:    command,
+		Env:    envvars,
+		Labels: labels,
 	}
 
 	attachPid := dockercontainer.PidMode(pidMode)
@@ -317,4 +402,42 @@ func stripDockerLogsHeader(rawlogs string) string {
 		return ""
 	}
 	return rawlogs[headerLength:]
+}
+
+func (c *concreteDockerClient) CleanupHarvesters(ctx context.Context, key string) error {
+	logging.Debug("[CleanupHarvesters] Forcefully removing attached harvester containers with the key %s", key)
+	filters := filters.NewArgs()
+	filters.Add("label", key)
+
+	listOptions := dockertypes.ContainerListOptions{
+		All:     true,
+		Filters: filters,
+	}
+
+	containers, err := c.Client.ContainerList(ctx, listOptions)
+	if err != nil {
+		return err
+	}
+
+	if len(containers) == 0 {
+		logging.Debug("[CleanupHarvesters] No attached harvester containers found.")
+		return nil
+	}
+
+	logging.Debug("[CleanupHarvesters] Found %d attached harvester containers:", len(containers))
+	for _, container := range containers {
+		logging.Debug("[CleanupHarvesters] - ID: %s, State: %s", container.ID, container.State)
+	}
+
+	removeOptions := dockertypes.ContainerRemoveOptions{
+		Force: true,
+	}
+	for _, container := range containers {
+		logging.Debug("[CleanupHarvesters] Removing container ID: %s.", container.ID)
+		err := c.Client.ContainerRemove(ctx, container.ID, removeOptions)
+		if err != nil {
+			logging.Debug("Error removing attached harvester container %s: %s\n", container.ID, err.Error())
+		}
+	}
+	return nil
 }

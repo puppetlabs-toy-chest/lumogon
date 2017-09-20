@@ -20,13 +20,15 @@ TESTLDFLAGS += -s
 GOARCH ?= amd64
 GOOS ?= linux
 
+build: bin/lumogon
 
-clean:
-	rm -rf bin/*;
-	go clean -i ./...
+glide.lock: glide.yaml $(GOPATH)/bin/glide$(suffix)
+	glide update
+	@touch $@
 
-dependencies: bootstrap
+vendor: glide.lock
 	glide install
+	@touch $@
 
 test: lint vet
 	go test -v -cover `glide novendor` -ldflags '$(TESTLDFLAGS)'
@@ -34,11 +36,13 @@ test: lint vet
 watch: bootstrap
 	goconvey
 
-bin/lumogon:
+bin/lumogon: bootstrap vendor
 	mkdir -p bin
 	GOOS=$(GOOS) GOARCH=$(GOARCH) CGO_ENABLED=0 go build -a -ldflags '$(LDFLAGS)' -o bin/lumogon lumogon.go
 
-build: bin/lumogon bootstrap
+clean:
+	rm -rf bin/*;
+	go clean -i ./...
 
 image:
 	docker build -t $(CONTAINER_NAME) .
@@ -58,7 +62,7 @@ vet: bootstrap
 licenses: $(GOPATH)/bin/licenses
 	@licenses  $(PACKAGE_NAME) | grep $(PACKAGE_NAME)/vendor
 
-all: clean dependencies test build image puppet-module
+all: clean vendor test build image puppet-module
 
 $(GOPATH)/bin/glide:
 	go get -u github.com/Masterminds/glide
@@ -77,4 +81,4 @@ bootstrap: $(GOPATH)/bin/glide $(GOPATH)/src/github.com/golang/lint/golint $(GOP
 puppet-module:
 	cd contrib/puppetlabs-lumogon; make all
 
-.PHONY: build image test todo clean dependencies bootstrap licenses watch deploy puppet-module
+.PHONY: build image test todo clean vendor bootstrap licenses watch deploy puppet-module

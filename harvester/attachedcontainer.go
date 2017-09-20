@@ -16,19 +16,20 @@ import (
 // AttachedContainer is a container attached to a running target container
 // used to gather capability information
 type AttachedContainer struct {
-	imageName     string
-	id            string
-	name          string
-	start         string
-	end           string
-	schedulerID   string
-	ctx           context.Context
-	result        *types.ContainerReport
-	target        types.TargetContainer
-	containerBody *dockercontainer.ContainerCreateCreatedBody
-	client        dockeradapter.Client
-	keepHarvester bool
-	err           error
+	imageName         string
+	id                string
+	name              string
+	start             string
+	end               string
+	reportID          string
+	schedulerHostname string
+	ctx               context.Context
+	result            *types.ContainerReport
+	target            types.TargetContainer
+	containerBody     *dockercontainer.ContainerCreateCreatedBody
+	client            dockeradapter.Client
+	keepHarvester     bool
+	err               error
 }
 
 // AttachedContainerInterface interface exposes Harvester lifecycle functions
@@ -39,17 +40,18 @@ type AttachedContainerInterface interface {
 }
 
 // NewAttachedContainer returns a pointer to a harvester AttachedContainer
-func NewAttachedContainer(client dockeradapter.Client, opts types.ClientOptions) *AttachedContainer {
+func NewAttachedContainer(client dockeradapter.Client, opts types.ClientOptions, reportID string) *AttachedContainer {
 
 	hostname, _ := os.Hostname()
 
 	attachedContainer := &AttachedContainer{
-		start:         utils.GetTimestamp(),
-		name:          utils.GetRandomName("lumogon_"),
-		client:        client,
-		schedulerID:   hostname,
-		keepHarvester: opts.KeepHarvesters,
-		ctx:           context.Background(),
+		start:             utils.GetTimestamp(),
+		name:              utils.GetRandomName("lumogon_"),
+		client:            client,
+		reportID:          reportID,
+		schedulerHostname: hostname,
+		keepHarvester:     opts.KeepHarvesters,
+		ctx:               context.Background(),
 	}
 
 	return attachedContainer
@@ -109,10 +111,16 @@ func (a *AttachedContainer) createContainer() {
 	kernelCapabilities := []string{"sys_admin"} // TODO - Need to investigate making the harvester immutable? minimise risk of altering attached namespace
 	pidMode := fmt.Sprintf("container:%s", a.target.ID)
 	schedulerAliasHostname := "scheduler"
-	// Add an aliass for the scheduler to each harvester
-	links := []string{fmt.Sprintf("%s:%s", a.schedulerID, schedulerAliasHostname)}
+	// Add an aliass for the scheduler to each harvester to allow it to connect
+	// to its RPC server
+	links := []string{fmt.Sprintf("%s:%s", a.schedulerHostname, schedulerAliasHostname)}
+	labels := map[string]string{"lumogon_report_id": a.reportID,
+		"lumogon_attached_timestamp":   a.start,
+		"lumogon_attached_target_name": a.target.Name,
+		"lumogon_attached_target_id":   a.target.ID,
+		"lumogon_attached_target_osx":  a.target.OSID}
 
-	container, err := a.client.ContainerCreate(a.ctx, command, envvars, a.imageName, binds, links, kernelCapabilities, pidMode, a.name, !a.keepHarvester)
+	container, err := a.client.ContainerCreate(a.ctx, command, envvars, a.imageName, binds, links, kernelCapabilities, pidMode, a.name, !a.keepHarvester, labels)
 	if err != nil {
 		logging.Debug("[AttachedContainer] Error creating container: %s", err)
 		a.err = err

@@ -19,8 +19,9 @@ var storedReport map[string]types.ContainerReport
 
 type MockStorage struct{}
 
-func (m MockStorage) Store(containerReports map[string]types.ContainerReport) error {
+func (m MockStorage) Store(containerReports map[string]types.ContainerReport, reportID string) error {
 	fmt.Println("entering store")
+	fmt.Printf("storing reportID: %s\n", reportID)
 	fmt.Printf("attempting to store: %v\n", containerReports)
 	defer fmt.Println("exiting store")
 	storedReport = containerReports
@@ -85,7 +86,7 @@ func Test_collector(t *testing.T) {
 			go func() {
 				t.Logf("starting Collector, expectedResults [%d]", test.expectedResults)
 				defer t.Logf("exiting Collector")
-				RunCollector(testCtx, &wg, test.expectedResults, r, MockStorage{})
+				RunCollector(testCtx, &wg, test.expectedResults, r, MockStorage{}, "dummy_report_id")
 				c <- nil
 			}()
 

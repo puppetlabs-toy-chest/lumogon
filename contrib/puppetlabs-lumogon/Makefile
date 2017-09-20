@@ -5,15 +5,15 @@ bootstrap:
 	sudo apt-get update
 	sudo apt-get install docker-ce
 
-dependencies:
+vendor:
 	bundle install
 
-test: dependencies
+test: vendor
 	bundle exec rake test
 
 deploy:
 	true
 
-all: dependencies test
+all: vendor test
 
-.PHONY: dependencies bootstrap test deploy all
+.PHONY: vendor bootstrap test deploy all

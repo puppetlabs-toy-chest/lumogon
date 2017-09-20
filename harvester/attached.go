@@ -20,7 +20,7 @@ import (
 // channel, when a result is received it will attempt to remove that associated
 // attached container which performed the harvest before sending the result to the
 // collector via the main results channel, resultsCh.
-func RunAttachedHarvester(ctx context.Context, wg *sync.WaitGroup, targets []*types.TargetContainer, capabilities []types.AttachedCapability, resultsCh chan types.ContainerReport, opts types.ClientOptions, client dockeradapter.Client) error {
+func RunAttachedHarvester(ctx context.Context, wg *sync.WaitGroup, targets []*types.TargetContainer, capabilities []types.AttachedCapability, resultsCh chan types.ContainerReport, opts types.ClientOptions, client dockeradapter.Client, reportID string) error {
 	defer logging.Debug("[Attached Harvester] Exiting")
 	defer wg.Done()
 	logging.Debug("[Attached Harvester] Running")
@@ -57,7 +57,7 @@ func RunAttachedHarvester(ctx context.Context, wg *sync.WaitGroup, targets []*ty
 
 	logging.Debug("[Attached Harvester] Creating [%d] harvesting containers", len(validTargets))
 	for _, target := range validTargets {
-		go createAndRunHarvester(ctx, client, *target, opts, rpcReceiverResultsCh)
+		go createAndRunHarvester(ctx, client, *target, opts, rpcReceiverResultsCh, reportID)
 	}
 
 	doneChannel := make(chan int)
@@ -86,9 +86,9 @@ func RunAttachedHarvester(ctx context.Context, wg *sync.WaitGroup, targets []*ty
 // createAndRunHarvester creates and runs a container attached to the namespace of the target
 // container which will run the harvest command to run the harvest functions from any registered
 // AttachedCapabilities.
-func createAndRunHarvester(ctx context.Context, client dockeradapter.Client, target types.TargetContainer, opts types.ClientOptions, rpcReceiverResultsCh chan types.ContainerReport) {
+func createAndRunHarvester(ctx context.Context, client dockeradapter.Client, target types.TargetContainer, opts types.ClientOptions, rpcReceiverResultsCh chan types.ContainerReport, reportID string) {
 	logging.Debug("[Attached Harvester] Creating attached container for target %s", target)
-	harvester := NewAttachedContainer(client, types.ClientOptions{KeepHarvesters: opts.KeepHarvesters})
+	harvester := NewAttachedContainer(client, types.ClientOptions{KeepHarvesters: opts.KeepHarvesters}, reportID)
 	// TODO get image name from the current container or set alternate default for non-container use
 	harvester.GetImage("puppet/lumogon")
 	harvester.Attach(target)

@@ -15,7 +15,7 @@ var results map[string]types.ContainerReport
 // RunCollector starts the collector which will block on reading all
 // expected ContainerReports from the results channel, before sending
 // them to the ReportStorage backend.
-func RunCollector(ctx context.Context, wg *sync.WaitGroup, expectedResults int, resultsCh chan types.ContainerReport, backend storage.ReportStorage) error {
+func RunCollector(ctx context.Context, wg *sync.WaitGroup, expectedResults int, resultsCh chan types.ContainerReport, backend storage.ReportStorage, reportID string) error {
 	defer logging.Debug("[Collector] Exiting")
 	defer wg.Done()
 
@@ -47,8 +47,8 @@ func RunCollector(ctx context.Context, wg *sync.WaitGroup, expectedResults int, 
 	}
 	resultsWg.Wait()
 
-	logging.Debug("[Collector] Generating report")
-	err = backend.Store(results)
+	logging.Debug("[Collector] Generating report: %s", reportID)
+	err = backend.Store(results, reportID)
 	return err
 }
 
