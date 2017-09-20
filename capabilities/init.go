@@ -1,6 +1,7 @@
 package capabilities
 
 import (
+	"github.com/puppetlabs/lumogon/capabilities/container"
 	"github.com/puppetlabs/lumogon/capabilities/diff"
 	"github.com/puppetlabs/lumogon/capabilities/docker"
 	"github.com/puppetlabs/lumogon/capabilities/host"
@@ -16,4 +17,5 @@ func Init() {
 	label.Init()
 	ospackages.Init()
 	diff.Init()
+	container.Init()
 }
