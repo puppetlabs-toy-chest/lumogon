@@ -44,7 +44,7 @@ type UserSession struct {
 // NewUserSession provides a setup UserSession struct with sane defaults
 func NewUserSession() *UserSession {
 	v := version.Version
-	host, _, _ := dockeradapter.DockerEnvvars()
+	host, _, _ := dockeradapter.DockerConfig()
 	serverAPIVersion, uniqueID, _ := dockeradapter.ServerInfo(host)
 
 	return &UserSession{
