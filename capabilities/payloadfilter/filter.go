@@ -36,7 +36,8 @@ func filterMap(value map[string]interface{}) (map[string]interface{}, error) {
 			if coerced != "" {
 				result[key] = coerced
 			}
-
+		case int, int8, int16, int32, int64:
+			result[key] = coerced
 		case map[string]interface{}:
 			nested, err := filterMap(coerced)
 			if err != nil {

@@ -14,7 +14,7 @@ var dockerDescription = `The 'docker' capability captures information related to
 
 var dockerCapability = dockeradapter.DockerAPICapability{
 	Capability: types.Capability{
-		Schema:      "http://puppet.com/lumogon/capability/label/draft-01/schema#1",
+		Schema:      "http://puppet.com/lumogon/capability/docker/draft-01/schema#1",
 		Title:       "Docker Server Information",
 		Name:        "docker",
 		Description: dockerDescription,
