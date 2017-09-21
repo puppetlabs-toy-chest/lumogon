@@ -26,7 +26,7 @@ var containerCapability = dockeradapter.DockerAPICapability{
 		SupportedOS: map[string]int{"all": 1},
 	},
 	Harvest: func(capability *dockeradapter.DockerAPICapability, client dockeradapter.Harvester, id string, target types.TargetContainer) {
-		logging.Debug("[Container Info] Harvesting container information associated with %s [%s]", target.Name, target.ID)
+		logging.Debug("[Container Info] Harvesting container information associated with %s [%s]\n", target.Name, target.ID)
 		capability.HarvestID = id
 
 		version, err := InspectContainer(client, target.ID)
@@ -56,42 +56,42 @@ func InspectContainer(client dockeradapter.Harvester, targetID string) (map[stri
 	// sensitive data.
 
 	result := map[string]interface{}{
-		"Hostname":           c.Config.Hostname,
-		"Domainname":         c.Config.Domainname,
-		"User":               c.Config.User,
-		"Image":              c.Config.Image,
-		"AttachStdin":        fmt.Sprintf("%t", c.Config.AttachStdin),
-		"AttachStdout":       fmt.Sprintf("%t", c.Config.AttachStdout),
-		"AttachStderr":       fmt.Sprintf("%t", c.Config.AttachStderr),
-		"Tty":                fmt.Sprintf("%t", c.Config.Tty),
-		"OpenStdin":          fmt.Sprintf("%t", c.Config.OpenStdin),
-		"StdinOnce":          fmt.Sprintf("%t", c.Config.StdinOnce),
-		"Privileged":         fmt.Sprintf("%t", c.HostConfig.Privileged),
-		"PublishAllPorts":    fmt.Sprintf("%t", c.HostConfig.PublishAllPorts),
-		"ReadonlyRootfs":     fmt.Sprintf("%t", c.HostConfig.ReadonlyRootfs),
-		"ShmSize":            fmt.Sprintf("%d", c.HostConfig.ShmSize),
-		"CapAdd":             strings.Join(c.HostConfig.CapAdd, ", "),
-		"CapDrop":            strings.Join(c.HostConfig.CapDrop, ", "),
-		"Runtime":            c.HostConfig.Runtime,
-		"CPUShares":          fmt.Sprintf("%d", c.HostConfig.Resources.CPUShares),
-		"Memory":             fmt.Sprintf("%d", c.HostConfig.Resources.Memory),
-		"NanoCPUs":           fmt.Sprintf("%d", c.HostConfig.Resources.NanoCPUs),
-		"CPUPeriod":          fmt.Sprintf("%d", c.HostConfig.Resources.CPUPeriod),
-		"CPUQuota":           fmt.Sprintf("%d", c.HostConfig.Resources.CPUQuota),
-		"CPURealtimePeriod":  fmt.Sprintf("%d", c.HostConfig.Resources.CPURealtimePeriod),
-		"CPURealtimeRuntime": fmt.Sprintf("%d", c.HostConfig.Resources.CPURealtimeRuntime),
-		"CpusetCpus":         c.HostConfig.Resources.CpusetCpus,
-		"CpusetMems":         c.HostConfig.Resources.CpusetMems,
-		"DiskQuota":          fmt.Sprintf("%d", c.HostConfig.Resources.DiskQuota),
-		"KernelMemory":       fmt.Sprintf("%d", c.HostConfig.Resources.KernelMemory),
-		"MemoryReservation":  fmt.Sprintf("%d", c.HostConfig.Resources.MemoryReservation),
-		"MemorySwap":         fmt.Sprintf("%d", c.HostConfig.Resources.MemorySwap),
-		"MemorySwappiness":   fmt.Sprintf("%d", *c.HostConfig.Resources.MemorySwappiness),
-		"OomKillDisable":     fmt.Sprintf("%t", *c.HostConfig.Resources.OomKillDisable),
-		"PidsLimit":          fmt.Sprintf("%d", c.HostConfig.Resources.PidsLimit),
+		"hostname":           c.Config.Hostname,
+		"domainname":         c.Config.Domainname,
+		"user":               c.Config.User,
+		"image":              c.Config.Image,
+		"attachstdin":        fmt.Sprintf("%t", c.Config.AttachStdin),
+		"attachstdout":       fmt.Sprintf("%t", c.Config.AttachStdout),
+		"attachstderr":       fmt.Sprintf("%t", c.Config.AttachStderr),
+		"tty":                fmt.Sprintf("%t", c.Config.Tty),
+		"openstdin":          fmt.Sprintf("%t", c.Config.OpenStdin),
+		"stdinonce":          fmt.Sprintf("%t", c.Config.StdinOnce),
+		"privileged":         fmt.Sprintf("%t", c.HostConfig.Privileged),
+		"publishallports":    fmt.Sprintf("%t", c.HostConfig.PublishAllPorts),
+		"readonlyrootfs":     fmt.Sprintf("%t", c.HostConfig.ReadonlyRootfs),
+		"shmsize":            fmt.Sprintf("%d", c.HostConfig.ShmSize),
+		"capadd":             strings.Join(c.HostConfig.CapAdd, ", "),
+		"capdrop":            strings.Join(c.HostConfig.CapDrop, ", "),
+		"runtime":            c.HostConfig.Runtime,
+		"cpushares":          fmt.Sprintf("%d", c.HostConfig.Resources.CPUShares),
+		"memory":             fmt.Sprintf("%d", c.HostConfig.Resources.Memory),
+		"nanocpus":           fmt.Sprintf("%d", c.HostConfig.Resources.NanoCPUs),
+		"cpuperiod":          fmt.Sprintf("%d", c.HostConfig.Resources.CPUPeriod),
+		"cpuquota":           fmt.Sprintf("%d", c.HostConfig.Resources.CPUQuota),
+		"cpurealtimeperiod":  fmt.Sprintf("%d", c.HostConfig.Resources.CPURealtimePeriod),
+		"cpurealtimeruntime": fmt.Sprintf("%d", c.HostConfig.Resources.CPURealtimeRuntime),
+		"cpusetcpus":         c.HostConfig.Resources.CpusetCpus,
+		"cpusetmems":         c.HostConfig.Resources.CpusetMems,
+		"diskquota":          fmt.Sprintf("%d", c.HostConfig.Resources.DiskQuota),
+		"kernelmemory":       fmt.Sprintf("%d", c.HostConfig.Resources.KernelMemory),
+		"memoryreservation":  fmt.Sprintf("%d", c.HostConfig.Resources.MemoryReservation),
+		"memoryswap":         fmt.Sprintf("%d", c.HostConfig.Resources.MemorySwap),
+		"memoryswappiness":   fmt.Sprintf("%d", *c.HostConfig.Resources.MemorySwappiness),
+		"oomkilldisable":     fmt.Sprintf("%t", *c.HostConfig.Resources.OomKillDisable),
+		"pidslimit":          fmt.Sprintf("%d", c.HostConfig.Resources.PidsLimit),
 	}
 
-	logging.Debug("[Container Info] Harvested [%+v]", result)
+	logging.Debug("[Container Info] Harvested [%+v]\n", result)
 
 	return result, nil
 }
@@ -108,6 +108,6 @@ func ports(m nat.PortSet) []string {
 }
 
 func init() {
-	logging.Debug("[Container Info] Initialising capability: %s", containerCapability.Title)
+	logging.Debug("[Container Info] Initialising capability: %s\n", containerCapability.Title)
 	registry.Registry.Add(containerCapability)
 }
