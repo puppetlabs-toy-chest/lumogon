@@ -38,15 +38,19 @@ var filterTests = []filterTest{
 		false,
 	},
 	{
-		"A map with simple non-string values should fail with an error",
+		"Native JSON ints should be passed through unchanged",
 		map[string]interface{}{
 			"a": 1,
 			"b": 2,
 			"c": "3",
 			"d": "4",
 		},
-		map[string]interface{}{},
-		true,
+		map[string]interface{}{
+			"a": 1,
+			"b": 2,
+			"c": "3",
+			"d": "4"},
+		false,
 	},
 	{
 		"A map with complex non-string values should fail with an error",
