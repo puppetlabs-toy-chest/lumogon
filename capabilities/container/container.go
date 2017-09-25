@@ -54,6 +54,16 @@ func InspectContainer(client dockeradapter.Harvester, targetID string) (map[stri
 	// support in the UI, it also avoids any config that could potentially contain
 	// sensitive data.
 
+	var memorySwappiness int64
+	if c.HostConfig.Resources.MemorySwappiness != nil {
+		memorySwappiness = *c.HostConfig.Resources.MemorySwappiness
+	}
+
+	var oomKillDisable bool
+	if c.HostConfig.Resources.OomKillDisable != nil {
+		oomKillDisable = *c.HostConfig.Resources.OomKillDisable
+	}
+
 	result := map[string]interface{}{
 		"hostname":           c.Config.Hostname,
 		"domainname":         c.Config.Domainname,
@@ -85,8 +95,8 @@ func InspectContainer(client dockeradapter.Harvester, targetID string) (map[stri
 		"kernelmemory":       c.HostConfig.Resources.KernelMemory,
 		"memoryreservation":  c.HostConfig.Resources.MemoryReservation,
 		"memoryswap":         c.HostConfig.Resources.MemorySwap,
-		"memoryswappiness":   *c.HostConfig.Resources.MemorySwappiness,
-		"oomkilldisable":     fmt.Sprintf("%t", *c.HostConfig.Resources.OomKillDisable),
+		"memoryswappiness":   memorySwappiness,
+		"oomkilldisable":     fmt.Sprintf("%t", oomKillDisable),
 		"pidslimit":          c.HostConfig.Resources.PidsLimit,
 	}
 
