@@ -27,7 +27,9 @@ matrix:
     services: docker
     bundler_args: --without development
     env: PUPPET_GEM_VERSION="~> 4.0"
-    install: cd contrib/puppetlabs-lumogon && make bootstrap
+    install:
+      - make image
+      - cd contrib/puppetlabs-lumogon && make bootstrap
     script: make vendor test
 deploy:
 - provider: script
