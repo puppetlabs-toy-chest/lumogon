@@ -23,6 +23,12 @@ var getLocalContainerIDTests = []struct {
 		expectError:         false,
 	},
 	{
+		title:               "nested container running in Docker-in-Docker",
+		cgroupfile:          "./fixtures/cgroup.dind",
+		expectedContainerID: "2ea749928409f83bd7af82f2d520f56345c99a4fcf5d0642cc99bd5cbc8168d5",
+		expectError:         false,
+	},
+	{
 		title:               "missingCgroupFile",
 		cgroupfile:          "./fixtures/cgroup.doesnotexist",
 		expectedContainerID: "n/a",
@@ -56,10 +62,9 @@ func Test_GetLocalContainerID(t *testing.T) {
 				if !test.expectError {
 					t.Errorf("Test [%s] threw unexpected error [%s]", test.title, err)
 				}
-				if err == nil {
-					if actualContainerID != test.expectedContainerID {
-						t.Errorf("Extracted containerID [%s] does not match expected value [%s]", actualContainerID, test.expectedContainerID)
-					}
+			} else {
+				if actualContainerID != test.expectedContainerID {
+					t.Errorf("Extracted containerID [%s] does not match expected value [%s]", actualContainerID, test.expectedContainerID)
 				}
 			}
 		})
