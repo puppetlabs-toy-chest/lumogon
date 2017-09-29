@@ -15,7 +15,7 @@ func GetLocalContainerID(cgroupfile string) (string, error) {
 	}
 	defer file.Close()
 
-	re := regexp.MustCompile(`^\d+:cpu.*:/docker/(\S+)$`)
+	re := regexp.MustCompile(`^\d+:cpu.*/docker/(\S+)$`)
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		matches := re.FindStringSubmatch(scanner.Text())
