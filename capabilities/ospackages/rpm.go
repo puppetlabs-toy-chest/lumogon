@@ -1,6 +1,8 @@
 package ospackages
 
 import (
+	"strings"
+
 	"github.com/puppetlabs/lumogon/capabilities/payloadfilter"
 	"github.com/puppetlabs/lumogon/capabilities/registry"
 	"github.com/puppetlabs/lumogon/dockeradapter"
@@ -29,14 +31,16 @@ var rpmCapability = dockeradapter.DockerAPICapability{
 		capability.HarvestID = id
 
 		output := make(map[string]interface{})
-		result, err := runPackageCmd(client, target.ID, []string{"/bin/sh", "-c", `test -x /usr/bin/rpm && rpm  -qa --queryformat "%{NAME},%{VERSION}-%{RELEASE}-%{ARCH}\n"`})
+		result, err := runPackageCmd(client, target.ID, []string{"/bin/sh", "-c", `(test -x /usr/bin/rpm && rpm  -qa --queryformat "%{NAME},%{VERSION}-%{RELEASE}-%{ARCH}\n") || (test -x /usr/bin/rpmquery && rpmquery  -qa --queryformat "%{NAME},%{VERSION}-%{RELEASE}-%{ARCH}\n")`})
 		if err != nil {
 			capability.PayloadError(err.Error())
 			return
 		}
 
 		for k, v := range result {
-			output[k] = v
+			// Some openSUSE packages have been observed with arch set to `(none)`
+			// rather than `noarch`, removing the arch in these cases.
+			output[k] = strings.TrimRight(v, "-(none)")
 		}
 
 		filtered, _ := payloadfilter.Filter(output)
