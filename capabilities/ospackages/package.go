@@ -22,7 +22,7 @@ func runPackageCmd(client dockeradapter.Harvester, containerID string, cmd []str
 	}
 	logging.Debug("[Package] Container Exec Created, ID: %s", execInstance.ID)
 
-	att, err := client.ContainerExecAttach(ctx, execInstance.ID, cmd, attachStdout, attachStderr)
+	att, err := client.ContainerExecAttach(ctx, execInstance.ID)
 	if err != nil {
 		err = fmt.Errorf("[Package] Unable to attach exec: %s", err)
 		logging.Debug(err.Error())

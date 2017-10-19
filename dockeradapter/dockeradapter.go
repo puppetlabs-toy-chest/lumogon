@@ -66,7 +66,7 @@ type Inspector interface {
 type Executor interface {
 	ContainerExecCreate(ctx context.Context, execID string, cmd []string, attachStdout bool, attachStderr bool) (dockertypes.IDResponse, error)
 	ContainerExecStart(ctx context.Context, execID string) error
-	ContainerExecAttach(ctx context.Context, execID string, cmd []string, attachStdout bool, attachStderr bool) (dockertypes.HijackedResponse, error)
+	ContainerExecAttach(ctx context.Context, execID string) (dockertypes.HijackedResponse, error)
 	ContainerExecInspect(ctx context.Context, execID string) (dockertypes.ContainerExecInspect, error)
 }
 
@@ -273,13 +273,9 @@ func (c *concreteDockerClient) ContainerExecStart(ctx context.Context, execID st
 	return c.Client.ContainerExecStart(ctx, execID, execStartOpts)
 }
 
-func (c *concreteDockerClient) ContainerExecAttach(ctx context.Context, execID string, cmd []string, attachStdout bool, attachStderr bool) (dockertypes.HijackedResponse, error) {
-	execOpts := dockertypes.ExecConfig{
-		Cmd:          cmd,
-		AttachStdout: attachStdout,
-		AttachStderr: attachStderr,
-	}
-	return c.Client.ContainerExecAttach(ctx, execID, execOpts)
+func (c *concreteDockerClient) ContainerExecAttach(ctx context.Context, execID string) (dockertypes.HijackedResponse, error) {
+	execStartOpts := dockertypes.ExecStartCheck{}
+	return c.Client.ContainerExecAttach(ctx, execID, execStartOpts)
 }
 
 func (c *concreteDockerClient) ContainerExecInspect(ctx context.Context, execID string) (dockertypes.ContainerExecInspect, error) {
