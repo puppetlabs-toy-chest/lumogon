@@ -27,7 +27,7 @@ type MockDockerClient struct {
 	ContainerListFn        func(ctx context.Context) ([]string, error)
 	ContainerExecCreateFn  func(ctx context.Context, containerID string, cmd []string, attachStdout bool, attachStderr bool) (dockertypes.IDResponse, error)
 	ContainerExecStartFn   func(ctx context.Context, execID string) error
-	ContainerExecAttachFn  func(ctx context.Context, execID string, cmd []string, attachStdout bool, attachStderr bool) (dockertypes.HijackedResponse, error)
+	ContainerExecAttachFn  func(ctx context.Context, execID string) (dockertypes.HijackedResponse, error)
 	ContainerExecInspectFn func(ctx context.Context, execID string) (dockertypes.ContainerExecInspect, error)
 	ImageInspectFn         func(ctx context.Context, imageName string) (dockertypes.ImageInspect, error)
 	CopyFromContainerFn    func(ctx context.Context, container, srcPath string, followSymlink bool) (io.ReadCloser, dockertypes.ContainerPathStat, error)
@@ -157,15 +157,12 @@ func (c *MockDockerClient) ContainerExecStart(ctx context.Context, execID string
 }
 
 // ContainerExecAttach is a mock implementation of dockeradapter.ContainerExecAttach
-func (c *MockDockerClient) ContainerExecAttach(ctx context.Context, execID string, cmd []string, attachStdout bool, attachStderr bool) (dockertypes.HijackedResponse, error) {
+func (c *MockDockerClient) ContainerExecAttach(ctx context.Context, execID string) (dockertypes.HijackedResponse, error) {
 	if c.ContainerExecAttachFn != nil {
 		fmt.Println("[MockDockerClient] In ", utils.CurrentFunctionName())
 		fmt.Println("[MockDockerClient]  - ctx: ", ctx)
 		fmt.Println("[MockDockerClient]  - execID: ", execID)
-		fmt.Println("[MockDockerClient]  - cmd: ", cmd)
-		fmt.Println("[MockDockerClient]  - attachStdout: ", attachStdout)
-		fmt.Println("[MockDockerClient]  - attachStderr: ", attachStderr)
-		return c.ContainerExecAttachFn(ctx, execID, cmd, attachStdout, attachStderr)
+		return c.ContainerExecAttachFn(ctx, execID)
 	}
 	panic(fmt.Sprintf("No function defined for: %s", utils.CurrentFunctionName()))
 }

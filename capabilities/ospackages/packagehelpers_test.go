@@ -15,8 +15,8 @@ func successfulContainerExecCreateFn(ctx context.Context, containerID string, cm
 	return mockIDResponse, nil
 }
 
-func createSuccesfulContainerExecAttachFn(buf []byte) func(context.Context, string, []string, bool, bool) (dockertypes.HijackedResponse, error) {
-	var succesfulContainerExecAttachFn = func(ctx context.Context, execID string, cmd []string, attachStdout bool, attachStderr bool) (dockertypes.HijackedResponse, error) {
+func createSuccesfulContainerExecAttachFn(buf []byte) func(context.Context, string) (dockertypes.HijackedResponse, error) {
+	var succesfulContainerExecAttachFn = func(ctx context.Context, execID string) (dockertypes.HijackedResponse, error) {
 		mockHijackedResponse := dockertypes.HijackedResponse{}
 		mockHijackedResponse.Conn = mocks.MockNetConn{
 			CloseFn: func() error {

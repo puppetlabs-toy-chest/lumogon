@@ -48,7 +48,7 @@ var runPackageCmdTests = []struct {
 		title: "Error attaching to exec",
 		mockHarvesterDockerClient: &mocks.MockDockerClient{
 			ContainerExecCreateFn: successfulContainerExecCreateFn,
-			ContainerExecAttachFn: func(ctx context.Context, execID string, cmd []string, attachStdout bool, attachStderr bool) (dockertypes.HijackedResponse, error) {
+			ContainerExecAttachFn: func(ctx context.Context, execID string) (dockertypes.HijackedResponse, error) {
 				return dockertypes.HijackedResponse{}, fmt.Errorf("Dummy ContainerExecAttach error")
 			},
 		},
