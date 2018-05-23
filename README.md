@@ -145,21 +145,17 @@ docker run --rm  -v /var/run/docker.sock:/var/run/docker.sock puppet/lumogon sca
 /fixtures_ubuntu-xenial_1      ubuntu     16.04
 ```
 
-### Sending reports to the Lumogon service
+### Sending reports to a backend service
 
-Lumogon provides an optional web service that can translate your JSON data into
-more human friendly reports.
+Lumogon provides the ability to submit gathered reports to an optional endpoint of your choosing.
+
+**NOTE** The Puppet provided reporter backend service and all data has been decommissioned as of May 2018.
 
 ``` shell
-docker run --rm -v /var/run/docker.sock:/var/run/docker.sock puppet/lumogon report
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock puppet/lumogon report --endpoint https://my-reporter-service.domain.com/
 ```
 
-The `report` command generates the same data as `scan`, but sends it over HTTPS to
-the Lumogon reporting service and returns a URL to view your report.
-
-```
-https://reporter.app.lumogon.com/UuokYc0VMgA4oAZYaJRaN6O7xMqakDLsqgHGs0dBmJY=
-```
+The `report` command generates the same data as `scan`, but sends it to the configured reporting endpoint.
 
 ### More ways to use Lumogon
 
