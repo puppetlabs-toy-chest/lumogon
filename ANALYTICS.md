@@ -1,8 +1,10 @@
-# Anonymous Aggregate User Behaviour Analytics
+**NOTE** Analytics gathering has been removed from the Lumogon client, this page is preserved as a record of the old behaviour.
+
+## [Obsolete] Anonymous Aggregate User Behaviour Analytics
 
 Lumogon gathers anonymous aggregate user behaviour analytics and reports these to Google Analytics.
 
-## Why?
+### Why?
 
 The Lumogon team is interested in learning how users are using Lumogon to explore
 their containers. This aggregate data helps us to prioritize issues and new features
@@ -13,7 +15,7 @@ service. If our analytics data suggests that more reports are uploaded than our
 service receives, then this might be an indication that our service is not keeping
 up with user demand.
 
-## What?
+### What?
 Lumogon's analytics record some shared information for every event:
 
 - The Google Analytics version, i.e. `1` (https://developers.google.com/analytics/devguides/collection/protocol/v1/parameters#v)
@@ -33,20 +35,20 @@ You can disable all analytics by passing `--disable-analytics` on the command li
 
 It is impossible for the Lumogon team to match any particular event to any particular user.
 
-## When/Where?
+### When/Where?
 Lumogon's analytics are sent during Lumogon's execution to Google Analytics over HTTPS.
 
-## Who?
+### Who?
 
 The anonymous aggregate data is accessible to the Lumogon team at Puppet, Inc.
 
-## How?
+### How?
 
 The code is viewable in [analytics](https://github.com/puppetlabs/lumogon/blob/master/analytics/ga.go).
 Analytics are processed in a separate background process and fail fast to avoid delaying any execution.
 They will fail immediately and silently if you have no network connection.
 
-## Opting out
+### Opting out
 
 Lumogon analytics help improve the quality and direction of the Lumogon project
 and leaving analytics enabled is appreciated. However, if you want to opt out of

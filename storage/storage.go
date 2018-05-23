@@ -4,14 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"time"
 
-	"github.com/puppetlabs/lumogon/analytics"
 	"github.com/puppetlabs/lumogon/logging"
 	"github.com/puppetlabs/lumogon/types"
-	"github.com/puppetlabs/lumogon/utils"
 	"github.com/puppetlabs/lumogon/version"
 )
 
@@ -89,11 +88,6 @@ func outputResult(report types.Report) error {
 // storeResult stores the harvested result, posting a JSON-marshalled
 // version of the report to the consumerURL.
 func storeResult(report types.Report, consumerURL string) error {
-	var postResponse struct {
-		Token string
-		URL   string
-	}
-
 	logging.Debug("[Storage] Storing report")
 	jsonStr, err := formatReport(report, false) // unindented report
 	if err != nil {
@@ -111,19 +105,11 @@ func storeResult(report types.Report, consumerURL string) error {
 		os.Exit(1)
 	}
 
-	analytics.Event("upload", "UX")
-
-	err = json.NewDecoder(resp.Body).Decode(&postResponse)
+	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		errorMsg := fmt.Sprintf("[Storage] Unable to decode JSON response from server [%s], exiting.", err)
-		logging.Debug(errorMsg)
-		os.Exit(1)
+		return err
 	}
-
-	// output an appropriate report URL
-	// TODO Move user interface outside of StorageFunction (return values, handle in sched)
-	finalURL := utils.FormatReportURL(postResponse.URL, postResponse.Token)
-	fmt.Fprintf(os.Stdout, "\n%s\n", finalURL)
+	fmt.Fprintf(os.Stdout, "\n%s\n", string(body))
 
 	logging.Debug("[Storage] Report stored")
 	return nil

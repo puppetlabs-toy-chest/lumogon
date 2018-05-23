@@ -22,21 +22,13 @@ GOOS ?= linux
 
 build: bin/lumogon
 
-glide.lock: glide.yaml $(GOPATH)/bin/glide$(suffix)
-	glide update
-	@touch $@
-
-vendor: glide.lock
-	glide install
-	@touch $@
-
 test: lint vet
-	go test -v -cover `glide novendor` -ldflags '$(TESTLDFLAGS)'
+	go test -v -cover ./... -ldflags '$(TESTLDFLAGS)'
 
 watch: bootstrap
 	goconvey
 
-bin/lumogon: bootstrap vendor
+bin/lumogon: bootstrap
 	mkdir -p bin
 	GOOS=$(GOOS) GOARCH=$(GOARCH) CGO_ENABLED=0 go build -a -ldflags '$(LDFLAGS)' -o bin/lumogon lumogon.go
 
@@ -53,22 +45,20 @@ deploy: image
 todo:
 	grep -rnw "TODO" .
 
-lint: bootstrap $(GOPATH)/src/github.com/golang/lint/golint
-	golint `glide novendor`
+lint: bootstrap
+	@echo "Linting..."
+	@for d in $$(go list ./... | grep -v /vendor/); do golint $${d}; done
 
 vet: bootstrap
-	go vet `glide novendor`
+	@for d in $$(go list ./... | grep -v /vendor/); do go vet $${d}; done
 
 licenses: $(GOPATH)/bin/licenses
 	@licenses  $(PACKAGE_NAME) | grep $(PACKAGE_NAME)/vendor
 
-all: clean vendor test build image puppet-module
+all: clean test build image puppet-module
 
-$(GOPATH)/bin/glide:
-	go get -u github.com/Masterminds/glide
-
-$(GOPATH)/src/github.com/golang/lint/golint:
-	go get -u github.com/golang/lint/golint
+$(GOPATH)/bin/golint:
+	go get -u golang.org/x/lint/golint
 
 $(GOPATH)/bin/licenses:
 	go get -u github.com/pmezard/licenses
@@ -76,9 +66,9 @@ $(GOPATH)/bin/licenses:
 $(GOPATH)/bin/goconvey:
 	go get -u github.com/smartystreets/goconvey
 
-bootstrap: $(GOPATH)/bin/glide $(GOPATH)/src/github.com/golang/lint/golint $(GOPATH)/bin/licenses $(GOPATH)/bin/goconvey
+bootstrap: $(GOPATH)/bin/golint $(GOPATH)/bin/licenses $(GOPATH)/bin/goconvey
 
 puppet-module:
 	cd contrib/puppetlabs-lumogon; make all
 
-.PHONY: build image test todo clean vendor bootstrap licenses watch deploy puppet-module
+.PHONY: build image test todo clean bootstrap licenses watch deploy puppet-module

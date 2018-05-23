@@ -1,9 +1,9 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 
-	"github.com/puppetlabs/lumogon/analytics"
 	"github.com/puppetlabs/lumogon/capabilities/registry"
 	"github.com/puppetlabs/lumogon/scheduler"
 	"github.com/puppetlabs/lumogon/types"
@@ -16,9 +16,6 @@ var scanCmd = &cobra.Command{
 	Use:   "scan",
 	Short: "Scan one or more containers and print the collected information",
 	Long:  `Creates and attaches a container to the specified containers, inspect the container and then output that information as JSON to STDOUT`,
-	PreRun: func(cmd *cobra.Command, args []string) {
-		analytics.ScreenView("scan")
-	},
 	Run: func(cmd *cobra.Command, args []string) {
 		scheduler := scheduler.New(args, opts)
 		scheduler.Run(registry.Registry)
@@ -27,14 +24,15 @@ var scanCmd = &cobra.Command{
 
 var reportCmd = &cobra.Command{
 	Use:   "report",
-	Short: "Scan one or more containers and send the collected information to the Lumogon service",
-	Long:  `Creates and attaches a container to the specified containers, inspect the container and then output that information as JSON over HTTP `,
-	PreRun: func(cmd *cobra.Command, args []string) {
-		analytics.ScreenView("report")
-	},
+	Short: "Scan one or more containers and send the collected information to a configured endpoint",
+	Long:  `Creates and attaches a container to the specified containers, inspect the container and then output that information as JSON over HTTP`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if opts.ConsumerURL == "" {
 			opts.ConsumerURL = os.Getenv("LUMOGON_ENDPOINT")
+		}
+		if opts.ConsumerURL == "" {
+			fmt.Fprintln(os.Stderr, "No report endpoint found, please pass the `--endpoint` argument or set the `LUMOGON_ENDPOINT` envvar")
+			os.Exit(1)
 		}
 		scheduler := scheduler.New(args, opts)
 		scheduler.Run(registry.Registry)
@@ -48,7 +46,7 @@ func init() {
 	reportFlags := reportCmd.Flags()
 	scanFlags := scanCmd.Flags()
 
-	reportFlags.StringVar(&opts.ConsumerURL, "endpoint", "", "Use a custom HTTP endpoint for sending the results of the scan")
+	reportFlags.StringVar(&opts.ConsumerURL, "endpoint", "", "Set the custom HTTP endpoint for sending the results of the scan, alternatively set the LUMOGON_ENDPOINT envvar")
 	reportFlags.IntVar(&opts.Timeout, "timeout", 60, "Time in seconds to wait for results, defaults to 60 seconds")
 	scanFlags.IntVar(&opts.Timeout, "timeout", 60, "Time in seconds to wait for results, defaults to 60 seconds")
 }

@@ -5,7 +5,6 @@ import (
 
 	"github.com/puppetlabs/lumogon/logging"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 // RootCmd represents the base command when called without any subcommands
@@ -26,6 +25,4 @@ func Execute() {
 
 func init() {
 	RootCmd.PersistentFlags().BoolVarP(&logging.DebugEnabled, "debug", "d", false, "Print debug logging")
-	RootCmd.PersistentFlags().Bool("disable-analytics", false, "Disable sending anonymous data for product improvement")
-	viper.BindPFlag("disable-analytics", RootCmd.PersistentFlags().Lookup("disable-analytics"))
 }
