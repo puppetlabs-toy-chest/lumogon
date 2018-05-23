@@ -20,7 +20,7 @@ matrix:
     language: go
     install: make bootstrap
     script:
-    - make vendor test
+    - make test
   - language: ruby
     rvm: 2.3.4
     cache: bundler

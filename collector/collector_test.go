@@ -68,7 +68,7 @@ func Test_collector(t *testing.T) {
 		// a global
 		t.Run(test.title, func(t *testing.T) {
 			if testing.Short() {
-				t.Skip("skipping in short mode: %s", t.Name())
+				t.Skipf("skipping in short mode: %s", t.Name())
 			}
 
 			t.Logf("starting: %s, test timeout: %d", t.Name(), test.testTimeoutSec)
