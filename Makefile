@@ -22,16 +22,8 @@ GOOS ?= linux
 
 build: bin/lumogon
 
-glide.lock: glide.yaml $(GOPATH)/bin/glide$(suffix)
-	glide update
-	@touch $@
-
-vendor: glide.lock
-	glide install
-	@touch $@
-
 test: lint vet
-	go test -v -cover `glide novendor` -ldflags '$(TESTLDFLAGS)'
+	go test -v -cover ./... -ldflags '$(TESTLDFLAGS)'
 
 watch: bootstrap
 	goconvey
@@ -54,18 +46,15 @@ todo:
 	grep -rnw "TODO" .
 
 lint: bootstrap $(GOPATH)/src/github.com/golang/lint/golint
-	golint `glide novendor`
+	golint ./...
 
 vet: bootstrap
-	go vet `glide novendor`
+	go vet ./...
 
 licenses: $(GOPATH)/bin/licenses
 	@licenses  $(PACKAGE_NAME) | grep $(PACKAGE_NAME)/vendor
 
 all: clean vendor test build image puppet-module
-
-$(GOPATH)/bin/glide:
-	go get -u github.com/Masterminds/glide
 
 $(GOPATH)/src/github.com/golang/lint/golint:
 	go get -u github.com/golang/lint/golint
@@ -76,7 +65,7 @@ $(GOPATH)/bin/licenses:
 $(GOPATH)/bin/goconvey:
 	go get -u github.com/smartystreets/goconvey
 
-bootstrap: $(GOPATH)/bin/glide $(GOPATH)/src/github.com/golang/lint/golint $(GOPATH)/bin/licenses $(GOPATH)/bin/goconvey
+bootstrap: $(GOPATH)/src/github.com/golang/lint/golint $(GOPATH)/bin/licenses $(GOPATH)/bin/goconvey
 
 puppet-module:
 	cd contrib/puppetlabs-lumogon; make all
