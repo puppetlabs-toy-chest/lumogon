@@ -16,7 +16,7 @@ before_install:
   - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
 matrix:
   include:
-  - go: 1.10
+  - go: 1.10.x
     language: go
     install: make bootstrap
     script:
