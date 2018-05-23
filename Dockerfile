@@ -1,4 +1,4 @@
-FROM golang:1.9.1 as builder
+FROM golang:1.10.2 as builder
 RUN mkdir -p /go/src/github.com/puppetlabs/lumogon/
 COPY . /go/src/github.com/puppetlabs/lumogon/
 WORKDIR /go/src/github.com/puppetlabs/lumogon/
