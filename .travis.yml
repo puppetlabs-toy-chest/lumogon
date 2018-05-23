@@ -9,11 +9,11 @@ services:
 env:
   global:
   - DOCKER_IMAGE=puppet/lumogon
-  - DOCKER_USER=jfryman
-  - secure: Q5+WSF1b7tBzaVKWIIAOT4ItlcSj38eVMw5XAWkpw4XRaO1lu1awuvsx2XBDlZaLdcvm6S45HbM/6wX4/ZoBcv0rVx5Bd4ojranXEby4aIwPAxWx4hJ2plIgoQGWcRH576Nh7WumpW+kBllpYI8pcziW6bAA59SsX9OESBsmTK4+dSR8efBWUYQzTccsU0X+x+5HEot2wb/4j6/Xpis1zsMSEWL33j/KLSp3e4CE4DjoFONr3UiSII3RAmHjus/4C47S7bx1JGv3sZgQ96pVt0zZO4Au1Nn+R85caAJqm31Vx7mEDENYnLbfAKuGXWoRzV+1odFDsk5UUwRGEgc+w9+r0nrFfCn22NgCk5R5smmNr7yXbpt3ECLfuEglTkeD6qpyOckf5rgY0y834iQURYhEJPnh6v8f2C1XntDYsgyb0ni9Um6D2CYM4hp7yWw0aW+59Ia5cs/E5JgYIqsHuiAyoVuVcmnMXHhGwD+G8YhGCpahe1u0aNRGifdYmatzBXR8iGUh/RbEpXdIXQmpvgR2bFcfnuKIbV/WIVjejzxiFJmjSBYKs93J5BBJww7W8v2+e+WuDs5uiLpYtQFMeqaAua4NwxyQlyEKgAYTCQfy1DsjkKhWiTmlJ2b05LHE30RRKHYVbJRoW51xsTvE43wzmtAQ63vg5PUvwh6xnKs=
+  - DOCKER_USER=johnmccabepuppet
+  - secure: GMXDORlcSiInZDIu2pszOAhBZu8Feej3VMml5VgQVPR4R44U2nMu0azIJAMNnPZFOawYWNQotfVKIw3rFgSH0rJ9lHfRwh5i6bUiytGtDhji/c5QH2aUU8gg1c7hIGfMkcjs7dvni2fE1WZ3+sCSJQQwXhWFcgUJ3guX+dTcE4bBF4/T2Yhru0sZ41DXJwBw9Lo5Lp9/vkE8EImWMALTzhlNeOrSsfdtgkz/X5n6vufzjIsbdkdGbCELdCcYibeMAxeM+Qk9imxLaCr/OyU5gxpTiCOEkp8FUIgGrsx8q/veyk5DWxGMgGAmOHLAo6d57j7poPU26r+IkGWdItjmxWnjVcCDgDaUv88SnzQ7Hjh5nbd8RiKlnI+cr5IKPp1SUWliEA4W2IUAJBvIHJXW3fOj5gAE6mJHNYEfwElHkYOyAedCRLVipDO7PK0Lb89TGdk6x1k35oVGXQOHRJl/8jkJynF7YnI92rrK4wKHuufGh8ExyETv093dIM+wVWQmN42v4RgSSgy10IX3mQxrl3IUy6Ss6EaQVfK0rFHxxCJ/IOjQ2hh3Q6nW88ZGl826AxLJrymMylcxr/yc8RkWu41BtcNUuf7poBD5tGIVt2G29u9q73h2VGHuZD6Z7dKMGbuGkhgtnvkCFyd203uE26MhHp+UY6gQEdOfun6yMWA=
 before_install:
-  - sudo apt-get update
-  - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
+- sudo apt-get update
+- sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
 matrix:
   include:
   - go: 1.10.x
@@ -25,11 +25,11 @@ matrix:
     rvm: 2.3.4
     cache: bundler
     services: docker
-    bundler_args: --without development
+    bundler_args: "--without development"
     env: PUPPET_GEM_VERSION="~> 4.0"
     install:
-      - make image
-      - cd contrib/puppetlabs-lumogon && make bootstrap
+    - make image
+    - cd contrib/puppetlabs-lumogon && make bootstrap
     script: make vendor test
 deploy:
 - provider: script
