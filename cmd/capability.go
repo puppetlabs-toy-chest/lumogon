@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"github.com/puppetlabs/lumogon/analytics"
 	"github.com/spf13/cobra"
 )
 
@@ -12,9 +11,6 @@ var CapabilityCmd = &cobra.Command{
 	Short:  "Capability parent command",
 	Hidden: true,
 	Long:   `Long Capability Parent command`,
-	PreRun: func(cmd *cobra.Command, args []string) {
-		analytics.ScreenView("capability")
-	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
 	},

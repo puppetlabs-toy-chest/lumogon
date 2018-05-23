@@ -5,7 +5,6 @@ import (
 
 	"os"
 
-	"github.com/puppetlabs/lumogon/analytics"
 	"github.com/puppetlabs/lumogon/capabilities/registry"
 	"github.com/spf13/cobra"
 )
@@ -15,9 +14,6 @@ var describeCapabilityCmd = &cobra.Command{
 	Use:   "describe",
 	Short: "Describe capability",
 	Long:  `Long Describe capability`,
-	PreRun: func(cmd *cobra.Command, args []string) {
-		analytics.ScreenView("describe")
-	},
 	Run: func(cmd *cobra.Command, args []string) {
 		description, err := registry.Registry.DescribeCapability(args[0])
 		if err != nil {

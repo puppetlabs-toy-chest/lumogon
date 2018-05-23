@@ -8,7 +8,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/puppetlabs/lumogon/analytics"
 	"github.com/puppetlabs/lumogon/logging"
 	"github.com/puppetlabs/lumogon/types"
 	"github.com/puppetlabs/lumogon/utils"
@@ -110,8 +109,6 @@ func storeResult(report types.Report, consumerURL string) error {
 		outputResult(report)
 		os.Exit(1)
 	}
-
-	analytics.Event("upload", "UX")
 
 	err = json.NewDecoder(resp.Body).Decode(&postResponse)
 	if err != nil {

@@ -185,7 +185,6 @@ Available Commands:
 
 Flags:
   -d, --debug               Print debug logging
-      --disable-analytics   Disable sending anonymous data for product improvement
   -k, --keep-harvesters     Keeps harvester containers instead of automatically deleting
 ```
 
