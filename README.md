@@ -7,6 +7,12 @@ Status](https://travis-ci.org/puppetlabs/lumogon.svg?branch=master)](https://tra
 Lumogon provides a way to inspect, analyze and report on your running
 [Docker](https://www.docker.com/) containers.
 
+## Unmaintained Notice 
+
+Please note this project is no longer maintained.  However, the project's code
+will remain open and available in this repository and the [Docker Hub
+image](https://hub.docker.com/r/puppet/lumogon/) will remain available.
+
 ## Trying out Lumogon
 
 ### Requirements
