@@ -215,7 +215,3 @@ make image
 ```
 
 This will build the client and package it in the `puppet/lumogon` image.
-
-## Giving us feedback
-
-We'd love to hear from you. We have a [Slack channel](https://puppetcommunity.slack.com/messages/C5CT7GMKQ) for talking about Lumogon and please do open issues against [the repository](https://github.com/puppetlabs/lumogon/issues).
